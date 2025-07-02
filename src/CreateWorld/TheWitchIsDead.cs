@@ -156,7 +156,7 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
         // Example character creation logic for "The Witch is Dead"
         embeds.Add(new DiscordEmbed
         {
-            Title = "The Witch is Dead Character",
+            Title = "The Witch is Dead World",
             Description = "Generating character for 'The Witch is Dead'...",
             Color = 0x00FF00, // Green color
             Fields = new List<DiscordEmbedField>
