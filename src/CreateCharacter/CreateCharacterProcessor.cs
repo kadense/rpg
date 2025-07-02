@@ -23,7 +23,7 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
                 break;
 
             case "the golden sea":
-                //embeds = CreateTheGoldenSeaCharacter(interaction);
+                embeds = CreateTheGoldenSeaCharacter(interaction);
                 break;
 
             case "we three kings":

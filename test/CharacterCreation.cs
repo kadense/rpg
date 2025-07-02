@@ -15,6 +15,16 @@ public class CharacterCreationTests
         Assert.NotEmpty(result.Data.Embeds);
         Assert.NotNull(result.Data.Content);
     }
+    [Fact]
+    public void Test_TheGoldenSea()
+    {
+        var result = TestCharacterCreation("The golden sea");
+        Assert.NotNull(result);
+        Assert.NotNull(result.Data);
+        Assert.NotNull(result.Data.Embeds);
+        Assert.NotEmpty(result.Data.Embeds);
+        Assert.NotNull(result.Data.Content);
+    }
 
     public DiscordInteractionResponse TestCharacterCreation(string game)
     {
