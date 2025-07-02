@@ -53,7 +53,11 @@ public class DiscordInteractionProcessor
                 Required = option.Required
             });
         }
-        var json = JsonSerializer.Serialize(command);
+        var json = JsonSerializer.Serialize(command, new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        });
 
         var request = new HttpRequestMessage
         {
@@ -66,10 +70,11 @@ public class DiscordInteractionProcessor
         request.Headers.Add("Authorization", $"Bot {Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")}");
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
-        logger.LogInformation($"Registering command {command.Name} with response status: {response.StatusCode}");
-        response.EnsureSuccessStatusCode();
         var responseBody = await response.Content.ReadAsStringAsync();
-        logger.LogInformation($"Command {command.Name} registered successfully: {responseBody}");
+        logger.LogInformation($"Response: {responseBody}");
+
+        response.EnsureSuccessStatusCode();
+        logger.LogInformation($"Registered command {command.Name} with response status: {response.StatusCode}");
     }
 
     public async Task RegisterCommandsAsync(ILogger logger)
