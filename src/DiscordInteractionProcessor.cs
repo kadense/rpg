@@ -31,7 +31,7 @@ public class DiscordInteractionProcessor
 
     public async Task RegisterCommandAsync(Type commandType, ILogger logger)
     {
-        var discordApplicationId = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
+        var discordApplicationId = Environment.GetEnvironmentVariable("DISCORD_CLIENT_ID");
         string url = $"https://discord.com/api/v10/applications/{discordApplicationId}/commands";
 
 
