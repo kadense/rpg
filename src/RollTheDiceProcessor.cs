@@ -42,7 +42,8 @@ public class RollTheDiceProcessor : IDiscordSlashCommandProcessor
         {
             Title = "Roll Request",
             Description = $"Rolling {count}d{sides}{(modifier != 0 ? $" {op} {Math.Abs(modifier)}" : "")}",
-            Color = 0x00FF00 // Green color
+            Color = 0x00FF00, // Green color
+            Fields = new List<DiscordEmbedField>()
         });
 
         var rolls = new List<int>();
@@ -50,26 +51,30 @@ public class RollTheDiceProcessor : IDiscordSlashCommandProcessor
         {
             var roll = random.Next(1, sides + 1);
             rolls.Add(roll);
-            embeds.Add(new DiscordEmbed
+            embeds.Last().Fields!.Add(new DiscordEmbedField
             {
-                Title = $"Roll #{i + 1}",
-                Description = $"You rolled {roll}",
-                Color = 0x00FF00 // Green color
+                Name = $"#{i + 1}",
+                Value = roll.ToString(),
             });
         }
         if (modifier != 0)
         {
-            embeds.Add(new DiscordEmbed
+            embeds.Last().Fields!.Add(new DiscordEmbedField
             {
-                Title = $"Modifier",
-                Description = $"Adding modifier: {modifier}",
-                Color = 0x00FF00 // Green color
+                Name = $"Modifier",
+                Value = $"{(modifier > 0 ? "+" : "")}{modifier}",
             });
         }
         int total = rolls.Sum() + modifier;
 
         string rollDetails = string.Join(", ", rolls);
         string modifierText = modifier != 0 ? $" + {modifier}" : "";
+
+        embeds.Last().Fields!.Add(new DiscordEmbedField
+        {
+            Name = $"Total",
+            Value = total.ToString()
+        });
 
         return Task.FromResult(new DiscordInteractionResponse
         {
