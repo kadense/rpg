@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using Kadense.Models.Discord;
+using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG;
 
@@ -28,11 +29,11 @@ public class DiscordInteractionProcessor
     }
 
 
-    public async Task RegisterCommandAsync(Type commandType)
+    public async Task RegisterCommandAsync(Type commandType, ILogger logger)
     {
         var discordApplicationId = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
         string url = $"https://discord.com/api/v10/applications/{discordApplicationId}/commands";
-        
+
 
         var attribute = commandType.GetCustomAttribute<DiscordSlashCommandAttribute>();
 
@@ -60,9 +61,13 @@ public class DiscordInteractionProcessor
         request.Headers.Add("Authorization", $"Bot {Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")}");
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
+        logger.LogInformation($"Registering command {command.Name} with response status: {response.StatusCode}");
+        response.EnsureSuccessStatusCode();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        logger.LogInformation($"Command {command.Name} registered successfully: {responseBody}");
     }
 
-    public async Task RegisterCommandsAsync()
+    public async Task RegisterCommandsAsync(ILogger logger)
     {
         var commands = Assembly.GetExecutingAssembly()
             .GetTypes()
@@ -71,7 +76,7 @@ public class DiscordInteractionProcessor
 
         foreach (var commandType in commands)
         {
-            await RegisterCommandAsync(commandType);
+            await RegisterCommandAsync(commandType, logger);
         }
         
     }

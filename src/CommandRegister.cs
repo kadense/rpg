@@ -20,7 +20,7 @@ namespace src
             _logger.LogInformation($"RegisterDiscordCommands - Timer trigger function executed at: {DateTime.Now}");
             
             var processor = new DiscordInteractionProcessor();
-            await processor.RegisterCommandsAsync();
+            await processor.RegisterCommandsAsync(_logger);
 
             if (myTimer.ScheduleStatus is not null)
             {
