@@ -83,14 +83,36 @@ public class DiscordInteractionProcessor
         var data = interaction.Data;
 
         if (data == null)
-            throw new ArgumentException("Interaction data is null", nameof(interaction));
+            return new DiscordInteractionResponse
+            {
+                Type = 1, // Pong response type
+                Data = new DiscordInteractionResponseData
+                {
+                    Content = "No interaction data provided."
+                },
+            };
 
         if (string.IsNullOrEmpty(data.Name))
-            throw new ArgumentException("Interaction data name is null", nameof(interaction));
+            return new DiscordInteractionResponse
+            {
+                Type = 1, // Pong response type
+                Data = new DiscordInteractionResponseData
+                {
+                    Content = "interaction data name is not populated."
+                },
+            };
 
         if (!Commands.TryGetValue(data.Name, out var command))
-            throw new ArgumentException($"Command '{data.Name}' not found", nameof(interaction));
-
+            return new DiscordInteractionResponse
+            {
+                Type = 1, // Pong response type
+                Data = new DiscordInteractionResponseData
+                {
+                    
+                    Content = "interaction data name is not populated."
+                },
+            };
+            
         return await command.ExecuteAsync(interaction);
     }
 

@@ -65,7 +65,7 @@ namespace Kadense.RPG
                     return req.CreateResponse(HttpStatusCode.Unauthorized);
                 }
             }
-                
+
             var interaction = JsonSerializer.Deserialize<DiscordInteraction>(body, serializerOptions);
             var processor = new DiscordInteractionProcessor();
             var result = await processor.ExecuteAsync(interaction!);
@@ -73,6 +73,7 @@ namespace Kadense.RPG
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "application/json; charset=utf-8");
             await response.WriteStringAsync(stringify);
+            _logger.LogInformation($"Responding with : {result.Data!.Content}");
 
             _logger.LogInformation("Discord interaction processed successfully.");
             return response;
