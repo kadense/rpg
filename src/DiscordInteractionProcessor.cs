@@ -53,11 +53,16 @@ public class DiscordInteractionProcessor
                 Required = option.Required
             });
         }
+        var json = JsonSerializer.Serialize(command);
 
-        var request = new HttpRequestMessage(HttpMethod.Post, url)
+        var request = new HttpRequestMessage
         {
-            Content = new StringContent(JsonSerializer.Serialize(command), Encoding.UTF8, "application/json")
+            RequestUri = new Uri(url),
+            Method = HttpMethod.Post,
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
+        logger.LogInformation($"Requesting {request.Method} {request.RequestUri} with body: {json}");
+
         request.Headers.Add("Authorization", $"Bot {Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")}");
         using var client = new HttpClient();
         var response = await client.SendAsync(request);

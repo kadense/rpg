@@ -3,7 +3,7 @@ using Kadense.RPG;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace src
+namespace Kadense.RPG
 {
     public class CommandRegister
     {
