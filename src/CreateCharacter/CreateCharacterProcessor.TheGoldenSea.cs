@@ -277,7 +277,7 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
                     Fields = path.Abilities
                         .Select(kvp => new DiscordEmbedField
                         {
-                            Name = kvp.Key,
+                            Name = $"Ability: {kvp.Key}",
                             Value = kvp.Value
                         }).ToList()
                 }
