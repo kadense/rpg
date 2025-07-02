@@ -19,10 +19,10 @@ namespace Kadense.RPG
         public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
         {
             var processor = new DiscordInteractionProcessor();
-            await processor.RegisterCommandsAsync(_logger);
+            var result = await processor.RegisterCommandsAsync(_logger);
 
             _logger.LogInformation("C# HTTP trigger function processed a request.");
-            return new OkObjectResult("Commands registered successfully.");
+            return new OkObjectResult(result);
         }
     }
 }

@@ -30,7 +30,7 @@ public class DiscordInteractionProcessor
     }
 
 
-    public async Task RegisterCommandAsync(Type commandType, ILogger logger)
+    public async Task<string> RegisterCommandAsync(Type commandType, ILogger logger)
     {
         var discordApplicationId = Environment.GetEnvironmentVariable("DISCORD_CLIENT_ID");
         string url = $"https://discord.com/api/v10/applications/{discordApplicationId}/commands";
@@ -84,20 +84,26 @@ public class DiscordInteractionProcessor
 
         response.EnsureSuccessStatusCode();
         logger.LogInformation($"Registered command {command.Name} with response status: {response.StatusCode}");
+        return attribute!.Name;
     }
 
-    public async Task RegisterCommandsAsync(ILogger logger)
+    public async Task<string[]> RegisterCommandsAsync(ILogger logger)
     {
         var commands = Assembly.GetExecutingAssembly()
             .GetTypes()
             .Where(t => t.GetCustomAttribute<DiscordSlashCommandAttribute>() != null && typeof(IDiscordSlashCommandProcessor).IsAssignableFrom(t))
             .ToArray();
 
+
+        var commandNames = new List<string>();
         foreach (var commandType in commands)
         {
-            await RegisterCommandAsync(commandType, logger);
+            var commandName = await RegisterCommandAsync(commandType, logger);
+            commandNames.Add(commandName);
         }
-        
+
+        logger.LogInformation($"Registered commands: {string.Join(", ", commandNames)}");
+        return commandNames.ToArray();
     }
 
     protected IDictionary<string, IDiscordSlashCommandProcessor> Commands { get; }

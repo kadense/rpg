@@ -1,11 +1,11 @@
 ﻿using System.Text.RegularExpressions;
 using Kadense.Models.Discord;
 
-namespace Kadense.RPG.CreateCharacter;
+namespace Kadense.RPG.CreateWorld;
 
-[DiscordSlashCommand("character", "Create a random character")]
+[DiscordSlashCommand("world", "Create a world")]
 [DiscordSlashCommandOption("game", "Which Game?", true, Choices = new[] { "The witch is dead", "The golden sea", "We three kings", "Adventure Dice", "We that remain", "Honey heist", "Big gay Orcs", "Justified anxiety", "The rapid and the righteous", "Hack the planet", "Genius Loci", "Dead channel", "Trashkin" })]
-public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
+public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
 {
 
     private readonly Random random = new Random();
@@ -19,7 +19,7 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
         switch (game.ToLowerInvariant())
         {
             case "the witch is dead":
-                embeds = CreateTheWitchIsDeadCharacter(interaction);
+                embeds = CreateTheWitchIsDeadWorld(interaction);
                 break;
 
             case "the golden sea":
@@ -48,7 +48,7 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
                     Data = new DiscordInteractionResponseData
                     {
                         Embeds = embeds,
-                        Content = $"Generating character for {game}...",
+                        Content = $"Generating world for {game}...",
                     }
                 });
     }
