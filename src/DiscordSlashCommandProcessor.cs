@@ -10,6 +10,9 @@ public class DiscordSlashCommandOptionAttribute : Attribute
     public string Description { get; set; }
 
     public bool Required { get; set; }
+
+    public string[] Choices { get; set; } = Array.Empty<string>();
+
     public DiscordSlashCommandOptionAttribute(string name, string description, bool required = false)
     {
         Name = name;
