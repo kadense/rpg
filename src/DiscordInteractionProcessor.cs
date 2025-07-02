@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using IdentityModel.Client;
 using Kadense.Models.Discord;
 using Microsoft.Extensions.Logging;
 
@@ -67,7 +68,7 @@ public class DiscordInteractionProcessor
         };
         logger.LogInformation($"Requesting {request.Method} {request.RequestUri} with body: {json}");
 
-        request.Headers.Add("Authorization", $"Bot {Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN")}");
+        request.SetToken("Bot", Environment.GetEnvironmentVariable("DISCORD_CLIENT_SECRET")!);
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
         var responseBody = await response.Content.ReadAsStringAsync();
