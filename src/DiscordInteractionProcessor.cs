@@ -66,9 +66,11 @@ public class DiscordInteractionProcessor
             Method = HttpMethod.Post,
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
-        logger.LogInformation($"Requesting {request.Method} {request.RequestUri} with body: {json}");
 
-        request.SetToken("Bot", Environment.GetEnvironmentVariable("DISCORD_CLIENT_SECRET")!);
+        var token = Environment.GetEnvironmentVariable("DISCORD_CLIENT_SECRET");
+        request.SetToken("Bot", token!);
+        logger.LogInformation($"Requesting {request.Method} {request.RequestUri} using secret starting \"{token!.Substring(0, 5)}****\" with body: {json}");
+
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
         var responseBody = await response.Content.ReadAsStringAsync();

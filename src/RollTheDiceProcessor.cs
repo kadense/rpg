@@ -4,7 +4,7 @@ using Kadense.Models.Discord;
 namespace Kadense.RPG;
 
 [DiscordSlashCommand("roll", "Roll some dice!")]
-[DiscordSlashCommandOption("whatToRoll", "The dice to roll, e.g. 1d6, 2d20+3, etc.", true)]
+[DiscordSlashCommandOption("whattoroll", "The dice to roll, e.g. 1d6, 2d20+3, etc.", true)]
 public class RollTheDiceProcessor : IDiscordSlashCommandProcessor
 {
 
@@ -12,7 +12,7 @@ public class RollTheDiceProcessor : IDiscordSlashCommandProcessor
 
     public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction)
     {
-        string whatToRoll = interaction.Data?.Options?.FirstOrDefault()?.Value ?? "1d6";
+        string whatToRoll = interaction.Data?.Options?.Where(opt => opt.Name == "whattoroll").FirstOrDefault()?.Value ?? "1d6";
 
         var match = Regex.Match(whatToRoll, @"^(?<count>\d*)d(?<sides>\d+)(?<mods>([+-]\d+)*)$", RegexOptions.IgnoreCase);
         int count = 1, sides = 6, modifier = 0;

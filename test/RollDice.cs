@@ -107,7 +107,7 @@ public class RollDiceTests
                 {
                     new DiscordInteractionOptions
                     {
-                        Name = "WhatToRoll",
+                        Name = "whattoroll",
                         Value = whatToRoll
                     }
                 }
