@@ -47,12 +47,18 @@ public class DiscordInteractionProcessor
         var attributeOptions = commandType.GetCustomAttributes<DiscordSlashCommandOptionAttribute>().ToList();
         foreach (var option in attributeOptions)
         {
-            command.Options!.Add(new DiscordCommandOption
+            var commandOption = new DiscordCommandOption
             {
                 Name = option.Name,
                 Description = option.Description,
-                Required = option.Required
-            });
+                Required = option.Required,
+                Choices = option.Choices.Select(choice => new DiscordCommandOptionChoice
+                {
+                    Name = choice,
+                    Value = choice
+                }).ToList()
+            };
+            command.Options!.Add(commandOption);
         }
         var json = JsonSerializer.Serialize(command, new JsonSerializerOptions
         {

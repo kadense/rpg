@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Kadense.Models.Discord;
 
-namespace Kadense.RPG;
+namespace Kadense.RPG.Dice;
 
 [DiscordSlashCommand("roll", "Roll some dice!")]
 [DiscordSlashCommandOption("whattoroll", "The dice to roll, e.g. 1d6, 2d20+3, etc.", true)]
