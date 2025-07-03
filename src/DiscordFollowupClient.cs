@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using Azure.Storage.Queues;
 using IdentityModel.Client;
 using Kadense.Models.Discord;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,35 @@ public class DiscordFollowupClient
         BaseUrl = $"https://discord.com/api/v10/webhooks/{discordApplicationId}";
     }
 
+    public string QueueName = "discordfollowup";
     public string BaseUrl;
+
+    public async Task EnqueueFollowupAsync(string content, string interactionToken, ILogger logger)
+    {
+        var followupMessageRequest = new DiscordFollowupMessageRequest
+        {
+            Content = content,
+            Token = interactionToken
+        };
+
+        var json = JsonSerializer.Serialize(followupMessageRequest, new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        });
+
+        logger.LogInformation($"Enqueuing follow-up message: {json}");
+        QueueClient queueClient = new QueueClient(
+            Environment.GetEnvironmentVariable("AzureWebJobsStorage")!,
+            QueueName
+        );
+        await queueClient.CreateIfNotExistsAsync();
+        await queueClient.SendMessageAsync(BinaryData.FromObjectAsJson(new DiscordFollowupMessageRequest
+        {
+            Content = content,
+            Token = interactionToken
+        }));
+    }
 
     public async Task SendFollowupAsync(string content, string interactionToken, ILogger logger)
     {
@@ -45,7 +74,7 @@ public class DiscordFollowupClient
         using var client = new HttpClient();
         logger.LogInformation($"Requesting {request.Method} {request.RequestUri} using secret starting \"{token!.Substring(0, 5)}****\" with body: {json}");
         var response = await client.SendAsync(request);
-        
+
 
         while (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
         {
@@ -54,9 +83,9 @@ public class DiscordFollowupClient
             var delayMs = (int)(delaySeconds?.RetryAfter ?? 1 * 1000 * 1.2); // Convert seconds to milliseconds and add 20%
 
             logger.LogInformation($"Waiting for {delayMs} milliseconds before retrying.");
-            await Task.Delay(delayMs); 
+            await Task.Delay(delayMs);
 
-            
+
             request = new HttpRequestMessage
             {
                 RequestUri = new Uri(url),

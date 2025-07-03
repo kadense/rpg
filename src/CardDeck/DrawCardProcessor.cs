@@ -58,7 +58,7 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
         await client.UploadAsync(new BinaryData(deck), overwrite: true, cancellationToken: CancellationToken.None);
 
         var followupClient = new DiscordFollowupClient();
-        await followupClient.SendFollowupAsync($"You drew the following cards: {string.Join(", ", cardsDrawn)}", interaction.Token!, logger);
+        await followupClient.EnqueueFollowupAsync($"You drew the following cards: {string.Join(", ", cardsDrawn)}", interaction.Token!, logger);
 
         return new DiscordInteractionResponse
         {
