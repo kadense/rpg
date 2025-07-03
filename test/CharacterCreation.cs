@@ -1,5 +1,6 @@
 using Kadense.Models.Discord;
 using Kadense.RPG;
+using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPC.Tests;
 
@@ -15,7 +16,7 @@ public class CharacterCreationTests
         Assert.NotEmpty(result.Data.Embeds);
         Assert.NotNull(result.Data.Content);
     }
-    
+
     [Fact]
     public void Test_TheGoldenSea()
     {
@@ -29,6 +30,12 @@ public class CharacterCreationTests
 
     public DiscordInteractionResponse TestCharacterCreation(string game)
     {
+        var logger = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Debug);
+        }).CreateLogger<CharacterCreationTests>();
+
         var interaction = new DiscordInteraction
         {
             Data = new DiscordInteractionData
@@ -47,6 +54,6 @@ public class CharacterCreationTests
 
         // Create an instance of the processor and execute it
         var processor = new DiscordInteractionProcessor();
-        return processor.ExecuteAsync(interaction).Result;
+        return processor.ExecuteAsync(interaction, logger).Result;
     }
 }

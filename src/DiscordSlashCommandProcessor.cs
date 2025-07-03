@@ -1,4 +1,5 @@
 ﻿using Kadense.Models.Discord;
+using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG;
 
@@ -47,5 +48,5 @@ public class DiscordSlashCommandAttribute : Attribute
 
 public interface IDiscordSlashCommandProcessor
 {
-    public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction);
+    public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger);
 }

@@ -4,6 +4,7 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.CardDeck;
 
@@ -14,7 +15,7 @@ public class NewDeckProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public async Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction)
+    public async Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         bool jokers = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "jokers").FirstOrDefault()?.Value ?? "false");
 

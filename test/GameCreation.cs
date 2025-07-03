@@ -1,5 +1,6 @@
 using Kadense.Models.Discord;
 using Kadense.RPG;
+using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPC.Tests;
 
@@ -23,6 +24,13 @@ public class GameCreationTests
 
     public DiscordInteractionResponse TestGameCreation(string game, int players)
     {
+        var logger = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Debug);
+        }).CreateLogger<CharacterCreationTests>();
+
+
         var interaction = new DiscordInteraction
         {
             Data = new DiscordInteractionData
@@ -46,6 +54,6 @@ public class GameCreationTests
 
         // Create an instance of the processor and execute it
         var processor = new DiscordInteractionProcessor();
-        return processor.ExecuteAsync(interaction).Result;
+        return processor.ExecuteAsync(interaction, logger).Result;
     }
 }

@@ -68,7 +68,7 @@ namespace Kadense.RPG
 
             var interaction = JsonSerializer.Deserialize<DiscordInteraction>(body, serializerOptions);
             var processor = new DiscordInteractionProcessor();
-            var result = await processor.ExecuteAsync(interaction!);
+            var result = await processor.ExecuteAsync(interaction!, _logger);
             var stringify = JsonSerializer.Serialize(result, serializerOptions);
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "application/json; charset=utf-8");

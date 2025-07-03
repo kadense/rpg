@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Kadense.Models.Discord;
+using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.Dice;
 
@@ -116,7 +117,7 @@ public class AdventureDiceProcessor : IDiscordSlashCommandProcessor
         return $"Roll completed";
     }
 
-    public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction)
+    public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         bool skill = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "skill").FirstOrDefault()?.Value ?? "false");
         bool danger = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "danger").FirstOrDefault()?.Value ?? "false");

@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Kadense.Models.Discord;
 using Kadense.RPG.Games;
+using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.CreateWorld;
 
@@ -11,7 +12,7 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction)
+    public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         var games = new GamesFactory()
             .EndGames();

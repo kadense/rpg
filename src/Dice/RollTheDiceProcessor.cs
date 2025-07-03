@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Kadense.Models.Discord;
+using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.Dice;
 
@@ -10,7 +11,7 @@ public class RollTheDiceProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction)
+    public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         string whatToRoll = interaction.Data?.Options?.Where(opt => opt.Name == "whattoroll").FirstOrDefault()?.Value ?? "1d6";
 

@@ -133,7 +133,7 @@ public class DiscordInteractionProcessor
 
     protected IDictionary<string, IDiscordSlashCommandProcessor> Commands { get; }
 
-    public async Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction)
+    public async Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         var data = interaction.Data;
 
@@ -168,7 +168,7 @@ public class DiscordInteractionProcessor
                 },
             };
             
-        return await command.ExecuteAsync(interaction);
+        return await command.ExecuteAsync(interaction, logger);
     }
 
 }

@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using IdentityModel.Client;
 using Kadense.Models.Discord;
+using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG;
 public class DiscordFollowupClient
@@ -16,7 +17,7 @@ public class DiscordFollowupClient
 
     public string BaseUrl;
 
-    public async Task SendFollowupAsync(string content, string interactionToken)
+    public async Task SendFollowupAsync(string content, string interactionToken, ILogger logger)
     {
         string url = $"{BaseUrl}/{interactionToken}?wait=true";
         var responseData = new DiscordInteractionResponseData
@@ -42,16 +43,17 @@ public class DiscordFollowupClient
         request.SetToken("Bot", token!);
 
         using var client = new HttpClient();
+        logger.LogInformation($"Requesting {request.Method} {request.RequestUri} using secret starting \"{token!.Substring(0, 5)}****\" with body: {json}");
         var response = await client.SendAsync(request);
         
 
         while (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
         {
-
+            logger.LogInformation($"Requesting {request.Method} {request.RequestUri} is being rate limited. Waiting for retry.");
             var delaySeconds = await response.Content.ReadFromJsonAsync<DiscordRateLimitResponse>();
             var delayMs = (int)(delaySeconds?.RetryAfter ?? 1 * 1000 * 1.2); // Convert seconds to milliseconds and add 20%
 
-            
+            logger.LogInformation($"Waiting for {delayMs} milliseconds before retrying.");
             await Task.Delay(delayMs); 
 
             
@@ -63,6 +65,8 @@ public class DiscordFollowupClient
             };
 
             request.SetToken("Bot", token!);
+
+            logger.LogInformation($"Retrying {request.Method} {request.RequestUri} with body: {json}");
             response = await client.SendAsync(request);
         }
 

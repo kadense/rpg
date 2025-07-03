@@ -4,6 +4,7 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.CardDeck;
 
@@ -14,7 +15,7 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public async Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction)
+    public async Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         int cards = int.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "cards").FirstOrDefault()?.Value ?? "1");
 
@@ -57,7 +58,7 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
         await client.UploadAsync(new BinaryData(deck), overwrite: true, cancellationToken: CancellationToken.None);
 
         var followupClient = new DiscordFollowupClient();
-        await followupClient.SendFollowupAsync($"You drew the following cards: {string.Join(", ", cardsDrawn)}", interaction.Token!);
+        await followupClient.SendFollowupAsync($"You drew the following cards: {string.Join(", ", cardsDrawn)}", interaction.Token!, logger);
 
         return new DiscordInteractionResponse
         {
