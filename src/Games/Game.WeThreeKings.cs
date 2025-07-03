@@ -8,8 +8,6 @@ public partial class GamesFactory : GameBase
             .WithGame("We three kings", @"""
                 TBD Add Description
             """)
-                .WithWorldSection()
-                .End()
                 .WithCharacterSection()
                     .WithSelection("Character")
                         .WithChoice("Balthazar, the Ghost-Speaker", "Begins play being buried alive by King Herod's soldiers")
