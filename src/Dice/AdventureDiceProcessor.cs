@@ -70,7 +70,7 @@ public class AdventureDiceProcessor : IDiscordSlashCommandProcessor
         _ => throw new ArgumentException($"Unknown roll type: {whatIsRolled}"),
     };
 
-    public string MakeRoll(Random random, bool withSkill, bool withDanger)
+    public string MakeRoll(DiscordEmbed embed, Random random, bool withSkill, bool withDanger)
     {
 
         List<string> rolls = [DiceValueBasic1(random.Next(1, 6)), DiceValueBasic2(random.Next(1, 6))];
@@ -93,9 +93,27 @@ public class AdventureDiceProcessor : IDiscordSlashCommandProcessor
                      successes > 0 ? "Yes" :
                      failures > 0 ? "No" : "No";
 
-        return $"**Rolls:** \n - {string.Join("\n - ", rolls.Select(r => $"{r} - {InterpretIndividualDice(r)}"))}\n\n" +
-               $"**Success:** {result}\n" +
-               $"**Damage:** {damage}\n";
+        embed.Fields!.AddRange(
+            rolls.Select(r => new DiscordEmbedField
+            {
+                Name = r,
+                Value = InterpretIndividualDice(r),
+            }).ToArray()
+        );
+
+        embed.Fields.Add(new DiscordEmbedField
+        {
+            Name = "Result",
+            Value = result,
+        });
+
+        embed.Fields.Add(new DiscordEmbedField
+        {
+            Name = "Total Damage",
+            Value = damage.ToString(),
+        });
+
+        return $"Roll completed";
     }
 
     public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction)
@@ -103,11 +121,21 @@ public class AdventureDiceProcessor : IDiscordSlashCommandProcessor
         bool skill = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "skill").FirstOrDefault()?.Value ?? "false");
         bool danger = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "danger").FirstOrDefault()?.Value ?? "false");
 
+        var embed = new DiscordEmbed
+        {
+            Title = "Adventure Dice Roll",
+            Color = 0x00FF00, // Green color
+            Fields = new List<DiscordEmbedField>()
+        };
+
+        var content = MakeRoll(embed, random, skill, danger);            
+
         return Task.FromResult(new DiscordInteractionResponse
         {
             Data = new DiscordInteractionResponseData
             {
-                Content = MakeRoll(random, skill, danger)
+                Content = content,
+                Embeds = new List<DiscordEmbed>() { embed },
             }
         });
     }
