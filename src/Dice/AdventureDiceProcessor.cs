@@ -11,11 +11,6 @@ public class AdventureDiceProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public string DiceValue(string whatToRoll, int value) => whatToRoll switch
-    {
-        "Skill" => DiceValueSkill(value),
-        _ => throw new ArgumentException($"Unknown roll type: {whatToRoll}"),
-    };
 
     public string DiceValueSkill(int value) => value switch
     {
@@ -94,9 +89,12 @@ public class AdventureDiceProcessor : IDiscordSlashCommandProcessor
         int failures = rolls.Count(r => r == ":negative_squared_cross_mark:");
         int damage = rolls.Count(r => r == ":skull:");
 
-        return $"**Rolls:** {string.Join(", ", rolls.Select(r => $"{r} **{InterpretIndividualDice(r)}**"))}\n\n" +
-               $"**Successes:** {successes}\n" +
-               $"**Failures:** {failures}\n" +
+        string result = successes > 0 && failures > 0 ? "Yes, but with complications" :
+                     successes > 0 ? "Yes" :
+                     failures > 0 ? "No" : "No";
+
+        return $"**Rolls:** \n - {string.Join("\n - ", rolls.Select(r => $"{r} - {InterpretIndividualDice(r)}"))}\n\n" +
+               $"**Success:** {result}\n" +
                $"**Damage:** {damage}\n";
     }
 
