@@ -2,7 +2,7 @@
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using Azure.Storage.Queues;
+using Azure.Storage.Blobs;
 using IdentityModel.Client;
 using Kadense.Models.Discord;
 using Microsoft.Extensions.Logging;
@@ -19,7 +19,7 @@ public class DiscordFollowupClient
     public string QueueName = "discordfollowup";
     public string BaseUrl;
 
-    public async Task EnqueueFollowupAsync(string content, string interactionToken, ILogger logger)
+    public async Task EnqueueFollowupAsync(string guildId, string channelId, string content, string interactionToken, ILogger logger)
     {
         var followupMessageRequest = new DiscordFollowupMessageRequest
         {
@@ -27,23 +27,14 @@ public class DiscordFollowupClient
             Token = interactionToken
         };
 
-        var json = JsonSerializer.Serialize(followupMessageRequest, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-        });
-
-        logger.LogInformation($"Enqueuing follow-up message: {json}");
-        QueueClient queueClient = new QueueClient(
+        
+        var client = new BlobClient(
             Environment.GetEnvironmentVariable("AzureWebJobsStorage")!,
-            QueueName
+            "rpg",
+            $"follow-ups/{guildId}/{channelId}/deck.json"
         );
-        await queueClient.CreateIfNotExistsAsync();
-        await queueClient.SendMessageAsync(BinaryData.FromObjectAsJson(new DiscordFollowupMessageRequest
-        {
-            Content = content,
-            Token = interactionToken
-        }));
+
+        await client.UploadAsync(new BinaryData(followupMessageRequest), overwrite: true, cancellationToken: CancellationToken.None);
     }
 
     public async Task SendFollowupAsync(string content, string interactionToken, ILogger logger)
