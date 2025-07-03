@@ -30,23 +30,29 @@ public class Game<T> : GameBase<T>
 {
     public Game(T parent, string name, string description) : base(parent)
     {
-        CharacterSection = new GameEntity<Game<T>>(this);
-        WorldSection = new GameEntity<Game<T>>(this);
         Name = name;
         Description = description;
     }
     public string Name { get; set; }
     public string Description { get; set; }
-    public GameEntity<Game<T>> CharacterSection { get; set; }
-    public GameEntity<Game<T>> WorldSection { get; set; }
+    public GameEntity<Game<T>>? CharacterSection { get; set; }
+    public GameEntity<Game<T>>? WorldSection { get; set; }
 
     public GameEntity<Game<T>> WithCharacterSection()
     {
+        if (CharacterSection == null)
+        {
+            CharacterSection = new GameEntity<Game<T>>(this);
+        }
         return CharacterSection!;
     }
 
     public GameEntity<Game<T>> WithWorldSection()
     {
+        if (WorldSection == null)
+        {
+            WorldSection = new GameEntity<Game<T>>(this);
+        }
         return WorldSection!;
     }
 }
@@ -153,7 +159,7 @@ public class GameSelection<T> : GameBase<T>
                 Name = string.IsNullOrEmpty(choice.Description) ? Name : $"{Name}: {choice.Name}",
                 Value = choice.Description ?? choice.Name,
             });
-            
+
             if (choice.Selections.Count > 0)
             {
                 foreach (var selection in choice.Selections)
@@ -259,6 +265,7 @@ public partial class GamesFactory : GameBase
     {
         this.AddTheWitchIsDead();
         this.AddTheGoldenSea();
+        this.AddWeThreeKings();
     }
     public List<Game<GamesFactory>> Games { get; set; } = new List<Game<GamesFactory>>();
     public Game<GamesFactory> WithGame(string name, string description)

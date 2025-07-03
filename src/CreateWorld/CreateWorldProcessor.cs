@@ -5,7 +5,7 @@ using Kadense.RPG.Games;
 namespace Kadense.RPG.CreateWorld;
 
 [DiscordSlashCommand("world", "Create a world")]
-[DiscordSlashCommandOption("game", "Which Game?", true, Choices = new[] { "The witch is dead", "The golden sea", "We three kings", "Adventure Dice", "We that remain", "Honey heist", "Big gay Orcs", "Justified anxiety", "The rapid and the righteous", "Hack the planet", "Genius Loci", "Dead channel", "Trashkin" })]
+[DiscordSlashCommandOption("game", "Which Game?", true, Choices = new[] { "The witch is dead", "Adventure Dice", "We that remain", "Honey heist", "Big gay Orcs", "Justified anxiety", "The rapid and the righteous", "Hack the planet", "Genius Loci", "Dead channel", "Trashkin" })]
 public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
 {
 
@@ -26,7 +26,7 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
         {
             var selectedGame = matchingGames.First();
             var fields = new List<DiscordEmbedField>();
-            selectedGame.CharacterSection.AddFields(fields, random);
+            selectedGame.CharacterSection!.AddFields(fields, random);
 
             embeds.Add(new DiscordEmbed
             {

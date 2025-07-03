@@ -26,7 +26,7 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
         {
             var selectedGame = matchingGames.First();
             var fields = new List<DiscordEmbedField>();
-            selectedGame.CharacterSection.AddFields(fields, random);
+            selectedGame.CharacterSection!.AddFields(fields, random);
 
             embeds.Add(new DiscordEmbed
             {
