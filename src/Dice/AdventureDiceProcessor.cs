@@ -14,12 +14,12 @@ public class AdventureDiceProcessor : IDiscordSlashCommandProcessor
 
     public string DiceValueSkill(int value) => value switch
     {
-        1 => ":white_check_mark: **You do the thing**",
-        2 => ":white_square_button: **Empty**",
-        3 => ":white_square_button: **Empty**",
-        4 => ":white_square_button: **Empty**",
-        5 => ":white_check_mark: **You do the thing**",
-        6 => ":white_square_button: **Empty**",
+        1 => ":white_check_mark:",
+        2 => ":white_square_button:",
+        3 => ":white_square_button:",
+        4 => ":white_square_button:",
+        5 => ":white_check_mark:",
+        6 => ":white_square_button:",
         _ => throw new ArgumentException($"Unknown roll value: {value}"),
     };
     
