@@ -5,6 +5,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
 
 namespace Kadense.RPG.CardDeck;
 
@@ -58,7 +59,7 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
         await client.UploadAsync(new BinaryData(deck), overwrite: true, cancellationToken: CancellationToken.None);
 
         var followupClient = new DiscordFollowupClient();
-        await followupClient.EnqueueFollowupAsync(guildId, channelId, $"You drew the following cards: {string.Join(", ", cardsDrawn)}", interaction.Token!, logger);
+        followupClient.EnqueueFollowup(guildId, channelId, $"You drew the following cards: {string.Join(", ", cardsDrawn)}", interaction.Token!, logger);
 
         return new DiscordInteractionResponse
         {

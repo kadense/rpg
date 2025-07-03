@@ -17,7 +17,7 @@ public class DiscordFollowupMessageProcessor
     }    
 
     [Function(nameof(DiscordFollowupMessageProcessor))]
-    public async Task Run([BlobTrigger("rpg/follow-ups/{name}")] Stream stream, string name)
+    public async Task Run([BlobTrigger("rpg/followup-messages/{name}.json")] Stream stream, string name)
     {
         using var blobStreamReader = new StreamReader(stream);
         var followupMessageRequest = await JsonSerializer.DeserializeAsync<DiscordFollowupMessageRequest>(blobStreamReader.BaseStream);
