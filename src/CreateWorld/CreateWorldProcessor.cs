@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Kadense.Models.Discord;
+using Kadense.RPG.Games;
 
 namespace Kadense.RPG.CreateWorld;
 
@@ -12,44 +13,28 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
 
     public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction)
     {
+        var games = new GamesFactory()
+            .EndGames();
+
         string game = interaction.Data?.Options?.Where(opt => opt.Name == "game").FirstOrDefault()?.Value ?? "1d6";
 
         var embeds = new List<DiscordEmbed>();
 
-        switch (game.ToLowerInvariant())
+       
+        var matchingGames = games.Where(x => x.Name.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
+        if (matchingGames.Count > 0)
         {
-            case "the witch is dead":
-                embeds = CreateTheWitchIsDeadWorld(interaction);
-                break;
-
-            case "the golden sea":
-                //embeds = CreateTheGoldenSeaCharacter(interaction);
-                break;
-
-            case "we three kings":
-                //embeds = CreateWeThreeKingsCharacter(interaction);
-                break;
-
-            case "adventure dice":
-                //embeds = CreateAdventureDiceCharacter(interaction);
-                break;
-
-            case "we that remain":
-                //embeds = CreateWeThatRemainCharacter(interaction);
-                break;
-
-            case "honey heist":
-                //embeds = CreateHoneyHeistCharacter(interaction);
-                break;
+            var selectedGame = matchingGames.First();
+            selectedGame.WorldSection.AddEmbeds(embeds, random);
         }
 
         return Task.FromResult(new DiscordInteractionResponse
-                {
-                    Data = new DiscordInteractionResponseData
-                    {
-                        Embeds = embeds,
-                        Content = $"Generating world for {game}...",
-                    }
-                });
+        {
+            Data = new DiscordInteractionResponseData
+            {
+                Embeds = embeds,
+                Content = $"Generating character for {game}...",
+            }
+        });
     }
 }

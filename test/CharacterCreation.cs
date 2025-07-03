@@ -15,6 +15,7 @@ public class CharacterCreationTests
         Assert.NotEmpty(result.Data.Embeds);
         Assert.NotNull(result.Data.Content);
     }
+    
     [Fact]
     public void Test_TheGoldenSea()
     {
