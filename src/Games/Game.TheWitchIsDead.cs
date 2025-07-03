@@ -113,7 +113,7 @@ public partial class GamesFactory : GameBase
                             .WithAttribute("Quick", "2")
                         .End()
                     .End()
-                    .WithSelection("Spells")
+                    .WithSelection("Spell")
                         .WithNewChoice("Unseen Hand")
                         .WithNewChoice("Conjure Light")
                         .WithNewChoice("Speak Human")

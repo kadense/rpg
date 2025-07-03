@@ -68,7 +68,7 @@ public class GameEntity<T> : GameBase<T>
         return this;
     }
 
-    public void AddEmbeds(IList<DiscordEmbed> embeds, Random random)
+    public void AddFields(IList<DiscordEmbedField> fields, Random random)
     {
         if (RandomAttributes.Count > 0)
         {
@@ -76,7 +76,6 @@ public class GameEntity<T> : GameBase<T>
                 this.DiceRules = new DiceRules(RandomAttributes.Count);
 
             var rolls = this.DiceRules.Roll(random);
-            var fields = new List<DiscordEmbedField>();
             for (int i = 0; i < RandomAttributes.Count; i++)
             {
                 fields.Add(new DiscordEmbedField
@@ -85,19 +84,12 @@ public class GameEntity<T> : GameBase<T>
                     Value = rolls[i].ToString()
                 });
             }
-
-            embeds.Add(new DiscordEmbed
-            {
-                Title = $"Attributes",
-                Color = 0x00FFFF, 
-                Fields = fields
-            });
         }
 
         foreach (var selection in Selection)
-            {
-                selection.AddEmbeds(embeds, random);
-            }
+        {
+            selection.AddFields(fields, random);
+        }
     }
 
     public List<string> RandomAttributes { get; set; } = new List<string>();
@@ -140,32 +132,33 @@ public class GameSelection<T> : GameBase<T>
     public int Color { get; set; } = 0x0000FF; // Default to blue color
     public int NumberToChoose { get; set; } = 1;
 
-    public void AddEmbeds(IList<DiscordEmbed> embeds, Random random)
+    public void AddFields(IList<DiscordEmbedField> fields, Random random)
     {
 
         foreach (var choice in Choose(random))
         {
-            var fields = choice.Attributes.Select(attr =>
+            choice.Attributes.Select(attr =>
                 new DiscordEmbedField
                 {
                     Name = attr.Key,
                     Value = attr.Value
                 }
-            ).ToList();
-
-            embeds.Add(new DiscordEmbed
+            ).ToList().ForEach(newField =>
             {
-                Title = $"{Name}: {choice.Name}",
-                Description = choice.Description,
-                Color = Color,
-                Fields = fields
+                fields.Add(newField);
+            });
+
+            fields.Add(new DiscordEmbedField
+            {
+                Name = string.IsNullOrEmpty(choice.Description) ? Name : $"{Name}: {choice.Name}",
+                Value = choice.Description ?? choice.Name,
             });
             
             if (choice.Selections.Count > 0)
             {
                 foreach (var selection in choice.Selections)
                 {
-                    selection.AddEmbeds(embeds, random);
+                    selection.AddFields(fields, random);
                 }
             }
         }

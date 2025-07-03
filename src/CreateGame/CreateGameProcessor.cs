@@ -27,16 +27,27 @@ public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
         if (matchingGames.Count > 0)
         {
             var selectedGame = matchingGames.First();
-            selectedGame.WorldSection.AddEmbeds(embeds, random);
+            var fields = new List<DiscordEmbedField>();
+            selectedGame.WorldSection.AddFields(fields, random);
+
+            embeds.Add(new DiscordEmbed
+            {
+                Title = $"World Creation for {selectedGame.Name}",
+                Description = $"World character for {game}...",
+                Fields = fields,
+            });
+            
             for (int player = 0; player < players; player++)
             {
+                fields = new List<DiscordEmbedField>();
                 embeds.Add(new DiscordEmbed
                 {
                     Title = $"Player #{player + 1}",
-                    Color = 0xFF00FF
+                    Color = 0xFF00FF,
+                    Fields = fields,
                 });
-                selectedGame.CharacterSection.AddEmbeds(embeds, random);
-                
+                selectedGame.CharacterSection.AddFields(fields, random);
+
             }
         }
 

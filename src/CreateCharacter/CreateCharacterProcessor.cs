@@ -25,7 +25,15 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
         if (matchingGames.Count > 0)
         {
             var selectedGame = matchingGames.First();
-            selectedGame.CharacterSection.AddEmbeds(embeds, random);
+            var fields = new List<DiscordEmbedField>();
+            selectedGame.CharacterSection.AddFields(fields, random);
+
+            embeds.Add(new DiscordEmbed
+            {
+                Title = $"Character Creation for {selectedGame.Name}",
+                Description = $"Generating character for {game}...",
+                Fields = fields,
+            });
         }
 
         return Task.FromResult(new DiscordInteractionResponse

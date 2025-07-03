@@ -25,7 +25,15 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
         if (matchingGames.Count > 0)
         {
             var selectedGame = matchingGames.First();
-            selectedGame.WorldSection.AddEmbeds(embeds, random);
+            var fields = new List<DiscordEmbedField>();
+            selectedGame.CharacterSection.AddFields(fields, random);
+
+            embeds.Add(new DiscordEmbed
+            {
+                Title = $"World Creation for {selectedGame.Name}",
+                Description = $"Generating World for {game}...",
+                Fields = fields,
+            });
         }
 
         return Task.FromResult(new DiscordInteractionResponse
