@@ -27,7 +27,7 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
 
         string guildId = interaction.GuildId ?? interaction.Guild!.Id!;
         string channelId = interaction.ChannelId ?? interaction!.Channel!.Id!;
-        string userName = interaction.User!.Username ?? interaction.User!.GlobalName!.ToString();
+        //string userName = interaction.User!.Username ?? interaction.User!.GlobalName!.ToString();
 
         var client = new BlobClient(
             Environment.GetEnvironmentVariable("AzureWebJobsStorage")!,
@@ -63,7 +63,7 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
         {
             Data = new DiscordInteractionResponseData
             {
-                Content = $"{userName} drew {cards} from the deck.",
+                Content = $"Drew {cards} from the deck.",
                 Embeds = new List<DiscordEmbed>() { embed },
             }
         };
