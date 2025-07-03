@@ -4,8 +4,8 @@ using Kadense.Models.Discord;
 namespace Kadense.RPG.Dice;
 
 [DiscordSlashCommand("adventure-dice", "Roll some adventure dice!")]
-[DiscordSlashCommandOption("skill", "roll the skill dice", false, Type = DiscordSlashCommandOptionType.Boolean)]
-[DiscordSlashCommandOption("danger", "roll the danger dice", false, Type = DiscordSlashCommandOptionType.Boolean)]
+[DiscordSlashCommandOption("skill", "roll the skill dice", false, Type = DiscordSlashCommandOptionType.Boolean, Choices = new[] { "true", "false" })]
+[DiscordSlashCommandOption("danger", "roll the danger dice", false, Type = DiscordSlashCommandOptionType.Boolean, Choices = new[] { "true", "false" })]
 public class AdventureDiceProcessor : IDiscordSlashCommandProcessor
 {
 
