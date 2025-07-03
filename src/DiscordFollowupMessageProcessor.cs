@@ -17,10 +17,10 @@ public class DiscordFollowupMessageProcessor
     }
 
     [Function(nameof(DiscordFollowupMessageProcessor))]
-    public async Task RunAsync([QueueTrigger("discordfollowup")] QueueMessage message)
+    public void Run([QueueTrigger("discordfollowup")] QueueMessage message)
     {
         var followupMessageRequest = message.Body.ToObjectFromJson<DiscordFollowupMessageRequest>()!;
-        await discordFollowupClient.SendFollowupAsync(followupMessageRequest.Content!, followupMessageRequest.Token!, _logger);
+        discordFollowupClient.SendFollowupAsync(followupMessageRequest.Content!, followupMessageRequest.Token!, _logger).Wait();
         _logger.LogInformation($"C# Queue trigger function processed: {message.MessageText}");
     }
 }
