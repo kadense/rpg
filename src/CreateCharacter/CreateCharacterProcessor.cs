@@ -5,7 +5,7 @@ using Kadense.RPG.Games;
 namespace Kadense.RPG.CreateCharacter;
 
 [DiscordSlashCommand("character", "Create a random character")]
-[DiscordSlashCommandOption("game", "Which Game?", true, Choices = new[] { "The witch is dead", "The golden sea", "We three kings", "Adventure Dice", "We that remain", "Honey heist", "Big gay Orcs", "Justified anxiety", "The rapid and the righteous", "Hack the planet", "Genius Loci", "Dead channel", "Trashkin" })]
+[DiscordSlashCommandOption("game", "Which Game?", true, Choices = new[] { "The witch is dead", "The golden sea", "We three kings", "We that remain", "Honey heist", "Big gay Orcs", "Justified anxiety", "The rapid and the righteous", "Hack the planet", "Genius Loci", "Dead channel", "Trashkin" })]
 public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
 {
 
