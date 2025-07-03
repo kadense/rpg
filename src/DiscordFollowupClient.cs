@@ -45,15 +45,24 @@ public class DiscordFollowupClient
         var response = await client.SendAsync(request);
         
 
-        if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+        while (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
         {
 
             var delaySeconds = await response.Content.ReadFromJsonAsync<DiscordRateLimitResponse>();
             var delayMs = (int)(delaySeconds?.RetryAfter ?? 1 * 1000 * 1.2); // Convert seconds to milliseconds and add 20%
 
             
-            await Task.Delay(delayMs); // Wait for 1 second before retrying
+            await Task.Delay(delayMs); 
 
+            
+            request = new HttpRequestMessage
+            {
+                RequestUri = new Uri(url),
+                Method = HttpMethod.Post,
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+
+            request.SetToken("Bot", token!);
             response = await client.SendAsync(request);
         }
 
