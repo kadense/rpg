@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net.Http.Json;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using IdentityModel.Client;
@@ -79,8 +80,24 @@ public class DiscordInteractionProcessor
 
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+        {
+            logger.LogInformation($"Requesting {request.Method} {request.RequestUri} is being rate limited. Waiting for retry.");
+
+            var delaySeconds = await response.Content.ReadFromJsonAsync<DiscordRateLimitResponse>();
+            var delayMs = (int)(delaySeconds?.RetryAfter ?? 1 * 1000 * 1.2); // Convert seconds to milliseconds and add 20%
+
+            logger.LogInformation($"Waiting for {delayMs} milliseconds before retrying.");
+            
+            await Task.Delay(delayMs); // Wait for 1 second before retrying
+
+            response = await client.SendAsync(request);
+        }
+
         var responseBody = await response.Content.ReadAsStringAsync();
         logger.LogInformation($"Response: {responseBody}");
+
 
         response.EnsureSuccessStatusCode();
         logger.LogInformation($"Registered command {command.Name} with response status: {response.StatusCode}");

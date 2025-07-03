@@ -1,9 +1,11 @@
 
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using IdentityModel.Client;
 using Kadense.Models.Discord;
 
+namespace Kadense.RPG;
 public class DiscordFollowupClient
 {
     public DiscordFollowupClient()
@@ -41,6 +43,20 @@ public class DiscordFollowupClient
 
         using var client = new HttpClient();
         var response = await client.SendAsync(request);
+        
+
+        if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+        {
+
+            var delaySeconds = await response.Content.ReadFromJsonAsync<DiscordRateLimitResponse>();
+            var delayMs = (int)(delaySeconds?.RetryAfter ?? 1 * 1000 * 1.2); // Convert seconds to milliseconds and add 20%
+
+            
+            await Task.Delay(delayMs); // Wait for 1 second before retrying
+
+            response = await client.SendAsync(request);
+        }
+
         var responseBody = await response.Content.ReadAsStringAsync();
 
         response.EnsureSuccessStatusCode();
