@@ -15,7 +15,7 @@ public class NewDeckProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public async Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public async Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         bool jokers = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "jokers").FirstOrDefault()?.Value ?? "false");
 
@@ -36,6 +36,8 @@ public class NewDeckProcessor : IDiscordSlashCommandProcessor
             $"{guildId}/{channelId}/deck.json"
         );
 
+        await client.GetParentBlobContainerClient().CreateIfNotExistsAsync(PublicAccessType.None);
+
         var deckExists = await client.ExistsAsync(CancellationToken.None);
 
         DeckOfCards? deck = null;
@@ -45,13 +47,13 @@ public class NewDeckProcessor : IDiscordSlashCommandProcessor
 
         await client.UploadAsync(new BinaryData(deck), overwrite: true, cancellationToken: CancellationToken.None);
         
-        return new DiscordInteractionResponse
+        return (new DiscordInteractionResponse
         {
             Data = new DiscordInteractionResponseData
             {
                 Content = $"{userName} refreshed the deck.",
                 Embeds = new List<DiscordEmbed>() { embed },
             }
-        };
+        }, null);
     }
 }

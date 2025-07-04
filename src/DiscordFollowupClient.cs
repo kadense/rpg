@@ -20,26 +20,22 @@ public class DiscordFollowupClient
     public string QueueName = "discordfollowup";
     public string BaseUrl;
 
-    [BlobOutput("rpg/followup-messages/{name}.json")]
-    public string EnqueueFollowup(string guildId, string channelId, string content, string interactionToken, ILogger logger)
+    public DiscordFollowupMessageRequest? CreateFollowup(string guildId, string channelId, string content, string interactionToken, ILogger logger)
     {
-        var followupMessageRequest = new DiscordFollowupMessageRequest
+        logger.LogInformation($"Creating followup message for guild {guildId}, channel {channelId} with content: {content}");
+        return new DiscordFollowupMessageRequest
         {
+            GuildId = guildId,
+            ChannelId = channelId,
             Content = content,
             Token = interactionToken
         };
-
-        var json = JsonSerializer.Serialize(followupMessageRequest, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-        });
-
-        return json;
     }
 
     public async Task SendFollowupAsync(string content, string interactionToken, ILogger logger)
     {
+        await Task.Delay(1000); // Delay to ensure the interaction is processed before sending the followup
+
         string url = $"{BaseUrl}/{interactionToken}?wait=true";
         var responseData = new DiscordInteractionResponseData
         {

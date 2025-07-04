@@ -1,5 +1,6 @@
 using System;
 using System.Text.Json;
+using Azure.Storage.Queues.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -17,13 +18,12 @@ public class DiscordFollowupMessageProcessor
     }    
 
     [Function(nameof(DiscordFollowupMessageProcessor))]
-    public async Task Run([BlobTrigger("rpg/followup-messages/{name}.json")] Stream stream, string name)
+    public async Task Run([QueueTrigger("kadense-rpg-followup-messages", Connection = "AzureWebJobsStorage")] QueueMessage message)
     {
-        using var blobStreamReader = new StreamReader(stream);
-        var followupMessageRequest = await JsonSerializer.DeserializeAsync<DiscordFollowupMessageRequest>(blobStreamReader.BaseStream);
+        var followupMessageRequest = message.Body.ToObjectFromJson<DiscordFollowupMessageRequest>();
         await discordFollowupClient.SendFollowupAsync(followupMessageRequest!.Content!, followupMessageRequest.Token!, _logger);
 
-        _logger.LogInformation($"C# Blob trigger function Processed blob\n Name: {name} \n Data: {followupMessageRequest.Content}");
+        _logger.LogInformation($"C# Queue trigger function Processed ID: {message.MessageId} \n Data: {followupMessageRequest.Content}");
     }
 }
 

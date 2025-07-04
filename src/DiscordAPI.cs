@@ -7,14 +7,15 @@ using Microsoft.Azure.Functions.Worker.Http;
 using System.Text.Json;
 using System.Net;
 using Discord.Rest;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Kadense.RPG
 {
-    public class DiscordAPI
+    public class DiscordApi
     {
-        private readonly ILogger<DiscordAPI> _logger;
+        private readonly ILogger<DiscordApi> _logger;
 
-        public DiscordAPI(ILogger<DiscordAPI> logger)
+        public DiscordApi(ILogger<DiscordApi> logger)
         {
             _logger = logger;
         }
@@ -30,7 +31,7 @@ namespace Kadense.RPG
             };
 
         [Function("DiscordAPI")]
-        public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
+        public async Task<DiscordApiResponse> RunAsync([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req, CancellationToken cancellationToken)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
             
@@ -49,11 +50,11 @@ namespace Kadense.RPG
                 }
 
                 var headers = req.Headers;
-                if (!headers.TryGetValues("X-Signature-Timestamp", out var timestamp) ||
-                    !headers.TryGetValues("X-Signature-Ed25519", out var signature))
+                if (!headers.TryGetValue("X-Signature-Timestamp", out var timestamp) ||
+                    !headers.TryGetValue("X-Signature-Ed25519", out var signature))
                 {
                     _logger.LogInformation("No timestamp or no sig");
-                    return req.CreateResponse(HttpStatusCode.Unauthorized);
+                    return new DiscordApiResponse(new UnauthorizedResult());
                 }
 
                 var client = new DiscordRestClient();
@@ -62,21 +63,23 @@ namespace Kadense.RPG
                 if (!validated)
                 {
                     _logger.LogInformation("Signature is not valid");
-                    return req.CreateResponse(HttpStatusCode.Unauthorized);
+                    return new DiscordApiResponse(new UnauthorizedResult());
                 }
             }
 
             var interaction = JsonSerializer.Deserialize<DiscordInteraction>(body, serializerOptions);
             var processor = new DiscordInteractionProcessor();
-            var result = await processor.ExecuteAsync(interaction!, _logger);
+            var (result, followupMessage) = await processor.ExecuteAsync(interaction!, _logger);
             var stringify = JsonSerializer.Serialize(result, serializerOptions);
-            var response = req.CreateResponse(HttpStatusCode.OK);
-            response.Headers.Add("Content-Type", "application/json; charset=utf-8");
-            await response.WriteStringAsync(stringify);
-            _logger.LogInformation($"Responding with : {result.Data!.Content}");
 
-            _logger.LogInformation("Discord interaction processed successfully.");
-            return response;
+            var response = new ContentResult()
+            {
+                Content = stringify,
+                ContentType = "application/json",
+                StatusCode = (int)HttpStatusCode.OK
+            };
+
+            return new DiscordApiResponse(response, followupMessage);
         }
     }
 }

@@ -16,7 +16,7 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public async Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public async Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         int cards = int.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "cards").FirstOrDefault()?.Value ?? "1");
 
@@ -36,6 +36,8 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
             "rpg",
             $"{guildId}/{channelId}/deck.json"
         );
+
+        await client.GetParentBlobContainerClient().CreateIfNotExistsAsync(PublicAccessType.None);
 
         var deckExists = await client.ExistsAsync(CancellationToken.None);
 
@@ -59,15 +61,15 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
         await client.UploadAsync(new BinaryData(deck), overwrite: true, cancellationToken: CancellationToken.None);
 
         var followupClient = new DiscordFollowupClient();
-        followupClient.EnqueueFollowup(guildId, channelId, $"You drew the following cards: {string.Join(", ", cardsDrawn)}", interaction.Token!, logger);
+        var followupMessage = followupClient.CreateFollowup(guildId, channelId, $"You drew the following cards: {string.Join(", ", cardsDrawn)}", interaction.Token!, logger);
 
-        return new DiscordInteractionResponse
+        return (new DiscordInteractionResponse
         {
             Data = new DiscordInteractionResponseData
             {
                 Content = $"Drew {cards} from the deck.",
                 Embeds = new List<DiscordEmbed>() { embed },
             }
-        };
+        }, followupMessage);
     }
 }

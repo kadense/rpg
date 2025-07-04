@@ -48,5 +48,5 @@ public class DiscordSlashCommandAttribute : Attribute
 
 public interface IDiscordSlashCommandProcessor
 {
-    public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger);
+    public Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger);
 }

@@ -12,7 +12,7 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         var games = new GamesFactory()
             .EndGames();
@@ -37,13 +37,13 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
             });
         }
 
-        return Task.FromResult(new DiscordInteractionResponse
+        return Task.FromResult<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)>((new DiscordInteractionResponse
         {
             Data = new DiscordInteractionResponseData
             {
                 Embeds = embeds,
                 Content = $"Generating character for {game}...",
             }
-        });
+        }, null));
     }
 }

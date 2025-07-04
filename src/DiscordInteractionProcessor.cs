@@ -133,32 +133,32 @@ public class DiscordInteractionProcessor
 
     protected IDictionary<string, IDiscordSlashCommandProcessor> Commands { get; }
 
-    public async Task<DiscordInteractionResponse> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public async Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         var data = interaction.Data;
 
         if (data == null)
-            return new DiscordInteractionResponse
+            return (new DiscordInteractionResponse
             {
                 Type = 1, // Pong response type
                 Data = new DiscordInteractionResponseData
                 {
                     Content = "No interaction data provided."
                 },
-            };
+            }, null);
 
         if (string.IsNullOrEmpty(data.Name))
-            return new DiscordInteractionResponse
+            return (new DiscordInteractionResponse
             {
                 Type = 1, // Pong response type
                 Data = new DiscordInteractionResponseData
                 {
                     Content = "interaction data name is not populated."
                 },
-            };
+            }, null);
 
         if (!Commands.TryGetValue(data.Name, out var command))
-            return new DiscordInteractionResponse
+            return (new DiscordInteractionResponse
             {
                 Type = 1, // Pong response type
                 Data = new DiscordInteractionResponseData
@@ -166,7 +166,7 @@ public class DiscordInteractionProcessor
                     
                     Content = "interaction data name is not populated."
                 },
-            };
+            }, null);
             
         return await command.ExecuteAsync(interaction, logger);
     }
