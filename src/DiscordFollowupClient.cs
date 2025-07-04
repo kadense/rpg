@@ -34,8 +34,6 @@ public class DiscordFollowupClient
 
     public async Task SendFollowupAsync(string content, string interactionToken, ILogger logger)
     {
-        await Task.Delay(1000); // Delay to ensure the interaction is processed before sending the followup
-
         string url = $"{BaseUrl}/{interactionToken}?wait=true";
         var responseData = new DiscordInteractionResponseData
         {
