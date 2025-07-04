@@ -1,13 +1,15 @@
+using System.Reflection;
+
 namespace Kadense.RPG.Games;
 
 public partial class GamesFactory : GameBase
 {
-    public GamesFactory AddBigGayOrcs()
+    [Game("A Thousand Orchids Blossom")]
+    public GamesFactory AddAThousandOrchidsBlossom()
     {
+        var attr = MethodInfo.GetCurrentMethod()!.GetCustomAttribute<GameAttribute>()!;
         return this
-            .WithGame("Big gay orcs", @"""
-                TBD Add Description
-            """)
+            .WithGame(attr.Name, attr.Description ?? "TBD Add Description")
                 .WithCharacterSection()
                     .WithSelection("Name")
                         .WithNewChoice("Grahk")

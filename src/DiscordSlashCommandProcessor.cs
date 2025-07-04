@@ -10,6 +10,14 @@ public enum DiscordSlashCommandOptionType
     Boolean = 5,
 }
 
+public enum DiscordSlashCommandChoicesMethod
+{
+    Manual,
+    GamesWithWorlds,
+    GamesWithCharacters,
+    Games
+}
+
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
 public class DiscordSlashCommandOptionAttribute : Attribute
 {
@@ -23,6 +31,7 @@ public class DiscordSlashCommandOptionAttribute : Attribute
 
     public string[] Choices { get; set; } = Array.Empty<string>();
 
+    public DiscordSlashCommandChoicesMethod AutoChoices { get; set; } = DiscordSlashCommandChoicesMethod.Manual;
     
     public DiscordSlashCommandOptionAttribute(string name, string description, bool required = false)
     {

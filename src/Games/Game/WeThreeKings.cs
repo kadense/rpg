@@ -1,13 +1,15 @@
+using System.Reflection;
+
 namespace Kadense.RPG.Games;
 
 public partial class GamesFactory : GameBase
 {
+    [Game("We Three Kings")]
     public GamesFactory AddWeThreeKings()
     {
+        var attr = MethodInfo.GetCurrentMethod()!.GetCustomAttribute<GameAttribute>()!;
         return this
-            .WithGame("We three kings", @"""
-                TBD Add Description
-            """)
+            .WithGame(attr.Name, attr.Description ?? "TBD Add Description")
                 .WithCharacterSection()
                     .WithSelection("Character")
                         .WithChoice("Balthazar, the Ghost-Speaker", "Begins play being buried alive by King Herod's soldiers")

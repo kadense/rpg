@@ -3,9 +3,19 @@ using Kadense.RPG.Dice;
 
 namespace Kadense.RPG.Games;
 
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+public class GameAttribute : Attribute
+{
+    public GameAttribute(string name)
+    {
+        Name = name;
+    }
+    public string Name { get; set; }
+    public string? Description { get; set; }
+}
 public abstract class GameBase
 {
-
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 }
 
 public abstract class GameBase<T> : GameBase
@@ -288,11 +298,14 @@ public partial class GamesFactory : GameBase
 {
     public GamesFactory()
     {
-        this.AddTheWitchIsDead();
-        this.AddTheGoldenSea();
-        this.AddWeThreeKings();
-        this.AddHoneyHeist();
-        this.AddBigGayOrcs();
+        this.GetType().GetMethods().ToList().ForEach(m =>
+        {
+            var attributes = m.GetCustomAttributes(false);
+            if (attributes.Any(attr => attr is GameAttribute))
+            {
+                m.Invoke(this, null);
+            }
+        });
     }
     public List<Game<GamesFactory>> Games { get; set; } = new List<Game<GamesFactory>>();
     public Game<GamesFactory> WithGame(string name, string description)

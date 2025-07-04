@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace Kadense.RPG.CreateGame;
 
 [DiscordSlashCommand("game", "Create a game world and characters")]
-[DiscordSlashCommandOption("game", "Which Game?", true, Choices = new[] { "The witch is dead", "The golden sea", "We three kings", "We that remain", "Honey heist", "Big gay Orcs", "Justified anxiety", "The rapid and the righteous", "Hack the planet", "Genius Loci", "Dead channel", "Trashkin" })]
+[DiscordSlashCommandOption("game", "Which Game?", true, AutoChoices = DiscordSlashCommandChoicesMethod.Games)]
 [DiscordSlashCommandOption("players", "How many players?", true, Type = DiscordSlashCommandOptionType.Integer)]
 public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
 {

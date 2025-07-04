@@ -1,16 +1,16 @@
+using System.Reflection;
 using Kadense.RPG.Dice;
 
 namespace Kadense.RPG.Games;
 
 public partial class GamesFactory : GameBase
 {
+    [Game("The Golden Sea")]
     public GamesFactory AddTheGoldenSea()
     {
+        var attr = MethodInfo.GetCurrentMethod()!.GetCustomAttribute<GameAttribute>()!;
         return this
-            .WithGame("The Golden Sea", @"""
-                TBD: Add Description
-            """)
-
+            .WithGame(attr.Name, attr.Description ?? "TBD Add Description")
                 .WithCharacterSection()
                     .WithRandomAttribute("Physical")
                     .WithRandomAttribute("Social")

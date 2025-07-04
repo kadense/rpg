@@ -1,17 +1,24 @@
+using System.Reflection;
+
 namespace Kadense.RPG.Games;
 
 public partial class GamesFactory : GameBase
 {
+    [Game(
+        "The Witch is Dead",
+        Description = @"""
+            Once upon a time, there was a kind and wise and beautiful witch who lived in the forest with her familiars. 
+            
+            Her life was peaceful and happy, until a fucking Witch Hunter broke into her cottage, dragged her out and fucking murdered her. 
+
+            Now she's dead, but if you get revenge for her, kill him and bring his eyes to her corpse within one week, she will come back to life (or so you've heard). Even if it doesn't work, at least he's dead.
+        """
+    )]
     public GamesFactory AddTheWitchIsDead()
     {
+        var attr = MethodInfo.GetCurrentMethod()!.GetCustomAttribute<GameAttribute>()!;
         return this
-            .WithGame("The Witch is Dead", @"""
-                Once upon a time, there was a kind and wise and beautiful witch who lived in the forest with her familiars. 
-                
-                Her life was peaceful and happy, until a fucking Witch Hunter broke into her cottage, dragged her out and fucking murdered her. 
-
-                Now she's dead, but if you get revenge for her, kill him and bring his eyes to her corpse within one week, she will come back to life (or so you've heard). Even if it doesn't work, at least he's dead.
-            """)
+            .WithGame(attr.Name, attr.Description ?? "TBD Add Description")
                 .WithWorldSection()
                     .WithSelection("The village is")
                         .WithNewChoice("Under the thumb of the Baron")

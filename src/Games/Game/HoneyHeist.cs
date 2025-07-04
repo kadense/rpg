@@ -1,13 +1,15 @@
+using System.Reflection;
+
 namespace Kadense.RPG.Games;
 
 public partial class GamesFactory : GameBase
 {
+    [Game("Honey Heist")]
     public GamesFactory AddHoneyHeist()
     {
+        var attr = MethodInfo.GetCurrentMethod()!.GetCustomAttribute<GameAttribute>()!;
         return this
-            .WithGame("Honey Heist", @"""
-                TBD Add Description
-            """)
+            .WithGame(attr.Name, attr.Description ?? "TBD Add Description")
                 .WithWorldSection()
                     .WithSelection("Feel")
                         .WithNewChoice("Creepy")

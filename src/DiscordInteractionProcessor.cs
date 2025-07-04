@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using IdentityModel.Client;
 using Kadense.Models.Discord;
+using Kadense.RPG.Games;
 using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG;
@@ -33,6 +34,7 @@ public class DiscordInteractionProcessor
 
     public async Task<string> RegisterCommandAsync(Type commandType, ILogger logger)
     {
+        var games = new GamesFactory().EndGames();
         var discordApplicationId = Environment.GetEnvironmentVariable("DISCORD_CLIENT_ID");
         string url = $"https://discord.com/api/v10/applications/{discordApplicationId}/commands";
 
@@ -48,16 +50,51 @@ public class DiscordInteractionProcessor
         var attributeOptions = commandType.GetCustomAttributes<DiscordSlashCommandOptionAttribute>().ToList();
         foreach (var option in attributeOptions)
         {
+            var choices = option.Choices.Select(choice => new DiscordCommandOptionChoice
+            {
+                Name = choice,
+                Value = choice
+            }).ToList();
+
+            switch (option.AutoChoices)
+            {
+                case DiscordSlashCommandChoicesMethod.GamesWithWorlds:
+                    choices.AddRange(games.Where(g => g.WorldSection != null).Select( g => new DiscordCommandOptionChoice
+                    {
+                        Name = g.Name,
+                        Value = g.Id
+                    }));
+                    break;
+
+                case DiscordSlashCommandChoicesMethod.GamesWithCharacters:
+                    choices.AddRange(games.Where(g => g.CharacterSection != null).Select( g => new DiscordCommandOptionChoice
+                    {
+                        Name = g.Name,
+                        Value = g.Id
+                    }));
+                    break;
+
+                case DiscordSlashCommandChoicesMethod.Games:
+                    choices.AddRange(games.Select( g => new DiscordCommandOptionChoice
+                    {
+                        Name = g.Name,
+                        Value = g.Id
+                    }));
+                    break;
+
+                case DiscordSlashCommandChoicesMethod.Manual:
+                default:
+                    // Use the manually defined choices
+                    break;
+            }
+
+
             var commandOption = new DiscordCommandOption
             {
                 Name = option.Name,
                 Description = option.Description,
                 Required = option.Required,
-                Choices = option.Choices.Select(choice => new DiscordCommandOptionChoice
-                {
-                    Name = choice,
-                    Value = choice
-                }).ToList()
+                Choices = choices.OrderBy(c => c.Name).ToList(),
             };
             command.Options!.Add(commandOption);
         }
