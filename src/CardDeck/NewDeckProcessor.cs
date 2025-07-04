@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace Kadense.RPG.CardDeck;
 
 [DiscordSlashCommand("new-deck", "Creates a new deck of cards!")]
-[DiscordSlashCommandOption("jokers", "Include the jokers in the deck?", true, Type = DiscordSlashCommandOptionType.Integer, Choices = new[] { "true", "false" })]
+[DiscordSlashCommandOption("jokers", "Include the jokers in the deck?", false, Type = DiscordSlashCommandOptionType.Integer, Choices = new[] { "true", "false" })]
 public class NewDeckProcessor : IDiscordSlashCommandProcessor
 {
 
@@ -28,7 +28,6 @@ public class NewDeckProcessor : IDiscordSlashCommandProcessor
 
         string guildId = interaction.GuildId ?? interaction.Guild!.Id!;
         string channelId = interaction.ChannelId ?? interaction!.Channel!.Id!;
-        string userName = interaction.User!.Username ?? interaction.User!.GlobalName!.ToString();
 
         var client = new BlobClient(
             Environment.GetEnvironmentVariable("AzureWebJobsStorage")!,
@@ -51,7 +50,7 @@ public class NewDeckProcessor : IDiscordSlashCommandProcessor
         {
             Data = new DiscordInteractionResponseData
             {
-                Content = $"{userName} refreshed the deck.",
+                Content = $"The deck has been refreshed for this channel. It now contains {deck.Count()} cards.",
                 Embeds = new List<DiscordEmbed>() { embed },
             }
         }, null);
