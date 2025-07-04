@@ -62,7 +62,7 @@ public class DiscordInteractionProcessor
                     choices.AddRange(games.Where(g => g.WorldSection != null).Select( g => new DiscordCommandOptionChoice
                     {
                         Name = g.Name,
-                        Value = g.Id
+                        Value = g.Name
                     }));
                     break;
 
@@ -70,7 +70,7 @@ public class DiscordInteractionProcessor
                     choices.AddRange(games.Where(g => g.CharacterSection != null).Select( g => new DiscordCommandOptionChoice
                     {
                         Name = g.Name,
-                        Value = g.Id
+                        Value = g.Name
                     }));
                     break;
 
@@ -78,7 +78,7 @@ public class DiscordInteractionProcessor
                     choices.AddRange(games.Select( g => new DiscordCommandOptionChoice
                     {
                         Name = g.Name,
-                        Value = g.Id
+                        Value = g.Name
                     }));
                     break;
 
