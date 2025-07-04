@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using Kadense.Models.Discord;
 using Kadense.RPG.Games;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,7 @@ public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
 
         var embeds = new List<DiscordEmbed>();
 
-       
+
         var matchingGames = games.Where(x => x.Name.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
         if (matchingGames.Count > 0)
         {
@@ -41,18 +42,50 @@ public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
                     Fields = fields,
                 });
             }
-            
+
+            var playerFields = new Dictionary<int, List<DiscordEmbedField>>();
+
             for (int player = 0; player < players; player++)
+            {
+                fields = new List<DiscordEmbedField>();
+                playerFields[player] = fields;
+                embeds.Add(new DiscordEmbed
                 {
-                    fields = new List<DiscordEmbedField>();
-                    embeds.Add(new DiscordEmbed
+                    Title = $"Player #{player + 1}",
+                    Color = 0xFF00FF,
+                    Fields = fields,
+                });
+                selectedGame.CharacterSection!.AddFields(fields, random);
+            }
+
+            if(selectedGame.CharacterSection!.RelationshipSelections.Count > 0)
+            {
+                foreach (var relationshipSelection in selectedGame.CharacterSection.RelationshipSelections)
+                {
+                    for (int p1 = 0; p1 < players; p1++)
                     {
-                        Title = $"Player #{player + 1}",
-                        Color = 0xFF00FF,
-                        Fields = fields,
-                    });
-                    selectedGame.CharacterSection!.AddFields(fields, random);
+                        var relationshipString = new StringBuilder();
+                        for (int p2 = 0; p2 < players; p2++)
+                        {
+                            if (p1 == p2) continue; // Skip self-relationships
+                            foreach (var chosen in relationshipSelection.Choose(random))
+                            {
+                                relationshipString.Append($"{chosen.Name} Player #{p2 + 1}");
+                                if(chosen.Description != null)
+                                {
+                                    relationshipString.Append($" - {chosen.Description}");
+                                }
+                                relationshipString.AppendLine();
+                            }
+                        }
+                        playerFields[p1]!.Add(new DiscordEmbedField
+                        {
+                            Name = relationshipSelection.Name,
+                            Value = relationshipString.ToString(),
+                        });
+                    }                    
                 }
+            }
         }
 
         return Task.FromResult<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)>((new DiscordInteractionResponse

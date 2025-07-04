@@ -64,7 +64,8 @@ public class GameEntity<T> : GameBase<T>
     {
 
     }
-    public List<GameSelection<GameEntity<T>>> Selection { get; set; } = new List<GameSelection<GameEntity<T>>>();
+    public List<GameSelection<GameEntity<T>>> Selections { get; set; } = new List<GameSelection<GameEntity<T>>>();
+    public List<GameSelection<GameEntity<T>>> RelationshipSelections { get; set; } = new List<GameSelection<GameEntity<T>>>();
 
     public DiceRules? DiceRules { get; set; }
 
@@ -92,7 +93,7 @@ public class GameEntity<T> : GameBase<T>
             }
         }
 
-        foreach (var selection in Selection)
+        foreach (var selection in Selections)
         {
             selection.AddFields(fields, random);
         }
@@ -116,7 +117,20 @@ public class GameEntity<T> : GameBase<T>
             Name = name,
             Description = description ?? string.Empty
         };
-        Selection.Add(selection);
+        Selections.Add(selection);
+        return selection;
+    }
+
+    
+
+    public GameSelection<GameEntity<T>> WithRelationshipSelection(string name, string? description = null)
+    {
+        var selection = new GameSelection<GameEntity<T>>(this, name, description)
+        {
+            Name = name,
+            Description = description ?? string.Empty
+        };
+        RelationshipSelections.Add(selection);
         return selection;
     }
 }
@@ -135,6 +149,7 @@ public class GameSelection<T> : GameBase<T>
     public string? Description { get; set; }
     public List<GameChoice<GameSelection<T>>> Choices { get; set; } = new List<GameChoice<GameSelection<T>>>();
 
+    public bool MutuallyExclusive { get; set; } = true; // If true, only one choice can be selected at a time
     public int Color { get; set; } = 0x0000FF; // Default to blue color
     public int NumberToChoose { get; set; } = 1;
 
@@ -143,6 +158,12 @@ public class GameSelection<T> : GameBase<T>
 
         foreach (var choice in Choose(random))
         {
+            fields.Add(new DiscordEmbedField
+            {
+                Name = string.IsNullOrEmpty(choice.Description) ? Name : $"{Name}: {choice.Name}",
+                Value = choice.Description ?? choice.Name,
+            });
+
             choice.Attributes.Select(attr =>
                 new DiscordEmbedField
                 {
@@ -154,11 +175,6 @@ public class GameSelection<T> : GameBase<T>
                 fields.Add(newField);
             });
 
-            fields.Add(new DiscordEmbedField
-            {
-                Name = string.IsNullOrEmpty(choice.Description) ? Name : $"{Name}: {choice.Name}",
-                Value = choice.Description ?? choice.Name,
-            });
 
             if (choice.Selections.Count > 0)
             {
@@ -188,9 +204,13 @@ public class GameSelection<T> : GameBase<T>
         random.Shuffle(choices);
 
         var takenItems = choices.Take(NumberToChoose).ToList();
-        foreach (var takenItem in takenItems)
+
+        if (MutuallyExclusive)
         {
-            Choices.Remove(takenItem);
+            foreach (var takenItem in takenItems)
+            {
+                Choices.Remove(takenItem);
+            }
         }
         return takenItems;
     }
@@ -206,6 +226,11 @@ public class GameSelection<T> : GameBase<T>
         return choice;
     }
     
+    public GameSelection<T> SetIsMutuallyExclusive(bool isMutuallyExclusive)
+    {
+        MutuallyExclusive = isMutuallyExclusive;
+        return this;
+    }
     
     public GameSelection<T> WithNewChoice(string name, string? description = null)
     {
@@ -267,6 +292,7 @@ public partial class GamesFactory : GameBase
         this.AddTheGoldenSea();
         this.AddWeThreeKings();
         this.AddHoneyHeist();
+        this.AddBigGayOrcs();
     }
     public List<Game<GamesFactory>> Games { get; set; } = new List<Game<GamesFactory>>();
     public Game<GamesFactory> WithGame(string name, string description)
