@@ -61,7 +61,9 @@ public class DeckOfCards
 
     public string[] DrawCards(int count = 1)
     {
-        return Cards.Take(count).ToArray();
+        var cardsTaken = Cards.Take(count).ToArray();
+        Cards.RemoveAll(card => cardsTaken.Contains(card));
+        return cardsTaken;
     }
 
     public void Shuffle(Random random)
