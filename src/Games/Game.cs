@@ -47,7 +47,7 @@ public class Game<T> : GameBase<T>
     public string Description { get; set; }
     public GameEntity<Game<T>>? CharacterSection { get; set; }
     public GameEntity<Game<T>>? WorldSection { get; set; }
-
+    public Dictionary<string, Func<List<string>>> CustomDecks { get; set; } = new Dictionary<string, Func<List<string>>>();
     public GameEntity<Game<T>> WithCharacterSection()
     {
         if (CharacterSection == null)
@@ -55,6 +55,15 @@ public class Game<T> : GameBase<T>
             CharacterSection = new GameEntity<Game<T>>(this);
         }
         return CharacterSection!;
+    }
+
+    public Game<T> WithCustomDeck(string name, Func<List<string>> deckCreator)
+    {
+        if (!CustomDecks.ContainsKey(name))
+        {
+            CustomDecks.Add(name, deckCreator);
+        }
+        return this;
     }
 
     public GameEntity<Game<T>> WithWorldSection()
@@ -107,12 +116,15 @@ public class GameEntity<T> : GameBase<T>
             else
             {
                 var items = new Dictionary<string, int>();
+                var pointsToAssign = RandomAttributeSplitValue;
                 RandomAttributes.ForEach(attr =>
                 {
-                    items.Add(attr, 0);
+                    items.Add(attr, RandomAttributeMinValue);
+                    pointsToAssign -= RandomAttributeMinValue;
                 });
 
-                for (int i = 0; i < RandomAttributeSplitValue; i++)
+
+                for (int i = 0; i < pointsToAssign; i++)
                 {
                     var keys = items.Keys.ToArray();
                     random.Shuffle(keys);
@@ -139,6 +151,7 @@ public class GameEntity<T> : GameBase<T>
     public List<string> RandomAttributes { get; set; } = new List<string>();
 
     public int RandomAttributeSplitValue { get; set; } = 0; 
+    public int RandomAttributeMinValue { get; set; } = 0; 
 
     public GameEntity<T> WithRandomAttribute(string attribute)
     {
@@ -152,6 +165,11 @@ public class GameEntity<T> : GameBase<T>
     public GameEntity<T> WithRandomAttributeSplitValue(int value)
     {
         RandomAttributeSplitValue = value;
+        return this;
+    }
+    public GameEntity<T> WithRandomAttributeMinValue(int value)
+    {
+        RandomAttributeMinValue = value;
         return this;
     }
 

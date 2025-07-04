@@ -82,6 +82,16 @@ public class DiscordInteractionProcessor
                     }));
                     break;
 
+                    
+
+                case DiscordSlashCommandChoicesMethod.GamesWithCustomDecks:
+                    choices.AddRange(games.Where(g => g.CustomDecks.Count() > 0).Select( g => new DiscordCommandOptionChoice
+                    {
+                        Name = g.Name,
+                        Value = g.Name
+                    }));
+                    break;
+
                 case DiscordSlashCommandChoicesMethod.Manual:
                 default:
                     // Use the manually defined choices

@@ -1,3 +1,5 @@
+using Kadense.RPG.Games;
+
 namespace Kadense.RPG.CardDeck;
 
 public class DeckOfCards
@@ -5,8 +7,39 @@ public class DeckOfCards
     public DeckOfCards()
     {
         Cards = new List<string>();
+        Name = "Custom Deck";
     }
+
+    public DeckOfCards(Random random, string name, bool includeJokers = false)
+    {
+        Cards = new List<string>();
+        Name = name;
+        if (Name == "Standard Deck")
+        {
+            Cards = CreateStandardDeck(random, includeJokers);
+        }
+        else
+        {
+            var games = new GamesFactory().EndGames();
+            var game = games.Where(g => g.Name.ToLowerInvariant() == Name.ToLowerInvariant())
+                .First();
+            var customDeck = game.CustomDecks.First();
+            var cardsArray = customDeck.Value.Invoke().ToArray();
+
+            random.Shuffle(cardsArray);
+            Cards = cardsArray.ToList();
+        }
+    }
+
+    public string Name { get; set; }
+    
     public DeckOfCards(Random random, bool includeJokers = false)
+    {
+        Name = "Standard Deck";
+        Cards = CreateStandardDeck(random, includeJokers);        
+    }
+
+    public List<string> CreateStandardDeck(Random random, bool includeJokers = false)
     {
         var cards = new List<string>();
         for (int i = 1; i <= 52; i++)
@@ -25,7 +58,7 @@ public class DeckOfCards
 
         var cardsArray = cards.ToArray();
         random.Shuffle(cardsArray);
-        Cards = cardsArray.ToList();
+        return cardsArray.ToList();
     }
 
 

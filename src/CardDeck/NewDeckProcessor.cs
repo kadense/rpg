@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace Kadense.RPG.CardDeck;
 
 [DiscordSlashCommand("new-deck", "Creates a new deck of cards!")]
+[DiscordSlashCommandOption("type", "Type of deck to create", false, Choices = new string[] { "Standard Deck" }, AutoChoices = DiscordSlashCommandChoicesMethod.GamesWithCustomDecks)]
 [DiscordSlashCommandOption("jokers", "Include the jokers in the deck?", false, Type = DiscordSlashCommandOptionType.Integer, Choices = new[] { "true", "false" })]
 public class NewDeckProcessor : IDiscordSlashCommandProcessor
 {
@@ -18,6 +19,7 @@ public class NewDeckProcessor : IDiscordSlashCommandProcessor
     public async Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         bool jokers = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "jokers").FirstOrDefault()?.Value ?? "false");
+        string type = interaction.Data?.Options?.Where(opt => opt.Name == "type").FirstOrDefault()?.Value ?? "Standard Deck";
 
         var embed = new DiscordEmbed
         {
@@ -41,8 +43,7 @@ public class NewDeckProcessor : IDiscordSlashCommandProcessor
 
         DeckOfCards? deck = null;
 
-        
-        deck = new DeckOfCards(random);
+        deck = new DeckOfCards(random, type, jokers);
 
         await client.UploadAsync(new BinaryData(deck), overwrite: true, cancellationToken: CancellationToken.None);
         

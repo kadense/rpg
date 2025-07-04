@@ -15,6 +15,9 @@ public enum DiscordSlashCommandChoicesMethod
     Manual,
     GamesWithWorlds,
     GamesWithCharacters,
+
+    GamesWithCustomDecks,
+    
     Games
 }
 

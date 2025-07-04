@@ -10,7 +10,7 @@ using Microsoft.Azure.Functions.Worker;
 namespace Kadense.RPG.CardDeck;
 
 [DiscordSlashCommand("draw", "Draw from a deck of cards!")]
-[DiscordSlashCommandOption("cards", "How many cards?", true, Type = DiscordSlashCommandOptionType.Integer)]
+[DiscordSlashCommandOption("cards", "How many cards?", false, Type = DiscordSlashCommandOptionType.Integer)]
 public class DrawCardProcessor : IDiscordSlashCommandProcessor
 {
 
