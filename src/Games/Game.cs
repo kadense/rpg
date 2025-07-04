@@ -89,16 +89,43 @@ public class GameEntity<T> : GameBase<T>
     {
         if (RandomAttributes.Count > 0)
         {
-            if (this.DiceRules == null)
-                this.DiceRules = new DiceRules(RandomAttributes.Count);
-
-            var rolls = this.DiceRules.Roll(random);
-            for (int i = 0; i < RandomAttributes.Count; i++)
+            if (RandomAttributeSplitValue == 0)
             {
-                fields.Add(new DiscordEmbedField
+                if (this.DiceRules == null)
+                    this.DiceRules = new DiceRules(RandomAttributes.Count);
+
+                var rolls = this.DiceRules.Roll(random);
+                for (int i = 0; i < RandomAttributes.Count; i++)
                 {
-                    Name = RandomAttributes[i],
-                    Value = rolls[i].ToString()
+                    fields.Add(new DiscordEmbedField
+                    {
+                        Name = RandomAttributes[i],
+                        Value = rolls[i].ToString()
+                    });
+                }
+            }
+            else
+            {
+                var items = new Dictionary<string, int>();
+                RandomAttributes.ForEach(attr =>
+                {
+                    items.Add(attr, 0);
+                });
+
+                for (int i = 0; i < RandomAttributeSplitValue; i++)
+                {
+                    var keys = items.Keys.ToArray();
+                    random.Shuffle(keys);
+                    items[keys.First()] += 1;
+                }
+
+                RandomAttributes.ForEach(attr =>
+                {
+                    fields.Add(new DiscordEmbedField
+                    {
+                        Name = attr,
+                        Value = items[attr].ToString()
+                    });
                 });
             }
         }
@@ -111,12 +138,20 @@ public class GameEntity<T> : GameBase<T>
 
     public List<string> RandomAttributes { get; set; } = new List<string>();
 
+    public int RandomAttributeSplitValue { get; set; } = 0; 
+
     public GameEntity<T> WithRandomAttribute(string attribute)
     {
         if (!RandomAttributes.Contains(attribute))
         {
             RandomAttributes.Add(attribute);
         }
+        return this;
+    }
+
+    public GameEntity<T> WithRandomAttributeSplitValue(int value)
+    {
+        RandomAttributeSplitValue = value;
         return this;
     }
 
