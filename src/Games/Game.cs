@@ -266,6 +266,7 @@ public partial class GamesFactory : GameBase
         this.AddTheWitchIsDead();
         this.AddTheGoldenSea();
         this.AddWeThreeKings();
+        this.AddHoneyHeist();
     }
     public List<Game<GamesFactory>> Games { get; set; } = new List<Game<GamesFactory>>();
     public Game<GamesFactory> WithGame(string name, string description)
