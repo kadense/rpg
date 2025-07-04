@@ -61,13 +61,13 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
         await client.UploadAsync(new BinaryData(deck), overwrite: true, cancellationToken: CancellationToken.None);
 
         var followupClient = new DiscordFollowupClient();
-        var followupMessage = followupClient.CreateFollowup(guildId, channelId, $"You drew the following cards: {string.Join(", ", cardsDrawn)}", interaction.Token!, logger);
+        var followupMessage = followupClient.CreateFollowup(guildId, channelId, $"You drew the following card(s): \n - {string.Join("\n - ", cardsDrawn)}", interaction.Token!, logger);
 
         return (new DiscordInteractionResponse
         {
             Data = new DiscordInteractionResponseData
             {
-                Content = $"Drew {cards} from the deck.",
+                Content = $"Drew {cards} from the deck, there are {deck.Count()} remaining in the deck.",
                 Embeds = new List<DiscordEmbed>() { embed },
             }
         }, followupMessage);
