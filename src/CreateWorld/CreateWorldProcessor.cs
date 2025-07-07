@@ -83,7 +83,7 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
                     Data = new DiscordInteractionResponseData
                     {
                         Embeds = embeds,
-                        Content = $"Generating character for {game}...",
+                        Content = $"Generating world for {game}...",
                     }
                 },
                 FollowupMessage = followupMessage
