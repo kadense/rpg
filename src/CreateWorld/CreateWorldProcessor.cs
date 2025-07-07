@@ -42,23 +42,14 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
 
             if (ai && selectedGame.WorldSection!.LlmPrompt != null)
             {
-                var llmPrompt = new StringBuilder(selectedGame.WorldSection.LlmPrompt);
-                selectedGame.WorldSection.Selections
-                    .Where(s => s.VariableName != null)
-                    .ToList().ForEach(s =>
-                    {
-                        if (s.ChosenValues.Count > 0)
-                        {
-                            llmPrompt.Replace($"{{{s.VariableName}}}", string.Join(", ", s.ChosenValues.First().Select(v => v.Name)));
-                        }
-                    });
+                var llmPrompt = selectedGame.WorldSection.GetLlmPrompt();
 
-                logger.LogInformation("LLM Prompt: {Prompt}", llmPrompt.ToString());
+                logger.LogInformation("LLM Prompt: {Prompt}", llmPrompt);
 
                 followupMessage = new DiscordFollowupMessageRequest
                 {
                     Type = FollowupProcessorType.PublicAiPromptResponse,
-                    Content = llmPrompt.ToString(),
+                    Content = llmPrompt,
                     Token = interaction.Token,
                     ChannelId = interaction.ChannelId ?? interaction.Channel!.Id!,
                     GuildId = interaction.GuildId ?? interaction.Guild!.Id!,

@@ -20,6 +20,12 @@ public class DiscordFollowupMessageProcessor
 
     public string QueryLLM(string content)
     {
+        if((Environment.GetEnvironmentVariable("OPENAI_BYPASS") ?? "false") == "true")
+        {
+            _logger.LogInformation("Bypassing LLM for private AI prompt response.");
+            return content;
+        }
+
         var client = new ChatClient(
             model: "gpt-4.1",
             apiKey: Environment.GetEnvironmentVariable("OPENAI_API_KEY")

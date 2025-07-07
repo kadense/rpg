@@ -1,3 +1,4 @@
+using System.Text;
 using Kadense.Models.Discord;
 using Kadense.RPG.Dice;
 
@@ -99,6 +100,28 @@ public class GameEntity<T> : GameBase<T>
     {
         LlmPrompt = llmPrompt;
         return this;
+    }
+
+    
+    public string? GetLlmPrompt()
+    {
+        if (LlmPrompt == null)
+            return null;
+
+        StringBuilder llmPromptBuilder = new StringBuilder(LlmPrompt);
+        Selections.ForEach(s =>
+        {
+            s.ChosenValues.ForEach(c =>
+            {
+                if (c.Count > 0)
+                {
+                    var choice = c.First();
+                    var values = c.Select(v => v.GetLlmPrompt()).ToList();
+                    llmPromptBuilder.Replace($"{{{s.VariableName}}}", string.Join(", ", values));
+                }
+            });
+        });
+        return llmPromptBuilder.ToString();
     }
 
     public void AddFields(IList<DiscordEmbedField> fields, Random random)
@@ -331,6 +354,36 @@ public class GameChoice<T> : GameBase<T>
     {
 
     }
+
+    public string? LlmPrompt { get; set; }
+
+    public GameChoice<T> WithLlmPrompt(string llmPrompt)
+    {
+        LlmPrompt = llmPrompt;
+        return this;
+    }
+
+    public string GetLlmPrompt()
+    {
+        if (LlmPrompt == null)
+            return Name;
+
+        StringBuilder llmPromptBuilder = new StringBuilder(LlmPrompt);
+        Selections.ForEach(s =>
+        {
+            s.ChosenValues.ForEach(c =>
+            {
+                if (c.Count > 0)
+                {
+                    var choice = c.First();
+                    var values = c.Select(v => v.GetLlmPrompt()).ToList();
+                    llmPromptBuilder.Replace($"{{{s.VariableName}}}", string.Join(", ", values));
+                }
+            });
+        });
+        return llmPromptBuilder.ToString();
+    }
+
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public List<GameSelection<GameChoice<T>>> Selections { get; set; } = new List<GameSelection<GameChoice<T>>>();
