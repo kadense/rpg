@@ -11,7 +11,7 @@ public class RollTheDiceProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         string whatToRoll = interaction.Data?.Options?.Where(opt => opt.Name == "whattoroll").FirstOrDefault()?.Value ?? "1d6";
 
@@ -77,13 +77,17 @@ public class RollTheDiceProcessor : IDiscordSlashCommandProcessor
             Value = total.ToString()
         });
 
-        return Task.FromResult<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)>((new DiscordInteractionResponse
-        {
-            Data = new DiscordInteractionResponseData
+        return Task.FromResult(
+            new DiscordApiResponseContent
             {
-                Embeds = embeds,
-                Content = $"You rolled: {total}"
-            }
-        }, null));
+                Response = new DiscordInteractionResponse
+                {
+                    Data = new DiscordInteractionResponseData
+                    {
+                        Embeds = embeds,
+                        Content = $"You rolled: {total}"
+                    }
+                }
+            });
     }
 }

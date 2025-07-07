@@ -117,7 +117,7 @@ public class AdventureDiceProcessor : IDiscordSlashCommandProcessor
         return $"Roll completed";
     }
 
-    public Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         bool skill = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "skill").FirstOrDefault()?.Value ?? "false");
         bool danger = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "danger").FirstOrDefault()?.Value ?? "false");
@@ -131,13 +131,18 @@ public class AdventureDiceProcessor : IDiscordSlashCommandProcessor
 
         var content = MakeRoll(embed, random, skill, danger);            
 
-        return Task.FromResult<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)>((new DiscordInteractionResponse
-        {
-            Data = new DiscordInteractionResponseData
+        return Task.FromResult(
+            new DiscordApiResponseContent
             {
-                Content = content,
-                Embeds = new List<DiscordEmbed>() { embed },
+                Response = new DiscordInteractionResponse
+                {
+                    Data = new DiscordInteractionResponseData
+                    {
+                        Content = content,
+                        Embeds = new List<DiscordEmbed>() { embed },
+                    }
+                }
             }
-        }, null));
+        );
     }
 }

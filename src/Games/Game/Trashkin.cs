@@ -12,7 +12,15 @@ public partial class GamesFactory : GameBase
         return this
             .WithGame(attr.Name, attr.Description ?? "TBD Add Description")
                 .WithWorldSection()
+                    .WithLlmPrompt(@"""
+                    Generate a brief descriptive introduction to a game. The setting is a trash heap in a {state} {location}.
+                    The heap contains a big treasure which is a {treasure} and is guarded by {guardedBy}. 
+                    Their mission is to steal the {treasure}.
+                    Add some random elements for flair.
+                    Do not include a title or header.
+                    """)
                     .WithSelection("State")
+                        .WithVariableName("state")
                         .WithNewChoice("Decrepit")
                         .WithNewChoice("Overpopulated")
                         .WithNewChoice("Kinda magical")
@@ -21,6 +29,7 @@ public partial class GamesFactory : GameBase
                         .WithNewChoice("Haunted")
                     .End()
                     .WithSelection("Location")
+                        .WithVariableName("location")
                         .WithNewChoice("Frontier town")
                         .WithNewChoice("Dungeon")
                         .WithNewChoice("Mansion")
@@ -29,6 +38,7 @@ public partial class GamesFactory : GameBase
                         .WithNewChoice("Dwarven hold")
                     .End()
                     .WithSelection("Big Treasure")
+                        .WithVariableName("treasure")
                         .WithNewChoice("Goblin Princess's Stash")
                         .WithNewChoice("Apparatus of the Crab")
                         .WithNewChoice("Wagon full of garbage")
@@ -37,6 +47,7 @@ public partial class GamesFactory : GameBase
                         .WithNewChoice("Christmas tree")
                     .End()
                     .WithSelection("Guarded by")
+                        .WithVariableName("guardedBy")
                         .WithNewChoice("Dangerous animals")
                         .WithNewChoice("Normal people")
                         .WithNewChoice("Rag-tag kobold sappers")

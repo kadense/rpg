@@ -17,7 +17,7 @@ public enum DiscordSlashCommandChoicesMethod
     GamesWithCharacters,
 
     GamesWithCustomDecks,
-    
+
     Games
 }
 
@@ -60,5 +60,5 @@ public class DiscordSlashCommandAttribute : Attribute
 
 public interface IDiscordSlashCommandProcessor
 {
-    public Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger);
+    public Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger);
 }

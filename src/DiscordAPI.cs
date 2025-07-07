@@ -69,8 +69,8 @@ namespace Kadense.RPG
 
             var interaction = JsonSerializer.Deserialize<DiscordInteraction>(body, serializerOptions);
             var processor = new DiscordInteractionProcessor();
-            var (result, followupMessage) = await processor.ExecuteAsync(interaction!, _logger);
-            var stringify = JsonSerializer.Serialize(result, serializerOptions);
+            var result = await processor.ExecuteAsync(interaction!, _logger);
+            var stringify = JsonSerializer.Serialize(result.Response, serializerOptions);
 
             var response = new ContentResult()
             {
@@ -79,7 +79,7 @@ namespace Kadense.RPG
                 StatusCode = (int)HttpStatusCode.OK
             };
 
-            return new DiscordApiResponse(response, followupMessage);
+            return new DiscordApiResponse(response, result.FollowupMessage);
         }
     }
 }

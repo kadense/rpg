@@ -16,7 +16,7 @@ public class NewDeckProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public async Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         bool jokers = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "jokers").FirstOrDefault()?.Value ?? "false");
         string type = interaction.Data?.Options?.Where(opt => opt.Name == "type").FirstOrDefault()?.Value ?? "Standard Deck";
@@ -47,13 +47,16 @@ public class NewDeckProcessor : IDiscordSlashCommandProcessor
 
         await client.UploadAsync(new BinaryData(deck), overwrite: true, cancellationToken: CancellationToken.None);
         
-        return (new DiscordInteractionResponse
+        return new DiscordApiResponseContent
         {
-            Data = new DiscordInteractionResponseData
+            Response = new DiscordInteractionResponse
             {
-                Content = $"The deck has been refreshed for this channel. It now contains {deck.Count()} cards.",
-                Embeds = new List<DiscordEmbed>() { embed },
+                Data = new DiscordInteractionResponseData
+                {
+                    Content = $"The deck has been refreshed for this channel. It now contains {deck.Count()} cards.",
+                    Embeds = new List<DiscordEmbed>() { embed },
+                }
             }
-        }, null);
+        };
     }
 }

@@ -180,40 +180,49 @@ public class DiscordInteractionProcessor
 
     protected IDictionary<string, IDiscordSlashCommandProcessor> Commands { get; }
 
-    public async Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         var data = interaction.Data;
 
         if (data == null)
-            return (new DiscordInteractionResponse
+            return new DiscordApiResponseContent
             {
-                Type = 1, // Pong response type
-                Data = new DiscordInteractionResponseData
+                Response = new DiscordInteractionResponse
                 {
-                    Content = "No interaction data provided."
-                },
-            }, null);
+                    Type = 1, // Pong response type
+                    Data = new DiscordInteractionResponseData
+                    {
+                        Content = "No interaction data provided."
+                    },
+                }
+            };
 
         if (string.IsNullOrEmpty(data.Name))
-            return (new DiscordInteractionResponse
+            return new DiscordApiResponseContent
             {
-                Type = 1, // Pong response type
-                Data = new DiscordInteractionResponseData
+                Response = new DiscordInteractionResponse
                 {
-                    Content = "interaction data name is not populated."
-                },
-            }, null);
+                    Type = 1, // Pong response type
+                    Data = new DiscordInteractionResponseData
+                    {
+                        Content = "interaction data name is not populated."
+                    },
+                }
+            };
 
         if (!Commands.TryGetValue(data.Name, out var command))
-            return (new DiscordInteractionResponse
+            return new DiscordApiResponseContent
             {
-                Type = 1, // Pong response type
-                Data = new DiscordInteractionResponseData
+                Response = new DiscordInteractionResponse
                 {
-                    
-                    Content = "interaction data name is not populated."
-                },
-            }, null);
+                    Type = 1, // Pong response type
+                    Data = new DiscordInteractionResponseData
+                    {
+
+                        Content = "interaction data name is not populated."
+                    },
+                }
+            };
             
         return await command.ExecuteAsync(interaction, logger);
     }

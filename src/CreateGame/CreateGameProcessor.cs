@@ -9,20 +9,23 @@ namespace Kadense.RPG.CreateGame;
 [DiscordSlashCommand("game", "Create a game world and characters")]
 [DiscordSlashCommandOption("game", "Which Game?", true, AutoChoices = DiscordSlashCommandChoicesMethod.Games)]
 [DiscordSlashCommandOption("players", "How many players?", true, Type = DiscordSlashCommandOptionType.Integer)]
+[DiscordSlashCommandOption("ai", "Use LLM models?", false, Type = DiscordSlashCommandOptionType.Boolean, Choices = new[] { "true", "false" })]
 public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
 {
 
     private readonly Random random = new Random();
 
-    public Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         var games = new GamesFactory()
             .EndGames();
 
         string game = interaction.Data?.Options?.Where(opt => opt.Name == "game").FirstOrDefault()?.Value ?? "1d6";
+        bool ai = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "ai").FirstOrDefault()?.Value ?? "false");
         int players = int.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "players").FirstOrDefault()?.Value ?? "2");
 
         var embeds = new List<DiscordEmbed>();
+        DiscordFollowupMessageRequest? followupMessage = null;
 
 
         var matchingGames = games.Where(x => x.Name.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
@@ -58,7 +61,7 @@ public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
                 selectedGame.CharacterSection!.AddFields(fields, random);
             }
 
-            if(selectedGame.CharacterSection!.RelationshipSelections.Count > 0)
+            if (selectedGame.CharacterSection!.RelationshipSelections.Count > 0)
             {
                 foreach (var relationshipSelection in selectedGame.CharacterSection.RelationshipSelections)
                 {
@@ -71,7 +74,7 @@ public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
                             foreach (var chosen in relationshipSelection.Choose(random))
                             {
                                 relationshipString.Append($"{chosen.Name} Player #{p2 + 1}");
-                                if(chosen.Description != null)
+                                if (chosen.Description != null)
                                 {
                                     relationshipString.Append($" - {chosen.Description}");
                                 }
@@ -83,18 +86,50 @@ public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
                             Name = relationshipSelection.Name,
                             Value = relationshipString.ToString(),
                         });
-                    }                    
+                    }
                 }
+            }
+
+
+            if (ai && selectedGame.WorldSection!.LlmPrompt != null)
+            {
+                var llmPrompt = new StringBuilder(selectedGame.WorldSection.LlmPrompt);
+                selectedGame.WorldSection.Selections
+                    .Where(s => s.VariableName != null)
+                    .ToList().ForEach(s =>
+                    {
+                        if (s.ChosenValues.Count > 0)
+                        {
+                            llmPrompt.Replace($"{{{s.VariableName}}}", string.Join(", ", s.ChosenValues.First().Select(v => v.Name)));
+                        }
+                    });
+
+                logger.LogInformation("LLM Prompt: {Prompt}", llmPrompt.ToString());
+
+                followupMessage = new DiscordFollowupMessageRequest
+                {
+                    Type = FollowupProcessorType.PublicAiPromptResponse,
+                    Content = llmPrompt.ToString(),
+                    Token = interaction.Token,
+                    ChannelId = interaction.ChannelId ?? interaction.Channel!.Id!,
+                    GuildId = interaction.GuildId ?? interaction.Guild!.Id!,
+                };
             }
         }
 
-        return Task.FromResult<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)>((new DiscordInteractionResponse
-        {
-            Data = new DiscordInteractionResponseData
+        return Task.FromResult(
+            new DiscordApiResponseContent
             {
-                Embeds = embeds,
-                Content = $"Generating character for {game}...",
+                Response = new DiscordInteractionResponse
+                {
+                    Data = new DiscordInteractionResponseData
+                    {
+                        Embeds = embeds,
+                        Content = $"Generating character for {game}...",
+                    }
+                },
+                FollowupMessage = followupMessage
             }
-        }, null));
+        );
     }
 }

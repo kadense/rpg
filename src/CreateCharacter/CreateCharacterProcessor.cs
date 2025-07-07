@@ -12,7 +12,7 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         var games = new GamesFactory()
             .EndGames();
@@ -21,7 +21,7 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
 
         var embeds = new List<DiscordEmbed>();
 
-       
+
         var matchingGames = games.Where(x => x.Name.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
         if (matchingGames.Count > 0)
         {
@@ -37,15 +37,20 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
             });
         }
 
-        
 
-        return Task.FromResult<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)>((new DiscordInteractionResponse
-        {
-            Data = new DiscordInteractionResponseData
+
+        return Task.FromResult(
+            new DiscordApiResponseContent
             {
-                Embeds = embeds,
-                Content = $"Generating character for {game}...",
+                Response = new DiscordInteractionResponse
+                {
+                    Data = new DiscordInteractionResponseData
+                    {
+                        Embeds = embeds,
+                        Content = $"Generating character for {game}...",
+                    }
+                }
             }
-        }, null));
+        );
     }
 }

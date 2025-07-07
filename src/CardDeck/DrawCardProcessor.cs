@@ -16,7 +16,7 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
 
     private readonly Random random = new Random();
 
-    public async Task<(DiscordInteractionResponse, DiscordFollowupMessageRequest?)> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         int cards = int.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "cards").FirstOrDefault()?.Value ?? "1");
 
@@ -63,13 +63,17 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
         var followupClient = new DiscordFollowupClient();
         var followupMessage = followupClient.CreateFollowup(guildId, channelId, $"You drew the following card(s): \n - {string.Join("\n - ", cardsDrawn)}", interaction.Token!, logger);
 
-        return (new DiscordInteractionResponse
+        return new DiscordApiResponseContent
         {
-            Data = new DiscordInteractionResponseData
+            Response = new DiscordInteractionResponse
             {
-                Content = $"Drew {cards} from the deck, there are {deck.Count()} remaining in the deck.",
-                Embeds = new List<DiscordEmbed>() { embed },
-            }
-        }, followupMessage);
+                Data = new DiscordInteractionResponseData
+                {
+                    Content = $"Drew {cards} from the deck, there are {deck.Count()} remaining in the deck.",
+                    Embeds = new List<DiscordEmbed>() { embed },
+                }
+            },
+            FollowupMessage = followupMessage
+        };
     }
 }

@@ -32,13 +32,13 @@ public class DiscordFollowupClient
         };
     }
 
-    public async Task SendFollowupAsync(string content, string interactionToken, ILogger logger)
+    public async Task SendFollowupAsync(string content, string interactionToken, ILogger logger, bool privateMessage = false)
     {
         string url = $"{BaseUrl}/{interactionToken}?wait=true";
         var responseData = new DiscordInteractionResponseData
         {
             Content = content,
-            Flags = 64, // Ephemeral message
+            Flags = privateMessage ? 64 : null, // Ephemeral message for when private
         };
 
         var json = JsonSerializer.Serialize(responseData, new JsonSerializerOptions

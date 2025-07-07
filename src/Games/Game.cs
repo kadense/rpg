@@ -86,11 +86,18 @@ public class GameEntity<T> : GameBase<T>
     public List<GameSelection<GameEntity<T>>> Selections { get; set; } = new List<GameSelection<GameEntity<T>>>();
     public List<GameSelection<GameEntity<T>>> RelationshipSelections { get; set; } = new List<GameSelection<GameEntity<T>>>();
 
+    public string? LlmPrompt { get; set; }
+
     public DiceRules? DiceRules { get; set; }
 
     public GameEntity<T> WithDiceRules(DiceRules diceRules)
     {
         DiceRules = diceRules;
+        return this;
+    }
+    public GameEntity<T> WithLlmPrompt(string llmPrompt)
+    {
+        LlmPrompt = llmPrompt;
         return this;
     }
 
@@ -216,6 +223,10 @@ public class GameSelection<T> : GameBase<T>
     public int Color { get; set; } = 0x0000FF; // Default to blue color
     public int NumberToChoose { get; set; } = 1;
 
+    public string? VariableName { get; set; }
+
+    public List<List<GameChoice<GameSelection<T>>>> ChosenValues { get; set; } = new List<List<GameChoice<GameSelection<T>>>>();
+
     public void AddFields(IList<DiscordEmbedField> fields, Random random)
     {
 
@@ -260,6 +271,11 @@ public class GameSelection<T> : GameBase<T>
         NumberToChoose = number;
         return this;
     }
+    public GameSelection<T> WithVariableName(string variableName)
+    {
+        VariableName = variableName;
+        return this;
+    }
 
     public List<GameChoice<GameSelection<T>>> Choose(Random random)
     {
@@ -267,7 +283,7 @@ public class GameSelection<T> : GameBase<T>
         random.Shuffle(choices);
 
         var takenItems = choices.Take(NumberToChoose).ToList();
-
+        ChosenValues.Add(takenItems);
         if (MutuallyExclusive)
         {
             foreach (var takenItem in takenItems)
@@ -275,6 +291,7 @@ public class GameSelection<T> : GameBase<T>
                 Choices.Remove(takenItem);
             }
         }
+
         return takenItems;
     }
 
