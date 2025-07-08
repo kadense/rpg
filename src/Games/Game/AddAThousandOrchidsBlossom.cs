@@ -10,6 +10,11 @@ public partial class GamesFactory : GameBase
         var attr = MethodInfo.GetCurrentMethod()!.GetCustomAttribute<GameAttribute>()!;
         return this
             .WithGame(attr.Name, attr.Description ?? "TBD Add Description")
+                .WithWorldSection()
+                    .WithLlmPrompt(@"""
+                        I would like a brief narrative introduction for a game set in a fictional realm of Orcs. A fortress sits as the last line of defence between the invading forces that are hell bent on destroying your home city. An overwhelming force that is about to arrive and it's unlikely that help will arrive in time. It seems hopeless, but some of the greatest champions of the kingdom are among you. Describe the setting. Randomise the enemy and add other elements for flair. Do not introduce any of the characters. Do not add headers or titles.
+                    """)
+                .End()
                 .WithCharacterSection()
                     .WithSelection("Name")
                         .WithNewChoice("Grahk")

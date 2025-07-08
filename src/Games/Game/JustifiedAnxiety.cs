@@ -10,6 +10,11 @@ public partial class GamesFactory : GameBase
         var attr = MethodInfo.GetCurrentMethod()!.GetCustomAttribute<GameAttribute>()!;
         return this
             .WithGame(attr.Name, attr.Description ?? "TBD Add Description")
+                .WithWorldSection()
+                    .WithLlmPrompt(@"""
+                        I would like a brief introduction for a game set in a dystopian future where the world is ruled by a malfunctioning AI construct that manages the complex where you live, deep underground. Propaganda tells you that the complex is under constant attack from socialists and from their propaganda, as well as from aberrants who possess special powers, often these aberrants hide their nature as the AI construct imprisons and uses them for its own nefarious purposes. To protect itself and the complex, the AI construct has implemented a series of complex and multi-faceted rules concerning hierarchy and permission. It compartmentalises information as well, limiting you to what you need to know. The players are cloned agents for the AI construct, even death is not an escape as you will be downloaded to a newly cloned body and this hurts. You and your team have to suppress the rebellion while trying to survive in a world where trust is discouraged, your actions are constantly scrutinised and are living in fear is the norm. add random elements for flair. Do not add a title or header.
+                    """)
+                .End()
                 .WithCharacterSection()
                     .WithSelection("Traits")
                         .SetNumberToChoose(3)

@@ -11,6 +11,11 @@ public partial class GamesFactory : GameBase
         var attr = MethodInfo.GetCurrentMethod()!.GetCustomAttribute<GameAttribute>()!;
         return this
             .WithGame(attr.Name, attr.Description ?? "TBD Add Description")
+                .WithWorldSection()
+                    .WithLlmPrompt(@"""
+                        I would like a brief introduction for a game set in a dystopian future where the world has become a desert world. A once great city, the size of a small country with sky scrapers now lays in ruins after the sands have consumed all but the tallest buildings. The remaining humans have regressed to technology akin to Asia in the 1300s. Beneath the sands lays the realm of the three goddesses, who send omens and crystal miracles up to the surface world. The land is fraught with danger whether it be animals, bandits, warring religious zealots or knights of neighbouring kingdoms. Draw attention to a towering building known as the Maiden's hand, the HQ of the crown. Describe the setting, add random elements for flair. Do not add a title or header.
+                    """)
+                .End()
                 .WithCharacterSection()
                     .WithRandomAttribute("Physical")
                     .WithRandomAttribute("Social")
