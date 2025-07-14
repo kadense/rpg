@@ -41,7 +41,7 @@ public class NewTroikaAllyProcessor : IDiscordSlashCommandProcessor
                 gameInstance.Participants.Add(new GameParticipant
                 {
                     Name = name,
-                    Type = "Henchmen",
+                    Type = "Ally",
                     Attributes = new Dictionary<string, int>
                     {
                     }
