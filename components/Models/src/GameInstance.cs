@@ -13,10 +13,15 @@ public class GameInstance
         {
             attributes = new string[] { }; // Default attribute
         }
+        var maxParticipantLength = Participants.Max(p => p.Name!.Length);
+        if(maxParticipantLength < 20)
+        {
+            maxParticipantLength = 20; // Ensure at least 4 characters for the name
+        }
         builder.AppendLine();
         builder.Append("```");
         builder.Append($"#  ".PadLeft(6, ' '));
-        builder.Append($"Name".PadRight(20, ' '));
+        builder.Append($"Name".PadRight(maxParticipantLength + 1, ' '));
         builder.Append($"Type".PadRight(20, ' '));
         foreach (var attribute in attributes)
         {
@@ -28,7 +33,7 @@ public class GameInstance
             var participant = Participants[i];
             string prefix = (i + 1).ToString().PadLeft(5, ' ');
             builder.Append($"{prefix}) ");
-            builder.Append($"{participant.Name}".PadRight(20, ' '));
+            builder.Append($"{participant.Name}".PadRight(maxParticipantLength + 1, ' '));
             builder.Append($"{participant.Type}".PadRight(20, ' '));
 
             foreach (var attribute in attributes)
