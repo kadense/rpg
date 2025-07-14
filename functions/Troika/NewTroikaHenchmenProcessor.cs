@@ -55,7 +55,7 @@ public class NewTroikaHenchmenProcessor : IDiscordSlashCommandProcessor
 
         var embed = new DiscordEmbed
         {
-            Title = result,
+            Description = result,
             Color = 0x00FF00, // Green color
             Fields = new List<DiscordEmbedField>()
         };
