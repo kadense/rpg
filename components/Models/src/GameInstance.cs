@@ -20,7 +20,7 @@ public class GameInstance
         }
         builder.AppendLine();
         builder.Append("```");
-        builder.Append($"#  ".PadLeft(6, ' '));
+        builder.Append($"# ".PadLeft(7, ' '));
         builder.Append($"Name".PadRight(maxParticipantLength + 1, ' '));
         builder.Append($"Type".PadRight(20, ' '));
         foreach (var attribute in attributes)
