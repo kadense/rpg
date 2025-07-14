@@ -15,7 +15,6 @@ public class GameInstance
         }
         builder.AppendLine();
         builder.Append("```");
-        builder.Append($"Participant");
         builder.Append($"# ".PadLeft(6, ' '));
         builder.Append($"Name".PadRight(20, ' '));
         builder.Append($"Type".PadRight(20, ' '));
