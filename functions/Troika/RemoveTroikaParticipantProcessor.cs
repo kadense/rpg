@@ -47,21 +47,13 @@ public class RemoveTroikaParticipantProcessor : IDiscordSlashCommandProcessor
             }
         }
 
-        var embed = new DiscordEmbed
-        {
-            Description = result,
-            Color = 0x00FF00, // Green color
-            Fields = new List<DiscordEmbedField>()
-        };
-
         return new DiscordApiResponseContent
         {
             Response = new DiscordInteractionResponse
             {
                 Data = new DiscordInteractionResponseData
                 {
-                    Content = resultOverall,
-                    Embeds = new List<DiscordEmbed>() { embed },
+                    Content = $"**{resultOverall}**\n\n{result}",
                 }
             }
         };

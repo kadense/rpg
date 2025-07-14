@@ -54,12 +54,6 @@ public class NewTroikaPlayerProcessor : IDiscordSlashCommandProcessor
             }
         }
 
-        var embed = new DiscordEmbed
-        {
-            Description = result,
-            Color = 0x00FF00, // Green color
-            Fields = new List<DiscordEmbedField>()
-        };
 
         return new DiscordApiResponseContent
         {
@@ -67,8 +61,7 @@ public class NewTroikaPlayerProcessor : IDiscordSlashCommandProcessor
             {
                 Data = new DiscordInteractionResponseData
                 {
-                    Content = resultOverall,
-                    Embeds = new List<DiscordEmbed>() { embed },
+                    Content = $"**{resultOverall}**\n\n{result}",
                 }
             }
         };
