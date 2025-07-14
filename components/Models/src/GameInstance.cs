@@ -13,7 +13,8 @@ public class GameInstance
         {
             attributes = new string[] { }; // Default attribute
         }
-        builder.Append("```")
+        builder.AppendLine();
+        builder.Append("```");
         builder.Append($"Participant");
         builder.Append($"# ".PadLeft(6, ' '));
         builder.Append($"Name".PadRight(20, ' '));
