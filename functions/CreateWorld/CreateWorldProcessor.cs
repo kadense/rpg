@@ -89,17 +89,15 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
             };
         }
 
+        var content = new StringBuilder();
+        selectedGame.WorldSection!.WithFields(content, random);
 
         return Task.FromResult(
             new DiscordApiResponseContent
             {
                 Response = new DiscordInteractionResponseBuilder()
                     .WithData()
-                        .WithEmbed()
-                            .WithTitle($"The world of {game}")
-                            .WithFields(selectedGame.WorldSection, random)
-                            .WithColor(0x00FF00) // Green color
-                        .End()
+                        .WithContent(content.ToString())
                     .End()
                     .Build(),
                 FollowupMessage = followupMessage

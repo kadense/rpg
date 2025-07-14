@@ -1,3 +1,4 @@
+using System.Text;
 using Kadense.Models.Discord;
 using Kadense.Models.Discord.ResponseBuilders;
 
@@ -70,13 +71,13 @@ public class GameSelection<T> : GameBase<T>
         Choices.Add(choice);
         return choice;
     }
-    
+
     public GameSelection<T> SetIsMutuallyExclusive(bool isMutuallyExclusive)
     {
         MutuallyExclusive = isMutuallyExclusive;
         return this;
     }
-    
+
     public GameSelection<T> WithNewChoice(string name, string? description = null)
     {
         var choice = new GameChoice<GameSelection<T>>(this)
@@ -86,5 +87,44 @@ public class GameSelection<T> : GameBase<T>
         };
         Choices.Add(choice);
         return this;
+    }
+    
+    
+    public void WithFields(StringBuilder builder, KadenseRandomizer random, int level)
+    {
+        var results = new Dictionary<string, string>();
+        var prefix = "".PadLeft(level, '#');
+        foreach (var choice in this.Choose(random))
+        {
+            builder.Append(prefix);
+            builder.AppendLine(string.IsNullOrEmpty(choice.Description) ? this.Name : $"**{this.Name}:** {choice.Name}");
+            
+            builder.AppendLine(choice.Description ?? choice.Name);
+
+            choice.Attributes.ToList().ForEach(attr =>
+                results[attr.Key] = attr.Value
+            );
+
+            if (results.Count > 0)
+            {
+                builder.Append("```");
+                var maxKeyLength = results.ToList().Max(kv => kv.Key.Length);
+                var maxValueLength = results.ToList().Max(kv => kv.Value.Length);
+                results.ToList().ForEach(kv =>
+                {
+                    builder
+                        .AppendLine($"{kv.Key.PadRight(maxKeyLength)}: {kv.Value.PadLeft(maxValueLength)}");
+                });
+                builder.Append("```");
+            }
+
+            if (choice.Selections.Count > 0)
+                {
+                    foreach (var s in choice.Selections)
+                    {
+                        s.WithFields(builder, random, level + 1);
+                    }
+                }
+        }
     }
 }
