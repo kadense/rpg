@@ -7,9 +7,9 @@ namespace Kadense.RPC.Tests;
 public class RollDiceTests
 {
     [Fact]
-    public void Test_d6()
+    public async Task Test_d6()
     {
-        var result = Test_RollDice("d6");
+        var result = await Test_RollDice("d6");
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
         Assert.NotNull(result.Data.Embeds);
@@ -19,9 +19,9 @@ public class RollDiceTests
     }
 
     [Fact]
-    public void Test_1d6()
+    public async Task Test_1d6()
     {
-        var result = Test_RollDice("1d6");
+        var result = await Test_RollDice("1d6");
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
         Assert.NotNull(result.Data.Embeds);
@@ -33,9 +33,9 @@ public class RollDiceTests
     
 
     [Fact]
-    public void Test_2d20()
+    public async Task Test_2d20()
     {
-        var result = Test_RollDice("2d20");
+        var result = await Test_RollDice("2d20");
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
         Assert.NotNull(result.Data.Embeds);
@@ -46,9 +46,9 @@ public class RollDiceTests
 
     
     [Fact]
-    public void Test_1d6plus1()
+    public async Task Test_1d6plus1()
     {
-        var result = Test_RollDice("1d6+1");
+        var result = await Test_RollDice("1d6+1");
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
         Assert.NotNull(result.Data.Embeds);
@@ -59,9 +59,9 @@ public class RollDiceTests
 
     
     [Fact]
-    public void Test_1d6plus1plus2()
+    public async Task Test_1d6plus1plus2()
     {
-        var result = Test_RollDice("1d6+1+2");
+        var result = await Test_RollDice("1d6+1+2");
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
         Assert.NotNull(result.Data.Embeds);
@@ -72,9 +72,9 @@ public class RollDiceTests
 
     
     [Fact]
-    public void Test_1d6plus1minus2()
+    public async Task Test_1d6plus1minus2()
     {
-        var result = Test_RollDice("1d6+1-2");
+        var result = await Test_RollDice("1d6+1-2");
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
         Assert.NotNull(result.Data.Embeds);
@@ -86,9 +86,9 @@ public class RollDiceTests
 
     
     [Fact]
-    public void Test_1d6minus1()
+    public async Task Test_1d6minus1()
     {
-        var result = Test_RollDice("1d6-1");
+        var result = await Test_RollDice("1d6-1");
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
         Assert.NotNull(result.Data.Embeds);
@@ -97,7 +97,7 @@ public class RollDiceTests
         Assert.NotNull(result.Data.Content);
     }
 
-    public DiscordInteractionResponse Test_RollDice(string whatToRoll)
+    public async Task<DiscordInteractionResponse> Test_RollDice(string whatToRoll)
     {
         var logger = LoggerFactory.Create(builder =>
         {
@@ -122,6 +122,7 @@ public class RollDiceTests
         };
 
         var processor = new DiscordInteractionProcessor();
-        return processor.ExecuteAsync(interaction, logger).Result;
+        var result = await processor.ExecuteAsync(interaction, logger);
+        return result.Response!;
     }
 }

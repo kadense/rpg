@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\components\Models\src\Kadense.RPG.Models.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ProjectName>RPG.Website</ProjectName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Kadense.RPG.Models" />
+  </ItemGroup>
+</Project>

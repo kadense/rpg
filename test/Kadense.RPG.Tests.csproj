@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Kadense.RPG.csproj" />
+    <ProjectReference Include="..\functions\Kadense.RPG.csproj" />
   </ItemGroup>
 
 </Project>

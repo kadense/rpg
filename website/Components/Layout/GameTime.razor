@@ -1,0 +1,25 @@
+﻿@rendermode InteractiveServer
+
+<div class="game-time">
+    <div class="title">
+        Game Time:
+    </div>
+    <div class="content">   
+        @inGameTime.ToString("ddd d MMM htt")
+    </div>
+    <button class="btn btn-primary" @onclick="IncrementClock">+</button>
+    <button class="btn btn-primary" @onclick="DecrementClock">-</button>
+</div>
+
+@code {
+    private DateTime inGameTime = DateTime.Parse("2025-07-01T00:00:00Z");
+
+    private void IncrementClock()
+    {
+        inGameTime = inGameTime.AddHours(1);
+    }
+    private void DecrementClock()
+    {
+        inGameTime = inGameTime.AddHours(-1);
+    }
+}

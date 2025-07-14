@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Kadense Ltd",
+    "classifications": [ "RPG", "Library", "KADENSE" ],
+    "identity": "RPG.Templates.Library",
+    "name": "KADENSE RPG Class Library",
+    "sourceName" : "Templates.Library",
+    "shortName": "krpglib",
+    "tags": {
+      "language": "C#",
+      "type":"project"
+    }
+}

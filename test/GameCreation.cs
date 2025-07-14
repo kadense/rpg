@@ -12,9 +12,9 @@ public class GameCreationTests
     [InlineData("The witch is dead", 10)]
 
 
-    public void Test_TheWitchIsDead(string game, int players)
+    public async Task Test_TheWitchIsDead(string game, int players)
     {
-        var result = TestGameCreation(game, players);
+        var result = await TestGameCreation(game, players);
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
         Assert.NotNull(result.Data.Embeds);
@@ -22,7 +22,7 @@ public class GameCreationTests
         Assert.NotNull(result.Data.Content);
     }
 
-    public DiscordInteractionResponse TestGameCreation(string game, int players)
+    public async Task<DiscordInteractionResponse> TestGameCreation(string game, int players)
     {
         var logger = LoggerFactory.Create(builder =>
         {
@@ -54,6 +54,7 @@ public class GameCreationTests
 
         // Create an instance of the processor and execute it
         var processor = new DiscordInteractionProcessor();
-        return processor.ExecuteAsync(interaction, logger).Result;
+        var result = await processor.ExecuteAsync(interaction, logger);
+        return result.Response!;
     }
 }
