@@ -48,7 +48,7 @@ public class NewTroikaHenchmenProcessor : IDiscordSlashCommandProcessor
                 });
 
                 await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);
-                result = gameInstance.GetParticipantText();
+                result = gameInstance.GetParticipantText(["Initiative"]);
                 resultOverall = $"The participant list has been updated, it now contains {gameInstance.Participants.Count()}.";
             }
         }

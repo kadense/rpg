@@ -34,7 +34,7 @@ public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
             else
             {
                
-                result = gameInstance.GetParticipantText();
+                result = gameInstance.GetParticipantText(["Initiative"]);
             }
         }
 

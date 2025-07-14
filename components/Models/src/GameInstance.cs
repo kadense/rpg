@@ -15,7 +15,7 @@ public class GameInstance
         }
         builder.AppendLine();
         builder.Append("```");
-        builder.Append($"# ".PadLeft(6, ' '));
+        builder.Append($"#  ".PadLeft(6, ' '));
         builder.Append($"Name".PadRight(20, ' '));
         builder.Append($"Type".PadRight(20, ' '));
         foreach (var attribute in attributes)
@@ -28,7 +28,7 @@ public class GameInstance
             var participant = Participants[i];
             string prefix = (i + 1).ToString().PadLeft(5, ' ');
             builder.Append($"{prefix}) ");
-            builder.Append($"**{participant.Name}**".PadRight(20, ' '));
+            builder.Append($"{participant.Name}".PadRight(20, ' '));
             builder.Append($"{participant.Type}".PadRight(20, ' '));
 
             foreach (var attribute in attributes)

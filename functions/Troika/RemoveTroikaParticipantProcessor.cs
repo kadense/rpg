@@ -42,7 +42,7 @@ public class RemoveTroikaParticipantProcessor : IDiscordSlashCommandProcessor
                 gameInstance.Participants.Remove(participantToRemove);
 
                 await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);
-                result = gameInstance.GetParticipantText();
+                result = gameInstance.GetParticipantText(["Initiative"]);
                 resultOverall = $"\"{participantToRemove.Name}\" has been removed from the participant list, it now contains {gameInstance.Participants.Count()}.";
             }
         }
