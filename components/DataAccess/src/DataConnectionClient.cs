@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using Kadense.Models.Discord;
 
 namespace Kadense.RPG.DataAccess;
 
@@ -48,6 +49,24 @@ public class DataConnectionClient
         var deckExists = await client.ExistsAsync(CancellationToken.None);
 
         await client.UploadAsync(new BinaryData(deck), overwrite: true, cancellationToken: CancellationToken.None);
+    }
+
+    public async Task WriteDiscordInteractionAsync(DiscordInteraction interaction)
+    {
+        if((Environment.GetEnvironmentVariable("WRITE_DISCORD_INTERACTIONS") ?? "false") != "true")
+        {
+            return; // Skip writing if the environment variable is not set to true
+        }
+
+        var client = new BlobClient(
+            Environment.GetEnvironmentVariable("AzureWebJobsStorage")!,
+            "rpg",
+            $"discordRequests/{DateTime.UtcNow.ToOADate()}/{interaction.Id}.json"
+        );
+
+        await client.GetParentBlobContainerClient().CreateIfNotExistsAsync(PublicAccessType.None);
+
+        await client.UploadAsync(new BinaryData(interaction), overwrite: true, cancellationToken: CancellationToken.None);
     }
 
     public async Task<Dictionary<string, DeckOfCards>> ReadDecksAsync()

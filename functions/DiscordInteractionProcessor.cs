@@ -10,6 +10,7 @@ namespace Kadense.RPG;
 
 public class DiscordInteractionProcessor
 {
+    public DataConnectionClient DataConnection { get; } = new DataConnectionClient();
     public DiscordInteractionProcessor()
     {
         Commands = new Dictionary<string, IDiscordSlashCommandProcessor>();
@@ -222,6 +223,8 @@ public class DiscordInteractionProcessor
                     },
                 }
             };
+
+        await DataConnection.WriteDiscordInteractionAsync(interaction);
             
         return await command.ExecuteAsync(interaction, logger);
     }

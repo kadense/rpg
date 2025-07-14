@@ -1,0 +1,98 @@
+using Kadense.Models.Discord.ResponseBuilders;
+
+namespace Kadense.RPG.Models;
+
+public static class DiscordEmbedExtensions
+{
+    public static DiscordEmbedBuilder WithFields<TEntity>(this DiscordEmbedBuilder builder, GameEntity<TEntity>? entity, KadenseRandomizer random)
+        where TEntity : GameBase
+    {
+        if (entity == null)
+            return builder;
+
+        if (entity.RandomAttributes.Count > 0)
+        {
+            if (entity.RandomAttributeSplitValue == 0)
+            {
+                if (entity.DiceRules == null)
+                    entity.DiceRules = new DiceRules(entity.RandomAttributes.Count);
+
+                var rolls = entity.DiceRules.Roll(random);
+                for (int i = 0; i < entity.RandomAttributes.Count; i++)
+                {
+                    builder
+                        .WithField()
+                            .WithName(entity.RandomAttributes[i])
+                            .WithValue(rolls[i].ToString())
+                        .End();
+                }
+            }
+            else
+            {
+                var items = new Dictionary<string, int>();
+                var pointsToAssign = entity.RandomAttributeSplitValue;
+                entity.RandomAttributes.ForEach(attr =>
+                {
+                    items.Add(attr, entity.RandomAttributeMinValue);
+                    pointsToAssign -= entity.RandomAttributeMinValue;
+                });
+
+                for (int i = 0; i < pointsToAssign; i++)
+                {
+                    var keys = items.Keys.ToArray();
+                    random.Shuffle(keys);
+                    items[keys.First()] += 1;
+                }
+
+                entity.RandomAttributes.ForEach(attr =>
+                {
+                    builder
+                        .WithField()
+                            .WithName(attr)
+                            .WithValue(items[attr].ToString())
+                        .End();
+                });
+            }
+        }
+
+        foreach (var selection in entity.Selections)
+        {
+            builder.WithFields(selection, random);
+        }
+        return builder;
+    }
+
+    
+    public static DiscordEmbedBuilder WithFields<TSelection>(this DiscordEmbedBuilder builder, GameSelection<TSelection>? selection, KadenseRandomizer random)
+        where TSelection : GameBase
+    {
+        if(selection == null)
+            return builder;
+
+        foreach (var choice in selection.Choose(random))
+        {
+            builder
+                .WithField()
+                    .WithName(string.IsNullOrEmpty(choice.Description) ? selection.Name : $"{selection.Name}: {choice.Name}")
+                    .WithValue(choice.Description ?? choice.Name)
+                .End();
+
+            choice.Attributes.ToList().ForEach(attr =>
+                builder
+                    .WithField()
+                        .WithName(attr.Key)
+                        .WithValue(attr.Value)
+                    .End()
+            );
+
+            if (choice.Selections.Count > 0)
+            {
+                foreach (var s in choice.Selections)
+                {
+                    builder.WithFields(s, random);
+                }
+            }
+        }
+        return builder;
+    }
+}

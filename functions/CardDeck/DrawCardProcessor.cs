@@ -4,6 +4,7 @@ using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Kadense.RPG.DataAccess;
+using Kadense.Models.Discord.ResponseBuilders;
 
 namespace Kadense.RPG.CardDeck;
 
@@ -32,13 +33,6 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
         }
 
 
-        var embed = new DiscordEmbed
-        {
-            Title = $"Drawn card from {deck.Name} Deck",
-            Color = 0x00FF00, // Green color
-            Fields = new List<DiscordEmbedField>()
-        };
-
         var cardsDrawn = deck!.DrawCards(cards);
         bool deckReset = false;
         if (deck.Name == "Troika Initiative")
@@ -60,35 +54,33 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
 
             return new DiscordApiResponseContent
             {
-                Response = new DiscordInteractionResponse
-                {
-                    Data = new DiscordInteractionResponseData
-                    {
-                        Content = $"Drew {cards} from the deck, {(deckReset ? "the deck has been reset and reshuffled" : $"there are {deck.Count()} remaining in the deck.")}",
-                        Embeds = new List<DiscordEmbed>() { embed },
-                    }
-                },
+                Response = new DiscordInteractionResponseBuilder()
+                    .WithData()
+                        .WithContent($"Drew {cards} from the deck, {(deckReset ? "the deck has been reset and reshuffled" : $"there are {deck.Count()} remaining in the deck.")}")
+                        .WithEmbed()
+                            .WithTitle($"Drawn card from {deck.Name} Deck")
+                            .WithColor(0x00FF00) // Green color
+                        .End()
+                    .End()
+                    .Build(),
                 FollowupMessage = followupMessage
             };
         }
         else
         {
-            embed.Fields.Add(new DiscordEmbedField
-            {
-                Name = "Drawn Cards",
-                Value = string.Join("\n", cardsDrawn.Select(card => $" - {card}"))
-            });
-
             return new DiscordApiResponseContent
             {
-                Response = new DiscordInteractionResponse
-                {
-                    Data = new DiscordInteractionResponseData
-                    {
-                        Content = $"Drew {cards} from the deck, {(deckReset ? "the deck has been reset and reshuffled" : $"there are {deck.Count()} remaining in the deck.")}",
-                        Embeds = new List<DiscordEmbed>() { embed },
-                    }
-                }
+                Response = new DiscordInteractionResponseBuilder()
+                    .WithData()
+                        .WithContent($"Drew {cards} from the deck, {(deckReset ? "the deck has been reset and reshuffled" : $"there are {deck.Count()} remaining in the deck.")}")
+                        .WithEmbed()
+                            .WithField()
+                                .WithName("Drawn Cards")
+                                .WithValue(string.Join("\n", cardsDrawn.Select(card => $" - {card.Name}")))
+                            .End()
+                        .End()
+                    .End()
+                    .Build()
             };
         }
     }

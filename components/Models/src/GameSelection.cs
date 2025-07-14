@@ -1,4 +1,5 @@
 using Kadense.Models.Discord;
+using Kadense.Models.Discord.ResponseBuilders;
 
 namespace Kadense.RPG.Models;
 
@@ -23,36 +24,6 @@ public class GameSelection<T> : GameBase<T>
 
     public List<List<GameChoice<GameSelection<T>>>> ChosenValues { get; set; } = new List<List<GameChoice<GameSelection<T>>>>();
 
-    public void AddFields(IList<DiscordEmbedField> fields, KadenseRandomizer random)
-    {
-        foreach (var choice in Choose(random))
-        {
-            fields.Add(new DiscordEmbedField
-            {
-                Name = string.IsNullOrEmpty(choice.Description) ? Name : $"{Name}: {choice.Name}",
-                Value = choice.Description ?? choice.Name,
-            });
-
-            choice.Attributes.Select(attr =>
-                new DiscordEmbedField
-                {
-                    Name = attr.Key,
-                    Value = attr.Value
-                }
-            ).ToList().ForEach(newField =>
-            {
-                fields.Add(newField);
-            });
-
-            if (choice.Selections.Count > 0)
-            {
-                foreach (var selection in choice.Selections)
-                {
-                    selection.AddFields(fields, random);
-                }
-            }
-        }
-    }
 
     public GameSelection<T> SetColor(int number)
     {

@@ -1,5 +1,7 @@
 ﻿using System.Text.RegularExpressions;
+using Azure;
 using Kadense.Models.Discord;
+using Kadense.Models.Discord.ResponseBuilders;
 using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.CreateCharacter;
@@ -22,33 +24,46 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
 
 
         var matchingGames = games.Where(x => x.Name.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
-        if (matchingGames.Count > 0)
+        if (matchingGames.Count == 0)
         {
-            var selectedGame = matchingGames.First();
-            var fields = new List<DiscordEmbedField>();
-            selectedGame.CharacterSection!.AddFields(fields, random);
-
-            embeds.Add(new DiscordEmbed
-            {
-                Title = $"Character Creation for {selectedGame.Name}",
-                Description = $"Generating character for {game}...",
-                Fields = fields,
-            });
+            return Task.FromResult(
+                new DiscordApiResponseContent
+                {
+                    Response = new DiscordInteractionResponseBuilder()
+                        .WithData()
+                            .WithContent($"Unable to generate character for {game}... couldn't match to a game")
+                        .End()
+                        .Build()
+                }
+            );
         }
+        var selectedGame = matchingGames.First();
 
-
-
+        if (selectedGame.CharacterSection == null)
+        {
+            return Task.FromResult(
+                new DiscordApiResponseContent
+                {
+                    Response = new DiscordInteractionResponseBuilder()
+                        .WithData()
+                            .WithContent($"Unable to generate character for {game}... no character section defined")
+                        .End()
+                        .Build()
+                }
+            );
+        }
+        
         return Task.FromResult(
             new DiscordApiResponseContent
             {
-                Response = new DiscordInteractionResponse
-                {
-                    Data = new DiscordInteractionResponseData
-                    {
-                        Embeds = embeds,
-                        Content = $"Generating character for {game}...",
-                    }
-                }
+                Response = new DiscordInteractionResponseBuilder()
+                    .WithData()
+                        .WithContent($"Generated character for {game}...")
+                        .WithEmbed()
+                            .WithFields(selectedGame.CharacterSection!, random)
+                        .End()
+                    .End()
+                    .Build()
             }
         );
     }

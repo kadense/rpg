@@ -1,5 +1,6 @@
 using System.Text;
 using Kadense.Models.Discord;
+using Kadense.Models.Discord.ResponseBuilders;
 
 namespace Kadense.RPG.Models;
 
@@ -49,58 +50,6 @@ public class GameEntity<T> : GameBase<T>
         return llmPromptBuilder.ToString();
     }
 
-    public void AddFields(IList<DiscordEmbedField> fields, KadenseRandomizer random)
-    {
-        if (RandomAttributes.Count > 0)
-        {
-            if (RandomAttributeSplitValue == 0)
-            {
-                if (this.DiceRules == null)
-                    this.DiceRules = new DiceRules(RandomAttributes.Count);
-
-                var rolls = this.DiceRules.Roll(random);
-                for (int i = 0; i < RandomAttributes.Count; i++)
-                {
-                    fields.Add(new DiscordEmbedField
-                    {
-                        Name = RandomAttributes[i],
-                        Value = rolls[i].ToString()
-                    });
-                }
-            }
-            else
-            {
-                var items = new Dictionary<string, int>();
-                var pointsToAssign = RandomAttributeSplitValue;
-                RandomAttributes.ForEach(attr =>
-                {
-                    items.Add(attr, RandomAttributeMinValue);
-                    pointsToAssign -= RandomAttributeMinValue;
-                });
-
-                for (int i = 0; i < pointsToAssign; i++)
-                {
-                    var keys = items.Keys.ToArray();
-                    random.Shuffle(keys);
-                    items[keys.First()] += 1;
-                }
-
-                RandomAttributes.ForEach(attr =>
-                {
-                    fields.Add(new DiscordEmbedField
-                    {
-                        Name = attr,
-                        Value = items[attr].ToString()
-                    });
-                });
-            }
-        }
-
-        foreach (var selection in Selections)
-        {
-            selection.AddFields(fields, random);
-        }
-    }
 
     public List<string> RandomAttributes { get; set; } = new List<string>();
 
