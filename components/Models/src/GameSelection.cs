@@ -96,9 +96,9 @@ public class GameSelection<T> : GameBase<T>
         var prefix = "".PadLeft(level, '#');
         foreach (var choice in this.Choose(random))
         {
-            builder.Append(prefix);
+            builder.Append($"{prefix} ");
             builder.AppendLine(string.IsNullOrEmpty(choice.Description) ? this.Name : $"**{this.Name}:** {choice.Name}");
-            
+
             builder.AppendLine(choice.Description ?? choice.Name);
 
             choice.Attributes.ToList().ForEach(attr =>
