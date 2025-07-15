@@ -50,7 +50,7 @@ public class GameSelection : GameBase
     public void WithFields(StringBuilder builder, KadenseRandomizer random, int level)
     {
         var results = new Dictionary<string, string>();
-        var prefix = "|-".PadLeft(level, ' ');
+        var prefix = "|-".PadLeft(level * 4, ' ');
         foreach (var choice in this.Choose(random))
         {
             builder.Append($"{prefix} ");
