@@ -15,6 +15,30 @@ public class DiscordInteractionProcessor
     {
         Commands = new Dictionary<string, IDiscordCommandProcessor>();
 
+        GetSlashCommands();
+        GetButtonCommands();
+    }
+
+    public void GetButtonCommands()
+    {
+    // Register all commands in the current assembly
+        var commands = Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .Where(t => t.GetCustomAttribute<DiscordButtonCommandAttribute>() != null && typeof(IDiscordCommandProcessor).IsAssignableFrom(t))
+            .Select(t => (IDiscordCommandProcessor)Activator.CreateInstance(t)!);
+
+        foreach (var command in commands)
+        {
+            var attribute = command.GetType().GetCustomAttribute<DiscordButtonCommandAttribute>();
+            if (attribute != null)
+            {
+                Commands[attribute.Name] = command;
+            }
+        }
+    }
+
+    public void GetSlashCommands()
+    {
         // Register all commands in the current assembly
         var commands = Assembly.GetExecutingAssembly()
             .GetTypes()
@@ -59,7 +83,7 @@ public class DiscordInteractionProcessor
             switch (option.AutoChoices)
             {
                 case DiscordSlashCommandChoicesMethod.GamesWithWorlds:
-                    choices.AddRange(games.Where(g => g.WorldSection != null).Select( g => new DiscordCommandOptionChoice
+                    choices.AddRange(games.Where(g => g.WorldSection != null).Select(g => new DiscordCommandOptionChoice
                     {
                         Name = g.Name,
                         Value = g.Name
@@ -67,7 +91,7 @@ public class DiscordInteractionProcessor
                     break;
 
                 case DiscordSlashCommandChoicesMethod.GamesWithCharacters:
-                    choices.AddRange(games.Where(g => g.CharacterSection != null).Select( g => new DiscordCommandOptionChoice
+                    choices.AddRange(games.Where(g => g.CharacterSection != null).Select(g => new DiscordCommandOptionChoice
                     {
                         Name = g.Name,
                         Value = g.Name
@@ -75,17 +99,17 @@ public class DiscordInteractionProcessor
                     break;
 
                 case DiscordSlashCommandChoicesMethod.Games:
-                    choices.AddRange(games.Select( g => new DiscordCommandOptionChoice
+                    choices.AddRange(games.Select(g => new DiscordCommandOptionChoice
                     {
                         Name = g.Name,
                         Value = g.Name
                     }));
                     break;
 
-                    
+
 
                 case DiscordSlashCommandChoicesMethod.GamesWithCustomDecks:
-                    choices.AddRange(games.Where(g => g.CustomDecks.Count() > 0).Select( g => new DiscordCommandOptionChoice
+                    choices.AddRange(games.Where(g => g.CustomDecks.Count() > 0).Select(g => new DiscordCommandOptionChoice
                     {
                         Name = g.Name,
                         Value = g.Name
