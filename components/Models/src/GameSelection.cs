@@ -4,18 +4,22 @@ using Kadense.Models.Discord.ResponseBuilders;
 
 namespace Kadense.RPG.Models;
 
-public class GameSelection<T> : GameBase<T>
-    where T : GameBase
+public class GameSelection : GameBase
 {
-    public GameSelection(T parent, string name, string? description) : base(parent)
+    public GameSelection() : base()
+    {
+
+    }
+
+    public GameSelection(string name, string? description) : base()
     {
         Name = name;
         Description = description;
     }
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public string? Description { get; set; }
-    public List<GameChoice<GameSelection<T>>> Choices { get; set; } = new List<GameChoice<GameSelection<T>>>();
+    public List<GameChoice> Choices { get; set; } = new List<GameChoice>();
 
     public bool MutuallyExclusive { get; set; } = true; // If true, only one choice can be selected at a time
     public int Color { get; set; } = 0x0000FF; // Default to blue color
@@ -23,27 +27,9 @@ public class GameSelection<T> : GameBase<T>
 
     public string? VariableName { get; set; }
 
-    public List<List<GameChoice<GameSelection<T>>>> ChosenValues { get; set; } = new List<List<GameChoice<GameSelection<T>>>>();
+    public List<List<GameChoice>> ChosenValues { get; set; } = new List<List<GameChoice>>();
 
-
-    public GameSelection<T> SetColor(int number)
-    {
-        Color = number;
-        return this;
-    }
-
-    public GameSelection<T> SetNumberToChoose(int number)
-    {
-        NumberToChoose = number;
-        return this;
-    }
-    public GameSelection<T> WithVariableName(string variableName)
-    {
-        VariableName = variableName;
-        return this;
-    }
-
-    public List<GameChoice<GameSelection<T>>> Choose(KadenseRandomizer random)
+    public List<GameChoice> Choose(KadenseRandomizer random)
     {
         var choices = Choices.ToArray();
         random.Shuffle(choices);
@@ -60,35 +46,6 @@ public class GameSelection<T> : GameBase<T>
 
         return takenItems;
     }
-
-    public GameChoice<GameSelection<T>> WithChoice(string name, string? description = null)
-    {
-        var choice = new GameChoice<GameSelection<T>>(this)
-        {
-            Name = name,
-            Description = description
-        };
-        Choices.Add(choice);
-        return choice;
-    }
-
-    public GameSelection<T> SetIsMutuallyExclusive(bool isMutuallyExclusive)
-    {
-        MutuallyExclusive = isMutuallyExclusive;
-        return this;
-    }
-
-    public GameSelection<T> WithNewChoice(string name, string? description = null)
-    {
-        var choice = new GameChoice<GameSelection<T>>(this)
-        {
-            Name = name,
-            Description = description
-        };
-        Choices.Add(choice);
-        return this;
-    }
-    
     
     public void WithFields(StringBuilder builder, KadenseRandomizer random, int level)
     {
@@ -119,12 +76,12 @@ public class GameSelection<T> : GameBase<T>
             }
 
             if (choice.Selections.Count > 0)
+            {
+                foreach (var s in choice.Selections)
                 {
-                    foreach (var s in choice.Selections)
-                    {
-                        s.WithFields(builder, random, level + 1);
-                    }
+                    s.WithFields(builder, random, level + 1);
                 }
+            }
         }
     }
 }

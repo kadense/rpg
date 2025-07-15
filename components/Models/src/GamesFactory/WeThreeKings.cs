@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace Kadense.RPG.Models;
 
-public partial class GamesFactory : GameBase
+public partial class GamesFactory : GameFactoryBase
 {
     [Game("We Three Kings")]
     public GamesFactory AddWeThreeKings()

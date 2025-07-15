@@ -23,7 +23,7 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
         var embeds = new List<DiscordEmbed>();
 
 
-        var matchingGames = games.Where(x => x.Name.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
+        var matchingGames = games.Where(x => x.Name!.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
         if (matchingGames.Count == 0)
         {
             return Task.FromResult(

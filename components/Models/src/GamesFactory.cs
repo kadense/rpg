@@ -1,6 +1,6 @@
 namespace Kadense.RPG.Models;
 
-public partial class GamesFactory : GameBase
+public partial class GamesFactory : GameFactoryBase
 {
     public GamesFactory()
     {
@@ -13,19 +13,15 @@ public partial class GamesFactory : GameBase
             }
         });
     }
-    public List<Game<GamesFactory>> Games { get; set; } = new List<Game<GamesFactory>>();
-    public Game<GamesFactory> WithGame(string name, string description)
+    public List<Game> Games { get; set; } = new List<Game>();
+    public GameFactory<GamesFactory> WithGame(string name, string description)
     {
-        var game = new Game<GamesFactory>(this, name, description)
-        {
-            Name = name,
-            Description = description ?? string.Empty
-        };
-        Games.Add(game);
+        var game = new GameFactory<GamesFactory>(this, name, description ?? string.Empty);
+        Games.Add(game.Instance);
         return game;
     }
 
-    public List<Game<GamesFactory>> EndGames()
+    public List<Game> EndGames()
     {
         return Games;
     }

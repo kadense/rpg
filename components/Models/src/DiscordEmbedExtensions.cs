@@ -4,8 +4,7 @@ namespace Kadense.RPG.Models;
 
 public static class DiscordEmbedExtensions
 {
-    public static DiscordEmbedBuilder WithFields<TEntity>(this DiscordEmbedBuilder builder, GameEntity<TEntity>? entity, KadenseRandomizer random)
-        where TEntity : GameBase
+    public static DiscordEmbedBuilder WithFields(this DiscordEmbedBuilder builder, GameEntity? entity, KadenseRandomizer random)
     {
         if (entity == null)
             return builder;
@@ -63,17 +62,17 @@ public static class DiscordEmbedExtensions
     }
 
     
-    public static DiscordEmbedBuilder WithFields<TSelection>(this DiscordEmbedBuilder builder, GameSelection<TSelection>? selection, KadenseRandomizer random)
-        where TSelection : GameBase
+    public static DiscordEmbedBuilder WithFields(this DiscordEmbedBuilder builder, GameSelection? selection, KadenseRandomizer random)
     {
         if(selection == null)
             return builder;
 
         foreach (var choice in selection.Choose(random))
         {
+            var choiceName = string.IsNullOrEmpty(choice.Description) ? selection.Name : $"{selection.Name}: {choice.Name}";
             builder
                 .WithField()
-                    .WithName(string.IsNullOrEmpty(choice.Description) ? selection.Name : $"{selection.Name}: {choice.Name}")
+                    .WithName(choiceName!)
                     .WithValue(choice.Description ?? choice.Name)
                 .End();
 

@@ -19,7 +19,7 @@ public class DeckOfCards
         else
         {
             var games = new GamesFactory().EndGames();
-            var game = games.Where(g => g.Name.ToLowerInvariant() == Name.ToLowerInvariant())
+            var game = games.Where(g => g.Name!.ToLowerInvariant() == Name.ToLowerInvariant())
                 .First();
             var customDeck = game.CustomDecks.First();
             var cardsArray = customDeck.Value.Invoke().ToArray();

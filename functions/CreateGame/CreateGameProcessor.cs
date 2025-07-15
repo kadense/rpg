@@ -28,7 +28,7 @@ public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
 
         DiscordFollowupMessageRequest? followupMessage = null;
 
-        var matchingGames = games.Where(x => x.Name.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
+        var matchingGames = games.Where(x => x.Name!.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
         if (matchingGames.Count == 0)
         {
             return new DiscordApiResponseContent
@@ -87,7 +87,7 @@ public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
                         }
                         playerFields[p1]!
                             .WithField()
-                                .WithName(relationshipSelection.Name)
+                                .WithName(relationshipSelection.Name!)
                                 .WithValue(relationshipString.ToString());
                     }
                 }

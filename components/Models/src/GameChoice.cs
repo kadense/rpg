@@ -2,21 +2,19 @@ using System.Text;
 
 namespace Kadense.RPG.Models;
 
-public class GameChoice<T> : GameBase<T>
-    where T : GameBase
+public class GameChoice : GameBase
 {
-    public GameChoice(T parent) : base(parent)
+    public GameChoice() : base()
     {
 
+    }
+    public GameChoice(string name, string? description = null) : base()
+    {
+        Name = name;
+        Description = description;
     }
 
     public string? LlmPrompt { get; set; }
-
-    public GameChoice<T> WithLlmPrompt(string llmPrompt)
-    {
-        LlmPrompt = llmPrompt;
-        return this;
-    }
 
     public string GetLlmPrompt()
     {
@@ -41,33 +39,6 @@ public class GameChoice<T> : GameBase<T>
 
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public List<GameSelection<GameChoice<T>>> Selections { get; set; } = new List<GameSelection<GameChoice<T>>>();
+    public List<GameSelection> Selections { get; set; } = new List<GameSelection>();
     public Dictionary<string, string> Attributes { get; set; } = new Dictionary<string, string>();
-
-    public GameSelection<GameChoice<T>> WithSelection(string name, string? description = null)
-    {
-        var selection = new GameSelection<GameChoice<T>>(this, name, description);
-        Selections.Add(selection);
-        return selection;
-    }
-
-    public GameChoice<T> WithNewSelection(string name, string? description = null)
-    {
-        var selection = new GameSelection<GameChoice<T>>(this, name, description);
-        Selections.Add(selection);
-        return this;
-    }
-
-    public GameChoice<T> WithAttribute(string key, string value)
-    {
-        if (Attributes.ContainsKey(key))
-        {
-            Attributes[key] = value;
-        }
-        else
-        {
-            Attributes.Add(key, value);
-        }
-        return this;
-    }
 }
