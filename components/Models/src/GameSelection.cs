@@ -55,7 +55,7 @@ public class GameSelection : GameBase
         {
             builder.Append($"{prefix} ");
             builder.Append(string.IsNullOrEmpty(choice.Description) ? this.Name : $"{this.Name}: {choice.Name}");
-            builder.Append(" ");
+            builder.Append(": ");
             builder.AppendLine(choice.Description ?? choice.Name);
 
             choice.Attributes.ToList().ForEach(attr =>
