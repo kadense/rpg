@@ -3,9 +3,9 @@ using System.Text;
 public class GameInstance
 {
     public string? GameName { get; set; }
-
+    public string? WorldSetup { get; set; }
+    public string? WorldLlmPrompt { get; set; }
     public List<GameParticipant> Participants { get; set; } = new List<GameParticipant>();
-
     public string GetParticipantText(string[]? attributes = null)
     {
         var builder = new StringBuilder();

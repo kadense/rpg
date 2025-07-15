@@ -9,6 +9,7 @@ namespace Kadense.RPG.CreateWorld;
 [DiscordButtonCommand("regenerate_world", "Create a world")]
 public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
 {
+    private readonly DataConnectionClient client = new DataConnectionClient();
 
     private readonly KadenseRandomizer random = new KadenseRandomizer();
 
@@ -28,39 +29,39 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
         };
     }
 
-    public Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         var games = new GamesFactory()
             .EndGames();
 
 
         if (interaction.Message == null || interaction.Message.Components == null || interaction.Message.Components.Count == 0)
-            return Task.FromResult(ErrorResponse("Unable to identify game name"));
+            return ErrorResponse("Unable to identify game name");
 
         
         var containerComponent = (DiscordContainerComponent)interaction.Message.Components.First();
         if (containerComponent == null || containerComponent.Components == null || containerComponent.Components.Count == 0)
-            return Task.FromResult(ErrorResponse("Unable to identify game name"));
+            return ErrorResponse("Unable to identify game name");
 
         var textDisplayComponent = (DiscordTextDisplayComponent)containerComponent.Components.First();
         if (textDisplayComponent == null || textDisplayComponent.Content == null)
-            return Task.FromResult(ErrorResponse("Unable to identify game name"));
+            return ErrorResponse("Unable to identify game name");
 
         var match = Regex.Match(textDisplayComponent.Content, "### (?<game>.*) World Creation");
         if (match == null)
-            return Task.FromResult(ErrorResponse("Unable to identify game name"));
+            return ErrorResponse("Unable to identify game name");
 
 
         var game = match!.Groups["game"].Value;
         var matchingGames = games.Where(x => x.Name!.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
 
         if (matchingGames.Count == 0)
-            return Task.FromResult(ErrorResponse($"Unable to identify game called {game}"));
+            return ErrorResponse($"Unable to identify game called {game}");
 
         var selectedGame = matchingGames.First();
 
         if (selectedGame.WorldSection == null)
-            return Task.FromResult(
+            return
                 new DiscordApiResponseContent
                 {
                     Response = new DiscordInteractionResponseBuilder()
@@ -72,17 +73,36 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
                             .End()
                         .End()
                         .Build()
-                }
-            );
+                };
+
+        
+        var instance = await client.ReadGameInstanceAsync(
+            interaction.GuildId ?? interaction.Guild!.Id!,
+            interaction.ChannelId ?? interaction.Channel!.Id!
+        );
+
+        if (instance == null)
+            instance = new GameInstance()
+            {
+                GameName = game
+            };
 
 
         var content = new StringBuilder();
         selectedGame.WorldSection!.WithFields(content, random);
+        instance.WorldSetup = content.ToString();
+        
+        await client.WriteGameInstanceAsync(
+            interaction.GuildId ?? interaction.Guild!.Id!,
+            interaction.ChannelId ?? interaction.Channel!.Id!,
+            instance
+        );
 
-        return Task.FromResult(
+        return
             new DiscordApiResponseContent
             {
                 Response = new DiscordInteractionResponseBuilder()
+                    .WithResponseType(DiscordInteractionResponseType.UPDATE_MESSAGE)
                     .WithData()
                         .WithFlags(1 << 15)
                         .WithContainerComponent()
@@ -106,7 +126,6 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
                         .End()
                     .End()
                     .Build(),
-            }
-        );
+            };
     }
 }
