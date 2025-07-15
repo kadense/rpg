@@ -42,7 +42,7 @@ public partial class DescribeWorldProcessor : IDiscordButtonCommandProcessor
             return ErrorResponse("Cannot find LLM Prompt", logger);
 
 
-        logger.LogInformation("Generating LLM Prompt");
+        logger.LogInformation("Generating Followup Message Request");
         var followupMessage = new DiscordFollowupMessageRequest
         {
             Type = FollowupProcessorType.PublicAiPromptResponse,
@@ -58,7 +58,7 @@ public partial class DescribeWorldProcessor : IDiscordButtonCommandProcessor
             .ToList();
 
         if (matchingGames.Count == 0)
-            return ErrorResponse("Could not find a game with that name.", logger);
+            return ErrorResponse($"Could not find a game called {instance.GameName}.", logger);
 
         var selectedGame = matchingGames.First();
 

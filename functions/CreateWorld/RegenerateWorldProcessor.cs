@@ -32,10 +32,6 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
 
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
-        var games = new GamesFactory()
-            .EndGames();
-
-
         logger.LogInformation($"Getting Game Information");
         var instance = await client.ReadGameInstanceAsync(
             interaction.GuildId ?? interaction.Guild!.Id!,
@@ -45,10 +41,13 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
         if (instance == null || string.IsNullOrEmpty(instance.GameName))
             return ErrorResponse("Could not get the instance name", logger);            
 
-        var matchingGames = games.Where(x => x.Name!.ToLowerInvariant() == instance.GameName).ToList();
+        var matchingGames = new GamesFactory()
+            .EndGames()
+            .Where(x => x.Name!.ToLowerInvariant() == instance.GameName)
+            .ToList();
 
         if (matchingGames.Count == 0)
-            return ErrorResponse("Could not find a game with that name.", logger);
+            return ErrorResponse($"Could not find a game called {instance.GameName}.", logger);
 
         var selectedGame = matchingGames.First();
         return await CreateWorldProcessor.GenerateResponseAsync(interaction, selectedGame, logger);
