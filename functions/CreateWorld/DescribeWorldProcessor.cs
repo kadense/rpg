@@ -6,8 +6,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.CreateWorld;
 
-[DiscordButtonCommand("regenerate_world", "Create a world")]
-public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
+[DiscordButtonCommand("generate_description", "Describe a world using AI")]
+public partial class DescribeWorldProcessor : IDiscordButtonCommandProcessor
 {
     private readonly DataConnectionClient client = new DataConnectionClient();
 
@@ -31,50 +31,6 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
 
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
-        var games = new GamesFactory()
-            .EndGames();
-
-
-        if (interaction.Message == null || interaction.Message.Components == null || interaction.Message.Components.Count == 0)
-            return ErrorResponse("Unable to identify game name");
-
-        
-        var containerComponent = (DiscordContainerComponent)interaction.Message.Components.First();
-        if (containerComponent == null || containerComponent.Components == null || containerComponent.Components.Count == 0)
-            return ErrorResponse("Unable to identify game name");
-
-        var textDisplayComponent = (DiscordTextDisplayComponent)containerComponent.Components.First();
-        if (textDisplayComponent == null || textDisplayComponent.Content == null)
-            return ErrorResponse("Unable to identify game name");
-
-        var match = Regex.Match(textDisplayComponent.Content, "### (?<game>.*) World Creation");
-        if (match == null)
-            return ErrorResponse("Unable to identify game name");
-
-
-        var game = match!.Groups["game"].Value;
-        var matchingGames = games.Where(x => x.Name!.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
-
-        if (matchingGames.Count == 0)
-            return ErrorResponse($"Unable to identify game called {game}");
-
-        var selectedGame = matchingGames.First();
-
-        if (selectedGame.WorldSection == null)
-            return
-                new DiscordApiResponseContent
-                {
-                    Response = new DiscordInteractionResponseBuilder()
-                        .WithData()
-                            .WithEmbed()
-                                .WithTitle("World Creation")
-                                .WithDescription("This game does not support world creation.")
-                                .WithColor(0xFF0000) // Red color
-                            .End()
-                        .End()
-                        .Build()
-                };
-
         
         var instance = await client.ReadGameInstanceAsync(
             interaction.GuildId ?? interaction.Guild!.Id!,
@@ -82,14 +38,10 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
         );
 
         if (instance == null)
-            instance = new GameInstance()
-            {
-                GameName = game
-            };
+            return ErrorResponse("Cannot find LLM Prompt");
 
 
         var content = new StringBuilder();
-        selectedGame.WorldSection!.WithFields(content, random);
         instance.WorldSetup = content.ToString();
         
         await client.WriteGameInstanceAsync(
@@ -97,6 +49,15 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
             interaction.ChannelId ?? interaction.Channel!.Id!,
             instance
         );
+
+        var followupMessage = new DiscordFollowupMessageRequest
+        {
+            Type = FollowupProcessorType.PublicAiPromptResponse,
+            Content = instance.WorldLlmPrompt,
+            Token = interaction.Token,
+            ChannelId = interaction.ChannelId ?? interaction.Channel!.Id!,
+            GuildId = interaction.GuildId ?? interaction.Guild!.Id!,
+        };
 
         return
             new DiscordApiResponseContent
@@ -107,10 +68,10 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
                         .WithFlags(1 << 15)
                         .WithContainerComponent()
                             .WithTextDisplayComponent()
-                                .WithContent($"### {game} World Creation")
+                                .WithContent($"### {instance.GameName} World Creation")
                             .End()
                             .WithTextDisplayComponent()
-                                .WithContent(content.ToString())
+                                .WithContent(instance.WorldSetup)
                             .End()
                             .WithActionRowComponent()
                                 .WithButtonComponent()
@@ -127,6 +88,7 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
                         .End()
                     .End()
                     .Build(),
+                    FollowupMessage = followupMessage
             };
     }
 }

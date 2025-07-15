@@ -121,6 +121,7 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
                                 .WithButtonComponent()
                                     .WithLabel("Create Description")
                                     .WithCustomId("generate_description")
+                                    .WithEmoji(new DiscordEmoji { Name = "💭" })
                                 .End()
                             .End()
                         .End()
