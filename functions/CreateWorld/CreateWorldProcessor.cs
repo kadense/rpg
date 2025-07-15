@@ -11,67 +11,16 @@ namespace Kadense.RPG.CreateWorld;
 [DiscordSlashCommandOption("ai", "Use LLM models?", false, Type = DiscordSlashCommandOptionType.Boolean, Choices = new[] { "true", "false" })]
 public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
 {
-    private readonly DataConnectionClient client = new DataConnectionClient();
-    private readonly KadenseRandomizer random = new KadenseRandomizer();
+    private static readonly DataConnectionClient client = new DataConnectionClient();
+    private static readonly KadenseRandomizer random = new KadenseRandomizer();
 
-    public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    public static async Task<DiscordApiResponseContent> GenerateResponseAsync(DiscordInteraction interaction, Game selectedGame, ILogger logger, DiscordFollowupMessageRequest? followupMessage = null)
     {
-        var games = new GamesFactory()
-            .EndGames();
+        var instance = new GameInstance()
+        {
+            GameName = selectedGame.Name
+        };
 
-        string game = interaction.Data?.Options?.Where(opt => opt.Name == "game").FirstOrDefault()?.Value ?? "1d6";
-
-        var embeds = new List<DiscordEmbed>();
-
-        DiscordFollowupMessageRequest? followupMessage = null;
-
-        var matchingGames = games.Where(x => x.Name!.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
-
-        if (matchingGames.Count == 0)
-            return
-                new DiscordApiResponseContent
-                {
-                    Response = new DiscordInteractionResponseBuilder()
-                        .WithData()
-                            .WithEmbed()
-                                .WithTitle("World Creation")
-                                .WithDescription("Could not find a game with that name.")
-                                .WithColor(0xFF0000) // Red color
-                            .End()
-                        .End()
-                        .Build()
-                };
-
-        var selectedGame = matchingGames.First();
-
-        if (selectedGame.WorldSection == null)
-            return
-                new DiscordApiResponseContent
-                {
-                    Response = new DiscordInteractionResponseBuilder()
-                        .WithData()
-                            .WithEmbed()
-                                .WithTitle("World Creation")
-                                .WithDescription("This game does not support world creation.")
-                                .WithColor(0xFF0000) // Red color
-                            .End()
-                        .End()
-                        .Build()
-                };
-
-
-
-        var instance = await client.ReadGameInstanceAsync(
-            interaction.GuildId ?? interaction.Guild!.Id!,
-            interaction.ChannelId ?? interaction.Channel!.Id!
-        );
-
-        if (instance == null)
-            instance = new GameInstance()
-            {
-                GameName = game
-            };
-        
         if (selectedGame.WorldSection!.LlmPrompt != null)
         {
             var llmPrompt = new StringBuilder(selectedGame.WorldSection.GetLlmPrompt()!);
@@ -88,17 +37,25 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
             logger.LogInformation("LLM Prompt: {Prompt}", llmPrompt);
             instance.WorldLlmPrompt = llmPrompt.ToString();
         }
-        
+
         var content = new StringBuilder();
         selectedGame.WorldSection!.WithFields(content, random);
         instance.WorldSetup = content.ToString();
-        
+
+
+        logger.LogInformation("Writing back to persistent storage");
         await client.WriteGameInstanceAsync(
             interaction.GuildId ?? interaction.Guild!.Id!,
             interaction.ChannelId ?? interaction.Channel!.Id!,
             instance
         );
 
+        return GenerateResponse(selectedGame, content.ToString(), logger);
+    }
+
+    public static DiscordApiResponseContent GenerateResponse(Game selectedGame, string content, ILogger logger, DiscordFollowupMessageRequest? followupMessage = null)
+    {
+        logger.LogInformation("Generating Response");
         return
             new DiscordApiResponseContent
             {
@@ -107,10 +64,10 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
                         .WithFlags(1 << 15)
                         .WithContainerComponent()
                             .WithTextDisplayComponent()
-                                .WithContent($"### {game} World Creation")
+                                .WithContent($"### {selectedGame.Name} World Creation")
                             .End()
                             .WithTextDisplayComponent()
-                                .WithContent(content.ToString())
+                                .WithContent(content)
                             .End()
                             .WithActionRowComponent()
                                 .WithButtonComponent()
@@ -129,5 +86,45 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
                     .Build(),
                 FollowupMessage = followupMessage
             };
+    }
+
+    
+    public static DiscordApiResponseContent ErrorResponse(string content, ILogger logger)
+    {
+        logger.LogError(content);
+        return new DiscordApiResponseContent
+        {
+            Response = new DiscordInteractionResponseBuilder()
+                .WithData()
+                    .WithEmbed()
+                        .WithTitle("World Creation")
+                        .WithDescription(content)
+                        .WithColor(0xFF0000) // Red color
+                    .End()
+                .End()
+                .Build()
+        };
+    }
+
+    public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
+    {
+        var games = new GamesFactory()
+            .EndGames();
+
+        string game = interaction.Data?.Options?.Where(opt => opt.Name == "game").FirstOrDefault()?.Value ?? "1d6";
+
+        var embeds = new List<DiscordEmbed>();
+
+        var matchingGames = games.Where(x => x.Name!.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
+
+        if (matchingGames.Count == 0)
+            return ErrorResponse("Could not find a game with that name.", logger);
+
+        var selectedGame = matchingGames.First();
+
+        if (selectedGame.WorldSection == null)
+            return ErrorResponse("This game does not support world creation.", logger);
+
+        return await CreateWorldProcessor.GenerateResponseAsync(interaction, selectedGame, logger);        
     }
 }

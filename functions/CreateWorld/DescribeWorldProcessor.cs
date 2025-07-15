@@ -13,8 +13,9 @@ public partial class DescribeWorldProcessor : IDiscordButtonCommandProcessor
 
     private readonly KadenseRandomizer random = new KadenseRandomizer();
 
-    public DiscordApiResponseContent ErrorResponse(string content)
+    public DiscordApiResponseContent ErrorResponse(string content, ILogger logger)
     {
+        logger.LogError(content);
         return new DiscordApiResponseContent
         {
             Response = new DiscordInteractionResponseBuilder()
@@ -31,25 +32,17 @@ public partial class DescribeWorldProcessor : IDiscordButtonCommandProcessor
 
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
-        
+        logger.LogInformation("Loading game information from persistent storage");
         var instance = await client.ReadGameInstanceAsync(
             interaction.GuildId ?? interaction.Guild!.Id!,
             interaction.ChannelId ?? interaction.Channel!.Id!
         );
 
         if (instance == null)
-            return ErrorResponse("Cannot find LLM Prompt");
+            return ErrorResponse("Cannot find LLM Prompt", logger);
 
 
-        var content = new StringBuilder();
-        instance.WorldSetup = content.ToString();
-        
-        await client.WriteGameInstanceAsync(
-            interaction.GuildId ?? interaction.Guild!.Id!,
-            interaction.ChannelId ?? interaction.Channel!.Id!,
-            instance
-        );
-
+        logger.LogInformation("Generating LLM Prompt");
         var followupMessage = new DiscordFollowupMessageRequest
         {
             Type = FollowupProcessorType.PublicAiPromptResponse,
@@ -59,36 +52,16 @@ public partial class DescribeWorldProcessor : IDiscordButtonCommandProcessor
             GuildId = interaction.GuildId ?? interaction.Guild!.Id!,
         };
 
-        return
-            new DiscordApiResponseContent
-            {
-                Response = new DiscordInteractionResponseBuilder()
-                    .WithResponseType(DiscordInteractionResponseType.DEFERRED_UPDATE_MESSAGE)
-                    .WithData()
-                        .WithFlags(1 << 15)
-                        .WithContainerComponent()
-                            .WithTextDisplayComponent()
-                                .WithContent($"### {instance.GameName} World Creation")
-                            .End()
-                            .WithTextDisplayComponent()
-                                .WithContent(instance.WorldSetup)
-                            .End()
-                            .WithActionRowComponent()
-                                .WithButtonComponent()
-                                    .WithLabel("Regenerate World")
-                                    .WithCustomId("regenerate_world")
-                                    .WithEmoji(new DiscordEmoji { Name = "🌍" })
-                                .End()
-                                .WithButtonComponent()
-                                    .WithLabel("Create Description")
-                                    .WithCustomId("generate_description")
-                                    .WithEmoji(new DiscordEmoji { Name = "💭" })
-                                .End()
-                            .End()
-                        .End()
-                    .End()
-                    .Build(),
-                    FollowupMessage = followupMessage
-            };
+        var matchingGames = new GamesFactory()
+            .EndGames()
+            .Where(x => x.Name!.ToLowerInvariant() == instance.GameName)
+            .ToList();
+
+        if (matchingGames.Count == 0)
+            return ErrorResponse("Could not find a game with that name.", logger);
+
+        var selectedGame = matchingGames.First();
+
+        return CreateWorldProcessor.GenerateResponse(selectedGame, instance.WorldSetup!, logger, followupMessage);
     }
 }

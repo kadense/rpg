@@ -31,9 +31,9 @@ public class DiscordFollowupClient
         };
     }
 
-    public async Task SendFollowupAsync(string content, string interactionToken, ILogger logger, bool privateMessage = false)
+    public async Task SendFollowupAsync(string content, string interactionToken, ILogger logger, bool privateMessage = false, bool useOriginalMessage = false)
     {
-        string url = $"{BaseUrl}/{interactionToken}?wait=true";
+        string url = useOriginalMessage ? $"{BaseUrl}/{interactionToken}?wait=true" : $"{BaseUrl}/{interactionToken}/messages/@original"; 
         var responseData = new DiscordInteractionResponseData
         {
             Content = content,
@@ -60,12 +60,16 @@ public class DiscordFollowupClient
         logger.LogInformation($"Requesting {request.Method} {request.RequestUri} using secret starting \"{token!.Substring(0, 5)}****\" with body: {json}");
         var response = await client.SendAsync(request);
 
-
-        while (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+        int attempts = 0;
+        while (attempts < 5 && (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests || response.StatusCode == System.Net.HttpStatusCode.NotFound))
         {
             logger.LogInformation($"Requesting {request.Method} {request.RequestUri} is being rate limited. Waiting for retry.");
             var delaySeconds = await response.Content.ReadFromJsonAsync<DiscordRateLimitResponse>();
-            var delayMs = (int)(delaySeconds?.RetryAfter ?? 1 * 1000 * 1.2); // Convert seconds to milliseconds and add 20%
+
+
+            int delayMs = 1000;
+            if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                delayMs = (int)(delaySeconds?.RetryAfter ?? 1 * 1000 * 1.2); // Convert seconds to milliseconds and add 20%
 
             logger.LogInformation($"Waiting for {delayMs} milliseconds before retrying.");
             await Task.Delay(delayMs);
@@ -82,6 +86,7 @@ public class DiscordFollowupClient
 
             logger.LogInformation($"Retrying {request.Method} {request.RequestUri} with body: {json}");
             response = await client.SendAsync(request);
+            attempts++;
         }
 
         var responseBody = await response.Content.ReadAsStringAsync();

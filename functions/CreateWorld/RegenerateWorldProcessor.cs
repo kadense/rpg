@@ -13,8 +13,9 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
 
     private readonly KadenseRandomizer random = new KadenseRandomizer();
 
-    public DiscordApiResponseContent ErrorResponse(string content)
+    public DiscordApiResponseContent ErrorResponse(string content, ILogger logger)
     {
+        logger.LogError(content);
         return new DiscordApiResponseContent
         {
             Response = new DiscordInteractionResponseBuilder()
@@ -35,98 +36,21 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
             .EndGames();
 
 
-        if (interaction.Message == null || interaction.Message.Components == null || interaction.Message.Components.Count == 0)
-            return ErrorResponse("Unable to identify game name");
-
-        
-        var containerComponent = (DiscordContainerComponent)interaction.Message.Components.First();
-        if (containerComponent == null || containerComponent.Components == null || containerComponent.Components.Count == 0)
-            return ErrorResponse("Unable to identify game name");
-
-        var textDisplayComponent = (DiscordTextDisplayComponent)containerComponent.Components.First();
-        if (textDisplayComponent == null || textDisplayComponent.Content == null)
-            return ErrorResponse("Unable to identify game name");
-
-        var match = Regex.Match(textDisplayComponent.Content, "### (?<game>.*) World Creation");
-        if (match == null)
-            return ErrorResponse("Unable to identify game name");
-
-
-        var game = match!.Groups["game"].Value;
-        var matchingGames = games.Where(x => x.Name!.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
-
-        if (matchingGames.Count == 0)
-            return ErrorResponse($"Unable to identify game called {game}");
-
-        var selectedGame = matchingGames.First();
-
-        if (selectedGame.WorldSection == null)
-            return
-                new DiscordApiResponseContent
-                {
-                    Response = new DiscordInteractionResponseBuilder()
-                        .WithData()
-                            .WithEmbed()
-                                .WithTitle("World Creation")
-                                .WithDescription("This game does not support world creation.")
-                                .WithColor(0xFF0000) // Red color
-                            .End()
-                        .End()
-                        .Build()
-                };
-
-        
+        logger.LogInformation($"Getting Game Information");
         var instance = await client.ReadGameInstanceAsync(
             interaction.GuildId ?? interaction.Guild!.Id!,
             interaction.ChannelId ?? interaction.Channel!.Id!
         );
 
-        if (instance == null)
-            instance = new GameInstance()
-            {
-                GameName = game
-            };
+        if (instance == null || string.IsNullOrEmpty(instance.GameName))
+            return ErrorResponse("Could not get the instance name", logger);            
 
+        var matchingGames = games.Where(x => x.Name!.ToLowerInvariant() == instance.GameName).ToList();
 
-        var content = new StringBuilder();
-        selectedGame.WorldSection!.WithFields(content, random);
-        instance.WorldSetup = content.ToString();
-        
-        await client.WriteGameInstanceAsync(
-            interaction.GuildId ?? interaction.Guild!.Id!,
-            interaction.ChannelId ?? interaction.Channel!.Id!,
-            instance
-        );
+        if (matchingGames.Count == 0)
+            return ErrorResponse("Could not find a game with that name.", logger);
 
-        return
-            new DiscordApiResponseContent
-            {
-                Response = new DiscordInteractionResponseBuilder()
-                    .WithResponseType(DiscordInteractionResponseType.UPDATE_MESSAGE)
-                    .WithData()
-                        .WithFlags(1 << 15)
-                        .WithContainerComponent()
-                            .WithTextDisplayComponent()
-                                .WithContent($"### {game} World Creation")
-                            .End()
-                            .WithTextDisplayComponent()
-                                .WithContent(content.ToString())
-                            .End()
-                            .WithActionRowComponent()
-                                .WithButtonComponent()
-                                    .WithLabel("Regenerate World")
-                                    .WithCustomId("regenerate_world")
-                                    .WithEmoji(new DiscordEmoji { Name = "🌍" })
-                                .End()
-                                .WithButtonComponent()
-                                    .WithLabel("Create Description")
-                                    .WithCustomId("generate_description")
-                                    .WithEmoji(new DiscordEmoji { Name = "💭" })
-                                .End()
-                            .End()
-                        .End()
-                    .End()
-                    .Build(),
-            };
+        var selectedGame = matchingGames.First();
+        return await CreateWorldProcessor.GenerateResponseAsync(interaction, selectedGame, logger);
     }
 }
