@@ -45,10 +45,11 @@ public class GameEntity : GameBase
     public int RandomAttributeSplitValue { get; set; } = 0;
     public int RandomAttributeMinValue { get; set; } = 0;
 
-    
+
 
     public void WithFields(StringBuilder builder, KadenseRandomizer random)
     {
+        builder.AppendLine("```");
         if (this.RandomAttributes.Count > 0)
         {
             var randomAttributeResults = new Dictionary<string, string>();
@@ -87,7 +88,6 @@ public class GameEntity : GameBase
                 });
             }
 
-            builder.Append("```");
             var maxKeyLength = randomAttributeResults.ToList().Max(kv => kv.Key.Length);
             var maxValueLength = randomAttributeResults.ToList().Max(kv => kv.Value.Length);
             randomAttributeResults.ToList().ForEach(kv =>
@@ -95,13 +95,12 @@ public class GameEntity : GameBase
                 builder
                     .AppendLine($"{kv.Key.PadRight(maxKeyLength)}: {kv.Value.PadLeft(maxValueLength)}");
             });
-            builder.AppendLine("```");
-
         }
 
         foreach (var selection in this.Selections)
         {
             selection.WithFields(builder, random, 2);
         }
+        builder.Append("```");
     }
 }

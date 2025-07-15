@@ -50,12 +50,12 @@ public class GameSelection : GameBase
     public void WithFields(StringBuilder builder, KadenseRandomizer random, int level)
     {
         var results = new Dictionary<string, string>();
-        var prefix = "".PadLeft(level, '#');
+        var prefix = "|-".PadLeft(level, ' ');
         foreach (var choice in this.Choose(random))
         {
             builder.Append($"{prefix} ");
-            builder.AppendLine(string.IsNullOrEmpty(choice.Description) ? this.Name : $"**{this.Name}:** {choice.Name}");
-
+            builder.Append(string.IsNullOrEmpty(choice.Description) ? this.Name : $"{this.Name}: {choice.Name}");
+            builder.Append(" ");
             builder.AppendLine(choice.Description ?? choice.Name);
 
             choice.Attributes.ToList().ForEach(attr =>
@@ -64,15 +64,13 @@ public class GameSelection : GameBase
 
             if (results.Count > 0)
             {
-                builder.Append("```");
                 var maxKeyLength = results.ToList().Max(kv => kv.Key.Length);
                 var maxValueLength = results.ToList().Max(kv => kv.Value.Length);
                 results.ToList().ForEach(kv =>
                 {
                     builder
-                        .AppendLine($"{kv.Key.PadRight(maxKeyLength)}: {kv.Value.PadLeft(maxValueLength)}");
+                        .AppendLine($"{prefix}-- {kv.Key.PadRight(maxKeyLength)}: {kv.Value.PadLeft(maxValueLength)}");
                 });
-                builder.Append("```");
             }
 
             if (choice.Selections.Count > 0)
