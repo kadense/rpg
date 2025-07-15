@@ -43,7 +43,7 @@ public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
 
         var matchingGames = new GamesFactory()
             .EndGames()
-            .Where(x => x.Name!.ToLowerInvariant() == instance.GameName)
+            .Where(x => x.Name!.ToLowerInvariant() == instance.GameName.ToLowerInvariant())
             .ToList();
 
         if (matchingGames.Count == 0)

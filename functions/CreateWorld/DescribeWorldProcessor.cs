@@ -52,9 +52,12 @@ public partial class DescribeWorldProcessor : IDiscordButtonCommandProcessor
             GuildId = interaction.GuildId ?? interaction.Guild!.Id!,
         };
 
+        if (instance == null || string.IsNullOrEmpty(instance.GameName))
+            return ErrorResponse("Could not get the instance name", logger);            
+
         var matchingGames = new GamesFactory()
             .EndGames()
-            .Where(x => x.Name!.ToLowerInvariant() == instance.GameName)
+            .Where(x => x.Name!.ToLowerInvariant() == instance.GameName!.ToLowerInvariant())
             .ToList();
 
         if (matchingGames.Count == 0)
