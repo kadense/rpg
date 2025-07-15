@@ -63,7 +63,7 @@ public partial class DescribeWorldProcessor : IDiscordButtonCommandProcessor
             new DiscordApiResponseContent
             {
                 Response = new DiscordInteractionResponseBuilder()
-                    .WithResponseType(DiscordInteractionResponseType.UPDATE_MESSAGE)
+                    .WithResponseType(DiscordInteractionResponseType.DEFERRED_UPDATE_MESSAGE)
                     .WithData()
                         .WithFlags(1 << 15)
                         .WithContainerComponent()
