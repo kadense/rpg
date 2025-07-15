@@ -13,6 +13,7 @@ namespace Kadense.RPG
 {
     public class DiscordApi
     {
+        private DataConnectionClient dataConnectionClient = new DataConnectionClient();
         private readonly ILogger<DiscordApi> _logger;
 
         public DiscordApi(ILogger<DiscordApi> logger)
@@ -67,19 +68,35 @@ namespace Kadense.RPG
                 }
             }
 
-            var interaction = JsonSerializer.Deserialize<DiscordInteraction>(body, serializerOptions);
-            var processor = new DiscordInteractionProcessor();
-            var result = await processor.ExecuteAsync(interaction!, _logger);
-            var stringify = JsonSerializer.Serialize(result.Response, serializerOptions);
 
-            var response = new ContentResult()
+            try
             {
-                Content = stringify,
-                ContentType = "application/json",
-                StatusCode = (int)HttpStatusCode.OK
-            };
+                var interaction = JsonSerializer.Deserialize<DiscordInteraction>(body, serializerOptions);
+                var processor = new DiscordInteractionProcessor();
+                var result = await processor.ExecuteAsync(interaction!, _logger);
+                var stringify = JsonSerializer.Serialize(result.Response, serializerOptions);
 
-            return new DiscordApiResponse(response, result.FollowupMessage);
+                var response = new ContentResult()
+                {
+                    Content = stringify,
+                    ContentType = "application/json",
+                    StatusCode = (int)HttpStatusCode.OK
+                };
+
+                return new DiscordApiResponse(response, result.FollowupMessage);
+            }
+            catch (JsonException ex)
+            {
+                await dataConnectionClient.WriteDiscordInteractionAsync(body);
+                _logger.LogError(ex, "Failed to deserialize Discord interaction");
+
+                return new DiscordApiResponse(new BadRequestObjectResult("Invalid JSON format"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing the Discord interaction");
+                return new DiscordApiResponse(new StatusCodeResult((int)HttpStatusCode.InternalServerError));
+            }
         }
     }
 }

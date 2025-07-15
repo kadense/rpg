@@ -69,6 +69,24 @@ public class DataConnectionClient
         await client.UploadAsync(new BinaryData(interaction), overwrite: true, cancellationToken: CancellationToken.None);
     }
 
+    public async Task WriteDiscordInteractionAsync(string interaction)
+    {
+        if((Environment.GetEnvironmentVariable("WRITE_DISCORD_INTERACTIONS") ?? "false") != "true")
+        {
+            return; // Skip writing if the environment variable is not set to true
+        }
+
+        var client = new BlobClient(
+            Environment.GetEnvironmentVariable("AzureWebJobsStorage")!,
+            "rpg",
+            $"discordRequests/{DateTime.UtcNow.ToOADate()}/{Guid.NewGuid()}.json"
+        );
+
+        await client.GetParentBlobContainerClient().CreateIfNotExistsAsync(PublicAccessType.None);
+
+        await client.UploadAsync(new BinaryData(interaction), overwrite: true, cancellationToken: CancellationToken.None);
+    }
+
     public async Task<Dictionary<string, DeckOfCards>> ReadDecksAsync()
     {
         BlobContainerClient containerClient = new BlobContainerClient(
