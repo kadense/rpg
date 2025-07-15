@@ -6,43 +6,56 @@ using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.CreateWorld;
 
-[DiscordSlashCommand("world", "Create a world")]
-[DiscordSlashCommandOption("game", "Which Game?", true, AutoChoices = DiscordSlashCommandChoicesMethod.GamesWithWorlds)]
-[DiscordSlashCommandOption("ai", "Use LLM models?", false, Type = DiscordSlashCommandOptionType.Boolean, Choices = new[] { "true", "false" })]
-public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
+[DiscordButtonCommand("regenerate_world", "Create a world")]
+public partial class RegenerateWorldProcessor : IDiscordButtonCommandProcessor
 {
 
     private readonly KadenseRandomizer random = new KadenseRandomizer();
+
+    public DiscordApiResponseContent ErrorResponse(string content)
+    {
+        return new DiscordApiResponseContent
+        {
+            Response = new DiscordInteractionResponseBuilder()
+                .WithData()
+                    .WithEmbed()
+                        .WithTitle("World Creation")
+                        .WithDescription(content)
+                        .WithColor(0xFF0000) // Red color
+                    .End()
+                .End()
+                .Build()
+        };
+    }
 
     public Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         var games = new GamesFactory()
             .EndGames();
 
-        string game = interaction.Data?.Options?.Where(opt => opt.Name == "game").FirstOrDefault()?.Value ?? "1d6";
-        bool ai = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "ai").FirstOrDefault()?.Value ?? "false");
 
-        var embeds = new List<DiscordEmbed>();
+        if (interaction.Message == null || interaction.Message.Components == null || interaction.Message.Components.Count == 0)
+            return Task.FromResult(ErrorResponse("Unable to identify game name"));
 
-        DiscordFollowupMessageRequest? followupMessage = null;
+        
+        var containerComponent = (DiscordContainerComponent)interaction.Message.Components.First();
+        if (containerComponent == null || containerComponent.Components == null || containerComponent.Components.Count == 0)
+            return Task.FromResult(ErrorResponse("Unable to identify game name"));
 
+        var textDisplayComponent = (DiscordTextDisplayComponent)containerComponent.Components.First();
+        if (textDisplayComponent == null || textDisplayComponent.Content == null)
+            return Task.FromResult(ErrorResponse("Unable to identify game name"));
+
+        var match = Regex.Match(textDisplayComponent.Content, "### (?<game>.*) World Creation");
+        if (match == null)
+            return Task.FromResult(ErrorResponse("Unable to identify game name"));
+
+
+        var game = match!.Groups["game"].Value;
         var matchingGames = games.Where(x => x.Name!.ToLowerInvariant() == game.ToLowerInvariant()).ToList();
 
         if (matchingGames.Count == 0)
-            return Task.FromResult(
-                new DiscordApiResponseContent
-                {
-                    Response = new DiscordInteractionResponseBuilder()
-                        .WithData()
-                            .WithEmbed()
-                                .WithTitle("World Creation")
-                                .WithDescription("Could not find a game with that name.")
-                                .WithColor(0xFF0000) // Red color
-                            .End()
-                        .End()
-                        .Build()
-                }
-            );
+            return Task.FromResult(ErrorResponse($"Unable to identify game called {game}"));
 
         var selectedGame = matchingGames.First();
 
@@ -63,31 +76,6 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
             );
 
 
-        if (ai && selectedGame.WorldSection!.LlmPrompt != null)
-        {
-            var llmPrompt = new StringBuilder(selectedGame.WorldSection.GetLlmPrompt()!);
-            selectedGame.WorldSection.Selections
-                    .Where(s => s.VariableName != null)
-                    .ToList().ForEach(s =>
-                    {
-                        if (s.ChosenValues.Count > 0)
-                        {
-                            llmPrompt.Replace($"{{{s.VariableName}}}", string.Join(", ", s.ChosenValues.First().Select(v => v.Name)));
-                        }
-                    });
-
-            logger.LogInformation("LLM Prompt: {Prompt}", llmPrompt);
-
-            followupMessage = new DiscordFollowupMessageRequest
-            {
-                Type = FollowupProcessorType.PublicAiPromptResponse,
-                Content = llmPrompt.ToString(),
-                Token = interaction.Token,
-                ChannelId = interaction.ChannelId ?? interaction.Channel!.Id!,
-                GuildId = interaction.GuildId ?? interaction.Guild!.Id!,
-            };
-        }
-
         var content = new StringBuilder();
         selectedGame.WorldSection!.WithFields(content, random);
 
@@ -98,9 +86,6 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
                     .WithData()
                         .WithFlags(1 << 15)
                         .WithContainerComponent()
-                            .WithTextDisplayComponent()
-                                .WithContent($"### {game} World Creation")
-                            .End()
                             .WithTextDisplayComponent()
                                 .WithContent(content.ToString())
                             .End()
@@ -118,7 +103,6 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
                         .End()
                     .End()
                     .Build(),
-                FollowupMessage = followupMessage
             }
         );
     }

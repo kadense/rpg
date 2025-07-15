@@ -57,8 +57,3 @@ public class DiscordSlashCommandAttribute : Attribute
         Description = description;
     }
 }
-
-public interface IDiscordSlashCommandProcessor
-{
-    public Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger);
-}

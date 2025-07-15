@@ -13,13 +13,13 @@ public class DiscordInteractionProcessor
     public DataConnectionClient DataConnection { get; } = new DataConnectionClient();
     public DiscordInteractionProcessor()
     {
-        Commands = new Dictionary<string, IDiscordSlashCommandProcessor>();
+        Commands = new Dictionary<string, IDiscordCommandProcessor>();
 
         // Register all commands in the current assembly
         var commands = Assembly.GetExecutingAssembly()
             .GetTypes()
-            .Where(t => t.GetCustomAttribute<DiscordSlashCommandAttribute>() != null && typeof(IDiscordSlashCommandProcessor).IsAssignableFrom(t))
-            .Select(t => (IDiscordSlashCommandProcessor)Activator.CreateInstance(t)!);
+            .Where(t => t.GetCustomAttribute<DiscordSlashCommandAttribute>() != null && typeof(IDiscordCommandProcessor).IsAssignableFrom(t))
+            .Select(t => (IDiscordCommandProcessor)Activator.CreateInstance(t)!);
 
         foreach (var command in commands)
         {
@@ -178,7 +178,7 @@ public class DiscordInteractionProcessor
         return commandNames.ToArray();
     }
 
-    protected IDictionary<string, IDiscordSlashCommandProcessor> Commands { get; }
+    protected IDictionary<string, IDiscordCommandProcessor> Commands { get; }
 
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
@@ -196,8 +196,75 @@ public class DiscordInteractionProcessor
                     },
                 }
             };
+        if (interaction.Type == 2)
+        {
+            if (string.IsNullOrEmpty(data.Name))
+                return new DiscordApiResponseContent
+                {
+                    Response = new DiscordInteractionResponse
+                    {
+                        Type = 1, // Pong response type
+                        Data = new DiscordInteractionResponseData
+                        {
+                            Content = "interaction data name is not populated."
+                        },
+                    }
+                };
 
-        if (string.IsNullOrEmpty(data.Name))
+            if (!Commands.TryGetValue(data.Name, out var command))
+                return new DiscordApiResponseContent
+                {
+                    Response = new DiscordInteractionResponse
+                    {
+                        Type = 1, // Pong response type
+                        Data = new DiscordInteractionResponseData
+                        {
+
+                            Content = "interaction data name is not populated."
+                        },
+                    }
+                };
+
+
+            await DataConnection.WriteDiscordInteractionAsync(interaction);
+
+            return await command.ExecuteAsync(interaction, logger);
+        }
+        else if (interaction.Type == 3)
+        {
+            if (string.IsNullOrEmpty(data.CustomId))
+                return new DiscordApiResponseContent
+                {
+                    Response = new DiscordInteractionResponse
+                    {
+                        Type = 1, // Pong response type
+                        Data = new DiscordInteractionResponseData
+                        {
+                            Content = "interaction data name is not populated."
+                        },
+                    }
+                };
+
+            if (!Commands.TryGetValue(data.CustomId, out var command))
+                return new DiscordApiResponseContent
+                {
+                    Response = new DiscordInteractionResponse
+                    {
+                        Type = 1, // Pong response type
+                        Data = new DiscordInteractionResponseData
+                        {
+
+                            Content = "interaction data custom id is not populated."
+                        },
+                    }
+                };
+            await DataConnection.WriteDiscordInteractionAsync(interaction);
+
+            return await command.ExecuteAsync(interaction, logger);
+        }
+        else
+        {
+            await DataConnection.WriteDiscordInteractionAsync(interaction);
             return new DiscordApiResponseContent
             {
                 Response = new DiscordInteractionResponse
@@ -205,28 +272,12 @@ public class DiscordInteractionProcessor
                     Type = 1, // Pong response type
                     Data = new DiscordInteractionResponseData
                     {
-                        Content = "interaction data name is not populated."
+
+                        Content = "interaction data custom id is not populated."
                     },
                 }
             };
-
-        if (!Commands.TryGetValue(data.Name, out var command))
-            return new DiscordApiResponseContent
-            {
-                Response = new DiscordInteractionResponse
-                {
-                    Type = 1, // Pong response type
-                    Data = new DiscordInteractionResponseData
-                    {
-
-                        Content = "interaction data name is not populated."
-                    },
-                }
-            };
-
-        await DataConnection.WriteDiscordInteractionAsync(interaction);
-            
-        return await command.ExecuteAsync(interaction, logger);
+        }
     }
 
 }
