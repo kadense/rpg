@@ -99,7 +99,7 @@ public class GameEntity : GameBase
 
         foreach (var selection in this.Selections)
         {
-            selection.WithFields(builder, random, 2);
+            selection.WithFields(builder, random, 1);
         }
         builder.Append("```");
     }
