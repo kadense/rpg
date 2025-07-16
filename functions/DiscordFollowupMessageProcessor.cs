@@ -50,6 +50,7 @@ public class DiscordFollowupMessageProcessor
     {
         return new DiscordInteractionResponseBuilder()
             .WithData()
+                .WithFlags(1 << 15)
                 .WithContainerComponent()
                     .WithTextDisplayComponent()
                         .WithContent(content)

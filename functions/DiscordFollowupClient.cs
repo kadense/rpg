@@ -45,7 +45,7 @@ public class DiscordFollowupClient
         var request = new HttpRequestMessage
         {
             RequestUri = new Uri(url),
-            Method = HttpMethod.Post,
+            Method = !useOriginalMessage ? HttpMethod.Post : HttpMethod.Patch,
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
 
