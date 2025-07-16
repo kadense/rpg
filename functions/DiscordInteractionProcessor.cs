@@ -318,5 +318,4 @@ public class DiscordInteractionProcessor
             return ErrorResult("interaction data custom id is not populated.", logger);
         }
     }
-
 }
