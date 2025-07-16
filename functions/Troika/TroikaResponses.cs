@@ -49,7 +49,7 @@ public static class TroikaResponse
                 .WithContainerComponent()
                     .WithTextDisplayComponent()
                         .WithContent("Add other player:")
-                    .End()
+                    .End()/*
                     .WithActionRowComponent()
                         .WithTextInputComponent()
                             .WithCustomId("troika_add_participants_via_input")
@@ -59,6 +59,7 @@ public static class TroikaResponse
                             .WithMinLength(1)
                         .End()
                     .End()
+                    */
                     .WithTextDisplayComponent()
                         .WithContent("*You can add multiple players names, one per line*")
                     .End()
