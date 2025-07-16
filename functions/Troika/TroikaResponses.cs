@@ -211,6 +211,12 @@ public static class TroikaResponse
                             .WithCustomId("troika-list-participants:remove_npcs")
                             .WithLabel("Remove NPCs")
                             .WithStyle(4)
+                            .WithEmoji(
+                                new DiscordEmoji()
+                                {
+                                    Name = "🤖"
+                                }
+                            )
                         .End()
                         .WithButtonComponent()
                             .WithCustomId("troika-list-participants:refresh_participants")
