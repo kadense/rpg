@@ -30,13 +30,13 @@ public static class TroikaResponse
                             .WithCustomId("troika-refresh-participant-list")
                             .WithLabel("Refresh")
                         .End()
-                    .End()
+                    .End()/* 
                     .WithActionRowComponent()
                         .WithUserSelectComponent()
                             .WithCustomId("troika-add-participants-via-select")
                             .WithPlaceholder("Players")
                         .End()
-                    .End()
+                    .End() */
                 .End()
             .End()
             .Build();
