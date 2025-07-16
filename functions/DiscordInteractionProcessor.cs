@@ -4,7 +4,9 @@ using System.Text;
 using System.Text.Json;
 using IdentityModel.Client;
 using Kadense.Models.Discord;
+using Kadense.Models.Discord.ResponseBuilders;
 using Microsoft.Extensions.Logging;
+using YamlDotNet.Core.Tokens;
 
 namespace Kadense.RPG;
 
@@ -240,6 +242,20 @@ public class DiscordInteractionProcessor
 
     protected IDictionary<string, DiscordSubCommand> SubCommands { get; }
 
+    protected DiscordApiResponseContent ErrorResult(string content, ILogger logger)
+    {
+        logger.LogInformation(content);
+        return new DiscordApiResponseContent
+        {
+            Response = new DiscordInteractionResponseBuilder()
+                .WithResponseType(DiscordInteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE)
+                .WithData()
+                    .WithContent(content)
+                .End()
+                .Build()
+        };
+    }
+
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         var data = interaction.Data;
@@ -256,51 +272,21 @@ public class DiscordInteractionProcessor
                     },
                 }
             };
-        if (interaction.Type == 2)
+        if (interaction.Type == 2) // APPLICATION_COMMAND
         {
             if (string.IsNullOrEmpty(data.Name))
-                return new DiscordApiResponseContent
-                {
-                    Response = new DiscordInteractionResponse
-                    {
-                        Type = 1, // Pong response type
-                        Data = new DiscordInteractionResponseData
-                        {
-                            Content = "interaction data name is not populated."
-                        },
-                    }
-                };
+                return ErrorResult("Command name is null", logger);
 
+
+            logger.LogInformation($"trying to determine command:{data.Name}");
             if (!Commands.TryGetValue(data.Name, out var command))
-            {
-                if (!SubCommands.TryGetValue(data.Name, out var subCommand))
-                    return new DiscordApiResponseContent
-                    {
-                        Response = new DiscordInteractionResponse
-                        {
-                            Type = 1, // Pong response type
-                            Data = new DiscordInteractionResponseData
-                            {
-
-                                Content = "interaction data name is not populated."
-                            },
-                        }
-                    };
-
-                var subCommandInstance = Activator.CreateInstance(subCommand.CommandType);
-                var subCommandResult = (Task<DiscordApiResponseContent>?)subCommand.CommandMethod.Invoke(subCommandInstance, new object[] { interaction, logger });
-                if (subCommandResult == null)
-                    throw new Exception("Subcommand Returned null value");
-
-                return await subCommandResult;
-            }
-
+                return ErrorResult($"command {data.Name} is not recognised", logger);
 
             await DataConnection.WriteDiscordInteractionAsync(interaction);
 
             return await command.ExecuteAsync(interaction, logger);
         }
-        else if (interaction.Type == 3)
+        else if (interaction.Type == 3 || interaction.Type == 5) // MESSAGE_COMPONENT
         {
             if (string.IsNullOrEmpty(data.CustomId))
                 return new DiscordApiResponseContent
@@ -316,18 +302,15 @@ public class DiscordInteractionProcessor
                 };
 
             if (!Commands.TryGetValue(data.CustomId, out var command))
-                return new DiscordApiResponseContent
-                {
-                    Response = new DiscordInteractionResponse
-                    {
-                        Type = 1, // Pong response type
-                        Data = new DiscordInteractionResponseData
-                        {
+            {
+                if (SubCommands.TryGetValue(data.CustomId, out var subCommand))
+                    return ErrorResult($"command {data.CustomId} is not a recognised command.", logger);
 
-                            Content = "interaction data custom id is not populated."
-                        },
-                    }
-                };
+                var subCommandInstance = Activator.CreateInstance(subCommand!.CommandType);
+                var subCommandResult = (Task<DiscordApiResponseContent>)subCommand!.CommandMethod!.Invoke(subCommandInstance, new object?[] { interaction, logger })!;
+                return await subCommandResult;
+            }
+
             await DataConnection.WriteDiscordInteractionAsync(interaction);
 
             return await command.ExecuteAsync(interaction, logger);
@@ -335,18 +318,7 @@ public class DiscordInteractionProcessor
         else
         {
             await DataConnection.WriteDiscordInteractionAsync(interaction);
-            return new DiscordApiResponseContent
-            {
-                Response = new DiscordInteractionResponse
-                {
-                    Type = 1, // Pong response type
-                    Data = new DiscordInteractionResponseData
-                    {
-
-                        Content = "interaction data custom id is not populated."
-                    },
-                }
-            };
+            return ErrorResult("interaction data custom id is not populated.", logger);
         }
     }
 
