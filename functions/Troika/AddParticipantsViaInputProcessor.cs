@@ -39,20 +39,7 @@ public partial class AddParticipantsViaInputProcessor : IDiscordButtonCommandPro
         }
         else if(interaction.Message.Components.First() is DiscordContainerComponent containerComponent && containerComponent.Components != null)
         {
-            var textInputComponent = containerComponent.Components.Where(c =>
-            {
-                if (c is not DiscordActionRowComponent actionRowComponent || actionRowComponent.Components == null)
-                    return false;
-
-                return actionRowComponent.Components.Any(arc => arc is DiscordTextInputComponent textInputComponent && textInputComponent.Value == "troika_add_participants_via_input");
-            })
-            .Select(c =>
-            {
-                if (c is not DiscordActionRowComponent actionRowComponent || actionRowComponent.Components == null)
-                    throw new Exception("Couldn't find the item");
-
-                return (DiscordTextInputComponent)actionRowComponent.Components.Where(arc => arc is DiscordTextInputComponent textInputComponent && textInputComponent.Value == "troika_add_participants_via_input").First();
-            }).First();
+            var textInputComponent = containerComponent.Components.GetByCustomId<DiscordTextInputComponent>("troika_add_participants_via_input")!;
 
             foreach(string name in textInputComponent.Value!.Split("\n"))
                 if (!gameInstance.Participants.Any(p => p.Name == name))
