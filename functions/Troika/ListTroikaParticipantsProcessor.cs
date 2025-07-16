@@ -64,6 +64,32 @@ public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
         };
     }
 
+    [DiscordButtonCommand("remove_participant_modal", "Displays a modal that will return configure")]
+    public async Task<DiscordApiResponseContent> ShowRemoveParticipantModalAsync(DiscordInteraction interaction, ILogger logger)
+    {
+        logger.LogInformation("Loading game information from persistent storage");
+
+        string guildId = interaction.GuildId ?? interaction.Guild!.Id!;
+        string channelId = interaction.ChannelId ?? interaction!.Channel!.Id!;
+
+        var gameInstance = await client.ReadGameInstanceAsync(guildId, channelId);
+
+        if (gameInstance == null || gameInstance.GameName == null)
+        {
+            gameInstance = new GameInstance()
+            {
+                GameName = "Troika"
+            };
+
+            await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);
+        }
+
+        return new DiscordApiResponseContent
+        {
+            Response = TroikaResponse.RemoveParticipantModal(guildId, channelId, gameInstance!, logger, true)
+        };
+    }
+
     [DiscordButtonCommand("add_enemy_modal", "Displays a modal that will return configure")]
     public async Task<DiscordApiResponseContent> ShowAddEnemyModalAsync(DiscordInteraction interaction, ILogger logger)
     {
@@ -202,6 +228,40 @@ public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
                 Type = "Player"
             }
         );
+
+        await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);
+
+        var response = TroikaResponse.ListParticipantResponse(guildId, channelId, gameInstance!, logger, false);
+
+        await client.WriteDiscordInteractionResponseAsync(guildId, channelId, response);
+
+        return new DiscordApiResponseContent
+        {
+            Response = response
+        };
+    }
+
+    [DiscordButtonCommand("remove_participant", "Remove a participant from modal submission")]
+    public async Task<DiscordApiResponseContent> RemoveParticipantAsync(DiscordInteraction interaction, ILogger logger)
+    {
+        string guildId = interaction.GuildId ?? interaction.Guild!.Id!;
+        string channelId = interaction.ChannelId ?? interaction!.Channel!.Id!;
+
+        var gameInstance = await client.ReadGameInstanceAsync(guildId, channelId);
+
+        if (gameInstance == null || gameInstance.GameName == null)
+        {
+            gameInstance = new GameInstance()
+            {
+                GameName = "Troika"
+            };
+        }
+
+        var nameComponent = interaction.Data!.Components!.GetByCustomId<DiscordTextInputComponent>("name");
+
+        var playerName = nameComponent!.Value;
+
+        var participantsToRemove = gameInstance.Participants.RemoveAll(p => p.Name!.ToLowerInvariant() == playerName!.ToLowerInvariant());
 
         await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);
 
