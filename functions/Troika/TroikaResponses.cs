@@ -205,6 +205,17 @@ public static class TroikaResponse
                                 }
                             )
                         .End()
+                        .WithButtonComponent()
+                            .WithCustomId("troika-list-participants:remove_npcs")
+                            .WithLabel("Remove All NPC's")
+                            .WithStyle(4) // danger
+                            .WithEmoji(
+                                new DiscordEmoji()
+                                {
+                                    Name = "☠️"
+                                }
+                            )
+                        .End()
                     .End()
                     .WithActionRowComponent()
                         .WithButtonComponent()

@@ -241,6 +241,41 @@ public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
         };
     }
 
+    [DiscordButtonCommand("remove_npcs", "Remove a participant from modal submission")]
+    public async Task<DiscordApiResponseContent> RemoveNPCsAsync(DiscordInteraction interaction, ILogger logger)
+    {
+    
+        string guildId = interaction.GuildId ?? interaction.Guild!.Id!;
+        string channelId = interaction.ChannelId ?? interaction!.Channel!.Id!;
+
+        var gameInstance = await client.ReadGameInstanceAsync(guildId, channelId);
+
+        if (gameInstance == null || gameInstance.GameName == null)
+        {
+            gameInstance = new GameInstance()
+            {
+                GameName = "Troika"
+            };
+        }
+
+        var nameComponent = interaction.Data!.Components!.GetByCustomId<DiscordTextInputComponent>("name");
+
+        var playerName = nameComponent!.Value;
+
+        var participantsToRemove = gameInstance.Participants.RemoveAll(p => p.Type != "Player");
+
+        await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);
+
+        var response = TroikaResponse.ListParticipantResponse(guildId, channelId, gameInstance!, logger, false);
+
+        await client.WriteDiscordInteractionResponseAsync(guildId, channelId, response);
+
+        return new DiscordApiResponseContent
+        {
+            Response = response
+        };
+    }
+
     [DiscordButtonCommand("remove_participant", "Remove a participant from modal submission")]
     public async Task<DiscordApiResponseContent> RemoveParticipantAsync(DiscordInteraction interaction, ILogger logger)
     {
