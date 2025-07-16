@@ -54,6 +54,7 @@ public static class TroikaResponse
                         .WithTextInputComponent()
                             .WithCustomId("troika_add_participants_via_input")
                             .WithLabel("Name")
+                            .WithPlaceholder("John Smith")
                             .WithStyle(2) // paragraph
                             .WithMinLength(1)
                         .End()
