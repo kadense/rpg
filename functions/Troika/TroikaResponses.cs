@@ -15,16 +15,15 @@ public static class TroikaResponse
 
         var result = gameInstance.GetParticipantText(["Initiative"]);
 
-        logger.LogInformation($"Participant List: {result}");
 
-        return new DiscordInteractionResponseBuilder()
+        var response = new DiscordInteractionResponseBuilder()
             .WithResponseType(useOriginalMessage ? DiscordInteractionResponseType.UPDATE_MESSAGE : DiscordInteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE)
             .WithData()
                 .WithFlags(1 << 15)
                 .WithContainerComponent()
                     .WithAccentColor(0x00FF00)
                     .WithTextDisplayComponent()
-                        .WithContent("## Troika Initiative")
+                        .WithContent("## Players")
                     .End()
                     .WithTextDisplayComponent()
                         .WithContent(result)
@@ -35,6 +34,8 @@ public static class TroikaResponse
                             .WithLabel("Refresh")
                         .End()
                     .End()
+                .End()
+                .WithContainerComponent()
                     .WithTextDisplayComponent()
                         .WithContent("Add Player from Discord:")
                     .End()
@@ -44,18 +45,27 @@ public static class TroikaResponse
                             .WithPlaceholder("Players")
                         .End()
                     .End()
+                .End()
+                .WithContainerComponent()
                     .WithTextDisplayComponent()
                         .WithContent("Add other player:")
                     .End()
                     .WithActionRowComponent()
                         .WithTextInputComponent()
                             .WithCustomId("troika_add_participants_via_input")
-                            .WithPlaceholder("Player Name")
+                            .WithLabel("Name")
+                            .WithStyle(2) // paragraph
                         .End()
+                    .End()
+                    .WithTextDisplayComponent()
+                        .WithContent("*You can add multiple players names, one per line*")
                     .End()
                 .End()
             .End()
             .Build();
+
+        logger.LogInformation($"Response: {response}");
+        return response;
     }
 
     public static DiscordApiResponseContent GetErrorResponse(string errorText, ILogger logger, bool useOriginalMessage = false)

@@ -1,8 +1,9 @@
+using Kadense.Models.Discord;
 using Kadense.Models.Discord.ResponseBuilders;
 
 namespace Kadense.RPG.Models;
 
-public static class DiscordEmbedExtensions
+public static class DiscordExtensions
 {
     public static DiscordEmbedBuilder WithFields(this DiscordEmbedBuilder builder, GameEntity? entity, KadenseRandomizer random)
     {
