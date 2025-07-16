@@ -13,7 +13,7 @@ public class RollTheDiceProcessor : IDiscordSlashCommandProcessor
 
     public Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
-        string whatToRoll = interaction.Data?.Options?.Where(opt => opt.Name == "whattoroll").FirstOrDefault()?.Value ?? "1d6";
+        string whatToRoll = (interaction.Data?.Options?.Where(opt => opt.Name == "whattoroll").FirstOrDefault()?.Value ?? "1d6").ToString()!;
 
         var match = Regex.Match(whatToRoll, @"^(?<count>\d*)d(?<sides>\d+)(?<mods>([+-]\d+)*)$", RegexOptions.IgnoreCase);
         int count = 1, sides = 6, modifier = 0;

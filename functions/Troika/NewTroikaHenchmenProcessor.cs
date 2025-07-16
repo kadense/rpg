@@ -15,7 +15,7 @@ public class NewTroikaHenchmenProcessor : IDiscordSlashCommandProcessor
 
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
-        string name = interaction.Data?.Options?.Where(opt => opt.Name == "name").FirstOrDefault()?.Value ?? "name";
+        string name = (interaction.Data?.Options?.Where(opt => opt.Name == "name").FirstOrDefault()?.Value ?? "name").ToString()!;
         string guildId = interaction.GuildId ?? interaction.Guild!.Id!;
         string channelId = interaction.ChannelId ?? interaction!.Channel!.Id!;
 

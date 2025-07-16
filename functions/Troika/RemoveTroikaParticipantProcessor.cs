@@ -15,7 +15,7 @@ public class RemoveTroikaParticipantProcessor : IDiscordSlashCommandProcessor
 
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
-        int id =  int.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "id").FirstOrDefault()?.Value ?? "id");
+        int id =  int.Parse((interaction.Data?.Options?.Where(opt => opt.Name == "id").FirstOrDefault()?.Value ?? "id").ToString()!);
         string guildId = interaction.GuildId ?? interaction.Guild!.Id!;
         string channelId = interaction.ChannelId ?? interaction!.Channel!.Id!;
 

@@ -17,9 +17,9 @@ public class NewTroikaDeckProcessor : IDiscordSlashCommandProcessor
 
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
-        int players = int.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "players").FirstOrDefault()?.Value ?? "0");
-        int enemies = int.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "enemies").FirstOrDefault()?.Value ?? "0");
-        int henchmen = int.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "henchmen").FirstOrDefault()?.Value ?? "0");
+        int players = int.Parse((interaction.Data?.Options?.Where(opt => opt.Name == "players").FirstOrDefault()?.Value ?? "0").ToString()!);
+        int enemies = int.Parse((interaction.Data?.Options?.Where(opt => opt.Name == "enemies").FirstOrDefault()?.Value ?? "0").ToString()!);
+        int henchmen = int.Parse((interaction.Data?.Options?.Where(opt => opt.Name == "henchmen").FirstOrDefault()?.Value ?? "0").ToString()!);
 
         var deck = new DeckOfCards();
         deck.Name = "Troika Initiative";

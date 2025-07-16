@@ -21,6 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Kadense.Models.Discord" Version="0.1.201" />
+    <PackageReference Include="Kadense.Models.Discord" Version="0.1.202" />
   </ItemGroup>
 </Project>

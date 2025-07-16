@@ -119,8 +119,8 @@ public class AdventureDiceProcessor : IDiscordSlashCommandProcessor
 
     public Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
-        bool skill = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "skill").FirstOrDefault()?.Value ?? "false");
-        bool danger = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "danger").FirstOrDefault()?.Value ?? "false");
+        bool skill = bool.Parse((interaction.Data?.Options?.Where(opt => opt.Name == "skill").FirstOrDefault()?.Value ?? "false").ToString()!);
+        bool danger = bool.Parse((interaction.Data?.Options?.Where(opt => opt.Name == "danger").FirstOrDefault()?.Value ?? "false").ToString()!);
 
         var embed = new DiscordEmbed
         {

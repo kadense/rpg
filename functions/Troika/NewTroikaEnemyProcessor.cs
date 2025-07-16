@@ -16,8 +16,8 @@ public class NewTroikaEnemyProcessor : IDiscordSlashCommandProcessor
 
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
-        string name = interaction.Data?.Options?.Where(opt => opt.Name == "name").FirstOrDefault()?.Value ?? "name";
-        int points = int.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "points").FirstOrDefault()?.Value ?? "0");
+        string name = (interaction.Data?.Options?.Where(opt => opt.Name == "name").FirstOrDefault()?.Value ?? "name").ToString()!;
+        int points = int.Parse((interaction.Data?.Options?.Where(opt => opt.Name == "points").FirstOrDefault()?.Value ?? "0").ToString()!);
         string guildId = interaction.GuildId ?? interaction.Guild!.Id!;
         string channelId = interaction.ChannelId ?? interaction!.Channel!.Id!;
 

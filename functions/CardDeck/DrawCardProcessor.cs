@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Kadense.RPG.DataAccess;
 using Kadense.Models.Discord.ResponseBuilders;
+using Google.Protobuf.WellKnownTypes;
 
 namespace Kadense.RPG.CardDeck;
 
@@ -18,8 +19,11 @@ public class DrawCardProcessor : IDiscordSlashCommandProcessor
 
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
-        int cards = int.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "cards").FirstOrDefault()?.Value ?? "1");
-        bool publicDraw = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "public").FirstOrDefault()?.Value ?? "false");
+        object? cardOption = interaction.Data?.Options?.Where(opt => opt.Name == "cards").FirstOrDefault()?.Value ?? "1";
+        int cards = int.Parse(cardOption.ToString()!);
+
+        object? publicDrawOption = interaction.Data?.Options?.Where(opt => opt.Name == "public").FirstOrDefault()?.Value ?? "false";
+        bool publicDraw = bool.Parse(publicDrawOption.ToString()!);
 
 
         string guildId = interaction.GuildId ?? interaction.Guild!.Id!;

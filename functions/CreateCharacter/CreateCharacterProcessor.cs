@@ -18,7 +18,7 @@ public partial class CreateCharacterProcessor : IDiscordSlashCommandProcessor
         var games = new GamesFactory()
             .EndGames();
 
-        string game = interaction.Data?.Options?.Where(opt => opt.Name == "game").FirstOrDefault()?.Value ?? "1d6";
+        string game = (interaction.Data?.Options?.Where(opt => opt.Name == "game").FirstOrDefault()?.Value ?? "1d6").ToString()!;
 
         var embeds = new List<DiscordEmbed>();
 

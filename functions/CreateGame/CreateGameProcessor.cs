@@ -22,9 +22,9 @@ public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
         var games = new GamesFactory()
             .EndGames();
 
-        string game = interaction.Data?.Options?.Where(opt => opt.Name == "game").FirstOrDefault()?.Value ?? "1d6";
-        bool ai = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "ai").FirstOrDefault()?.Value ?? "false");
-        int players = int.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "players").FirstOrDefault()?.Value ?? "2");
+        string game = (interaction.Data?.Options?.Where(opt => opt.Name == "game").FirstOrDefault()?.Value ?? "1d6").ToString()!;
+        bool ai = bool.Parse((interaction.Data?.Options?.Where(opt => opt.Name == "ai").FirstOrDefault()?.Value ?? "false").ToString()!);
+        int players = int.Parse((interaction.Data?.Options?.Where(opt => opt.Name == "players").FirstOrDefault()?.Value ?? "2").ToString()!);
 
         DiscordFollowupMessageRequest? followupMessage = null;
 

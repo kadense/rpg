@@ -16,9 +16,10 @@ public class NewDeckProcessor : IDiscordSlashCommandProcessor
 
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
-        bool jokers = bool.Parse(interaction.Data?.Options?.Where(opt => opt.Name == "jokers").FirstOrDefault()?.Value ?? "false");
-        string type = interaction.Data?.Options?.Where(opt => opt.Name == "type").FirstOrDefault()?.Value ?? "Standard Deck";
+        object? jokersOption = interaction.Data?.Options?.Where(opt => opt.Name == "jokers").FirstOrDefault()?.Value ?? "1";
 
+        bool jokers = bool.Parse(jokersOption.ToString()!);
+        string type = (interaction.Data?.Options?.Where(opt => opt.Name == "type").FirstOrDefault()?.Value ?? "Standard Deck").ToString()!;
 
         string guildId = interaction.GuildId ?? interaction.Guild!.Id!;
         string channelId = interaction.ChannelId ?? interaction!.Channel!.Id!;
