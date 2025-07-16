@@ -258,10 +258,6 @@ public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
             };
         }
 
-        var nameComponent = interaction.Data!.Components!.GetByCustomId<DiscordTextInputComponent>("name");
-
-        var playerName = nameComponent!.Value;
-
         var participantsToRemove = gameInstance.Participants.RemoveAll(p => p.Type != "Player");
 
         await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);

@@ -199,7 +199,7 @@ public static class TroikaResponse
                         .WithButtonComponent()
                             .WithCustomId("troika-list-participants:remove_participant_modal")
                             .WithLabel("Remove")
-                            .WithStyle(4) // danger
+                            .WithStyle(2) // danger
                             .WithEmoji(
                                 new DiscordEmoji()
                                 {
@@ -210,7 +210,7 @@ public static class TroikaResponse
                         .WithButtonComponent()
                             .WithCustomId("troika-list-participants:remove_npcs")
                             .WithLabel("Remove NPCs")
-                            .WithStyle(4)
+                            .WithStyle(2)
                             .WithEmoji(
                                 new DiscordEmoji()
                                 {
