@@ -52,7 +52,7 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
             instance
         );
 
-        return GenerateResponse(selectedGame, content.ToString(), logger);
+        return GenerateResponse(selectedGame, content.ToString(), logger, initialMessage: initialMessage);
     }
 
     public static DiscordApiResponseContent GenerateResponse(Game selectedGame, string content, ILogger logger, DiscordFollowupMessageRequest? followupMessage = null, string? story = null, bool initialMessage = false)
