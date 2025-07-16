@@ -282,8 +282,6 @@ public class DiscordInteractionProcessor
             if (!Commands.TryGetValue(data.Name, out var command))
                 return ErrorResult($"command {data.Name} is not recognised", logger);
 
-            await DataConnection.WriteDiscordInteractionAsync(interaction);
-
             return await command.ExecuteAsync(interaction, logger);
         }
         else if (interaction.Type == 3 || interaction.Type == 5) // MESSAGE_COMPONENT
@@ -301,8 +299,6 @@ public class DiscordInteractionProcessor
                     }
                 };
 
-            await DataConnection.WriteDiscordInteractionAsync(interaction);
-
             if (!Commands.TryGetValue(data.CustomId, out var command))
             {
                 if (!SubCommands.TryGetValue(data.CustomId, out var subCommand))
@@ -319,7 +315,6 @@ public class DiscordInteractionProcessor
         }
         else
         {
-            await DataConnection.WriteDiscordInteractionAsync(interaction);
             return ErrorResult("interaction data custom id is not populated.", logger);
         }
     }

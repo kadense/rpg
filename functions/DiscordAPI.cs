@@ -38,6 +38,7 @@ namespace Kadense.RPG
             
             using var reader = new StreamReader(req.Body);
             var body = await reader.ReadToEndAsync();
+            await dataConnectionClient.WriteDiscordInteractionAsync(body);
 
             if (!BypassDiscordAuth)
             {
@@ -87,7 +88,6 @@ namespace Kadense.RPG
             }
             catch (JsonException ex)
             {
-                await dataConnectionClient.WriteDiscordInteractionAsync(body);
                 _logger.LogError(ex, "Failed to deserialize Discord interaction");
 
                 return new DiscordApiResponse(new BadRequestObjectResult("Invalid JSON format"));
