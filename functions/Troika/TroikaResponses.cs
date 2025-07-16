@@ -212,7 +212,7 @@ public static class TroikaResponse
                                 }
                             )
                         .End();
-        if (drawnCard.Name == "")
+        if (drawnCard.Name != "End of Round")
         {
             builder
                         .WithButtonComponent()
