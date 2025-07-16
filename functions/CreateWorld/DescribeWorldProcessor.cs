@@ -65,6 +65,6 @@ public partial class DescribeWorldProcessor : IDiscordButtonCommandProcessor
 
         var selectedGame = matchingGames.First();
 
-        return CreateWorldProcessor.GenerateResponse(selectedGame, instance.WorldSetup!, logger, followupMessage);
+        return CreateWorldProcessor.GenerateResponse(selectedGame, instance.WorldSetup!, logger, followupMessage, story: "*Give me a second while I generate a story..*");
     }
 }
