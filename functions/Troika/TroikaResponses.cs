@@ -194,6 +194,8 @@ public static class TroikaResponse
                                 }
                             )
                         .End()
+                    .End()
+                    .WithActionRowComponent()
                         .WithButtonComponent()
                             .WithCustomId("troika-list-participants:remove_participant_modal")
                             .WithLabel("Remove")
@@ -210,8 +212,6 @@ public static class TroikaResponse
                             .WithLabel("Remove NPCs")
                             .WithStyle(4)
                         .End()
-                    .End()
-                    .WithActionRowComponent()
                         .WithButtonComponent()
                             .WithCustomId("troika-list-participants:refresh_participants")
                             .WithLabel("Refresh")
