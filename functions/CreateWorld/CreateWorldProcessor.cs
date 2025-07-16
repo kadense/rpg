@@ -21,6 +21,10 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
             GameName = selectedGame.Name
         };
 
+
+        var content = new StringBuilder();
+        selectedGame.WorldSection!.WithFields(content, random);
+
         if (selectedGame.WorldSection!.LlmPrompt != null)
         {
             var llmPrompt = new StringBuilder(selectedGame.WorldSection.GetLlmPrompt()!);
@@ -38,8 +42,6 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
             instance.WorldLlmPrompt = llmPrompt.ToString();
         }
 
-        var content = new StringBuilder();
-        selectedGame.WorldSection!.WithFields(content, random);
         instance.WorldSetup = content.ToString();
 
 
