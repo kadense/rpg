@@ -44,7 +44,8 @@ public partial class AddParticipantsViaSelectProcessor : IDiscordButtonCommandPr
                     gameInstance.Participants.Add(new GameParticipant
                     {
                         Id = kv.Key,
-                        Name = kv.Value.Nick ?? kv.Value.GlobalName ?? kv.Value.Username
+                        Name = kv.Value.Nick ?? kv.Value.GlobalName ?? kv.Value.Username,
+                        Type = "Player"
                     });
             });
             await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);
