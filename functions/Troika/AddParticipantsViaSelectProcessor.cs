@@ -1,25 +1,26 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using Kadense.Models.Discord;
 using Kadense.Models.Discord.ResponseBuilders;
-using Kadense.RPG.DataAccess;
 using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.Troika;
 
-[DiscordSlashCommand("troika-list-participants", "List the participants in the Troika game.")]
-public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
+[DiscordButtonCommand("troika-add-participants-via-select", "Add the participant")]
+public partial class AddParticipantsViaSelectProcessor : IDiscordButtonCommandProcessor
 {
-    private readonly KadenseRandomizer random = new KadenseRandomizer();
-
     private readonly DataConnectionClient client = new DataConnectionClient();
 
 
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
+        logger.LogInformation("Loading game information from persistent storage");
+
         string guildId = interaction.GuildId ?? interaction.Guild!.Id!;
         string channelId = interaction.ChannelId ?? interaction!.Channel!.Id!;
 
         var gameInstance = await client.ReadGameInstanceAsync(guildId, channelId);
+
 
         if (gameInstance == null || gameInstance.GameName == null)
         {
@@ -34,6 +35,6 @@ public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
         return new DiscordApiResponseContent
         {
             Response = TroikaResponse.ListParticipantResponse(guildId, channelId, gameInstance!, logger)
-        };
+        };        
     }
 }
