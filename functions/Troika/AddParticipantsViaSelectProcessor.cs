@@ -32,9 +32,27 @@ public partial class AddParticipantsViaSelectProcessor : IDiscordButtonCommandPr
             await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);
         }
 
-        return new DiscordApiResponseContent
+        if (interaction.Data == null || interaction.Data.Resolved == null || interaction.Data.Resolved.Users == null || interaction.Data.Resolved.Users.Count() == 0)
         {
-            Response = TroikaResponse.ListParticipantResponse(guildId, channelId, gameInstance!, logger)
-        };        
+            logger.LogWarning("No users selected");
+        }
+        else
+        {
+            interaction.Data.Resolved.Users.ToList().ForEach(kv =>
+            {
+                if (!gameInstance.Participants.Any(p => p.Id == kv.Key))
+                    gameInstance.Participants.Add(new GameParticipant
+                    {
+                        Id = kv.Key,
+                        Name = kv.Value.Nick ?? kv.Value.GlobalName ?? kv.Value.Username
+                    });
+            });
+            await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);
+        }
+
+        return new DiscordApiResponseContent
+            {
+                Response = TroikaResponse.ListParticipantResponse(guildId, channelId, gameInstance!, logger)
+            };        
     }
 }
