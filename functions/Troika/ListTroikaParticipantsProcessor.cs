@@ -29,9 +29,13 @@ public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
             await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);
         }
 
+        var response = TroikaResponse.ListParticipantResponse(guildId, channelId, gameInstance!, logger, false);
+
+        await client.WriteDiscordInteractionResponseAsync(guildId, channelId, response)
+
         return new DiscordApiResponseContent
         {
-            Response = TroikaResponse.ListParticipantResponse(guildId, channelId, gameInstance!, logger, false)
+            Response = response
         };
     }
 }
