@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.Troika;
 
-[DiscordButtonCommand("troika-refresh-participant-list", "Refresh the participant list")]
+[DiscordButtonCommand("troika_refresh_participant_list", "Refresh the participant list")]
 public partial class RefreshParticipantProcessor : IDiscordButtonCommandProcessor
 {
     private readonly DataConnectionClient client = new DataConnectionClient();

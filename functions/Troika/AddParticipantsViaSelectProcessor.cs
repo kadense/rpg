@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.Troika;
 
-[DiscordButtonCommand("troika-add-participants-via-select", "Add the participant")]
+[DiscordButtonCommand("troika_add_participants_via_select", "Add the participant")]
 public partial class AddParticipantsViaSelectProcessor : IDiscordButtonCommandProcessor
 {
     private readonly DataConnectionClient client = new DataConnectionClient();

@@ -15,6 +15,8 @@ public static class TroikaResponse
 
         var result = gameInstance.GetParticipantText(["Initiative"]);
 
+        logger.LogInformation($"Participant List: {result}");
+
         return new DiscordInteractionResponseBuilder()
             .WithResponseType(useOriginalMessage ? DiscordInteractionResponseType.UPDATE_MESSAGE : DiscordInteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE)
             .WithData()
@@ -23,20 +25,22 @@ public static class TroikaResponse
                     .WithAccentColor(0x00FF00)
                     .WithTextDisplayComponent()
                         .WithContent("Troika Initiative")
+                    .End()
+                    .WithTextDisplayComponent()
                         .WithContent(result)
                     .End()
                     .WithActionRowComponent()
                         .WithButtonComponent()
-                            .WithCustomId("troika-refresh-participant-list")
+                            .WithCustomId("troika_refresh_participant_list")
                             .WithLabel("Refresh")
                         .End()
-                    .End()/* 
+                    .End()
                     .WithActionRowComponent()
                         .WithUserSelectComponent()
-                            .WithCustomId("troika-add-participants-via-select")
+                            .WithCustomId("troika_add_participants_via_select")
                             .WithPlaceholder("Players")
                         .End()
-                    .End() */
+                    .End()
                 .End()
             .End()
             .Build();

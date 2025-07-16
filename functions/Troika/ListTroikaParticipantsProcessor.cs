@@ -9,8 +9,6 @@ namespace Kadense.RPG.Troika;
 [DiscordSlashCommand("troika-list-participants", "List the participants in the Troika game.")]
 public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
 {
-    private readonly KadenseRandomizer random = new KadenseRandomizer();
-
     private readonly DataConnectionClient client = new DataConnectionClient();
 
 
