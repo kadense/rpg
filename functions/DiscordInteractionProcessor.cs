@@ -303,7 +303,7 @@ public class DiscordInteractionProcessor
 
             if (!Commands.TryGetValue(data.CustomId, out var command))
             {
-                if (SubCommands.TryGetValue(data.CustomId, out var subCommand))
+                if (!SubCommands.TryGetValue(data.CustomId, out var subCommand))
                     return ErrorResult($"command {data.CustomId} is not a recognised command.", logger);
 
                 var subCommandInstance = Activator.CreateInstance(subCommand!.CommandType);
