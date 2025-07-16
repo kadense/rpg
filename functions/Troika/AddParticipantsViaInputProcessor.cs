@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.Troika;
 
-[DiscordButtonCommand("troika_add_participants_via_select", "Add the participant")]
+[DiscordButtonCommand("troika_add_participants_via_input", "Add the participant")]
 public partial class AddParticipantsViaInputProcessor : IDiscordButtonCommandProcessor
 {
     private readonly DataConnectionClient client = new DataConnectionClient();
@@ -61,7 +61,7 @@ public partial class AddParticipantsViaInputProcessor : IDiscordButtonCommandPro
                         Name = name,
                         Type = "Player"
                     });
-                    
+
             await client.WriteGameInstanceAsync(guildId, channelId, gameInstance);
         }
         else
