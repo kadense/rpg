@@ -88,6 +88,8 @@ public static class TroikaResponse
                         .WithStyle(1)
                         .WithMinLength(1)
                     .End()
+                .End()
+                .WithActionRowComponent()
                     .WithTextInputComponent()
                         .WithCustomId("initiative")
                         .WithLabel("Initiative")
