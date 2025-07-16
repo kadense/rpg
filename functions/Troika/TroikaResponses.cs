@@ -12,7 +12,7 @@ public static class TroikaResponse
             .WithResponseType(DiscordInteractionResponseType.MODAL)
             .WithData()
                 .WithTitle("Add Player")
-                .WithCustomId("troika-list-participants:add_participant")
+                .WithCustomId("troika-list-participants:add_player")
                 .WithActionRowComponent()
                     .WithTextInputComponent()
                         .WithCustomId("name")
@@ -20,6 +20,81 @@ public static class TroikaResponse
                         .WithPlaceholder("John Smith")
                         .WithStyle(1)
                         .WithMinLength(1)
+                    .End()
+                .End()
+            .End()
+            .Build();
+
+        return response;
+    }
+
+    public static DiscordInteractionResponse AddAllyModal(string guildId, string channelId, GameInstance gameInstance, ILogger logger, bool useOriginalMessage = true)
+    {
+        var response = new DiscordInteractionResponseBuilder()
+            .WithResponseType(DiscordInteractionResponseType.MODAL)
+            .WithData()
+                .WithTitle("Add Ally")
+                .WithCustomId("troika-list-participants:add_ally")
+                .WithActionRowComponent()
+                    .WithTextInputComponent()
+                        .WithCustomId("name")
+                        .WithLabel("Ally Name")
+                        .WithPlaceholder("Robin")
+                        .WithStyle(1)
+                        .WithMinLength(1)
+                    .End()
+                .End()
+            .End()
+            .Build();
+
+        return response;
+    }
+
+    public static DiscordInteractionResponse AddHenchmenModal(string guildId, string channelId, GameInstance gameInstance, ILogger logger, bool useOriginalMessage = true)
+    {
+        var response = new DiscordInteractionResponseBuilder()
+            .WithResponseType(DiscordInteractionResponseType.MODAL)
+            .WithData()
+                .WithTitle("Add Henchmen")
+                .WithCustomId("troika-list-participants:add_henchmen")
+                .WithActionRowComponent()
+                    .WithTextInputComponent()
+                        .WithCustomId("name")
+                        .WithLabel("Name")
+                        .WithPlaceholder("Igor")
+                        .WithStyle(1)
+                        .WithMinLength(1)
+                    .End()
+                .End()
+            .End()
+            .Build();
+
+        return response;
+    }
+
+
+    public static DiscordInteractionResponse AddEnemyModal(string guildId, string channelId, GameInstance gameInstance, ILogger logger, bool useOriginalMessage = true)
+    {
+        var response = new DiscordInteractionResponseBuilder()
+            .WithResponseType(DiscordInteractionResponseType.MODAL)
+            .WithData()
+                .WithTitle("Add Enemy")
+                .WithCustomId("troika-list-participants:add_enemy")
+                .WithActionRowComponent()
+                    .WithTextInputComponent()
+                        .WithCustomId("name")
+                        .WithLabel("Type / Name")
+                        .WithPlaceholder("Owl")
+                        .WithStyle(1)
+                        .WithMinLength(1)
+                    .End()
+                    .WithTextInputComponent()
+                        .WithCustomId("initiative")
+                        .WithLabel("Initiative")
+                        .WithPlaceholder("2")
+                        .WithStyle(1)
+                        .WithMinLength(1)
+                        .WithValue("2")
                     .End()
                 .End()
             .End()
@@ -61,9 +136,11 @@ public static class TroikaResponse
                                 }
                             )
                         .End()
+                    .End()
+                    .WithActionRowComponent()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:add_participant_modal")
-                            .WithLabel("Add Participant")
+                            .WithCustomId("troika-list-participants:add_player_modal")
+                            .WithLabel("Add Player")
                             .WithStyle(2)
                             .WithEmoji(
                                 new DiscordEmoji()
@@ -72,6 +149,41 @@ public static class TroikaResponse
                                 }
                             )
                         .End()
+                        .WithButtonComponent()
+                            .WithCustomId("troika-list-participants:add_ally_modal")
+                            .WithLabel("Add Ally")
+                            .WithStyle(2)
+                            .WithEmoji(
+                                new DiscordEmoji()
+                                {
+                                    Name = "💪"
+                                }
+                            )
+                        .End()
+                        .WithButtonComponent()
+                            .WithCustomId("troika-list-participants:add_enemy_modal")
+                            .WithLabel("Add Enemy")
+                            .WithStyle(2)
+                            .WithEmoji(
+                                new DiscordEmoji()
+                                {
+                                    Name = "👹"
+                                }
+                            )
+                        .End()
+                        .WithButtonComponent()
+                            .WithCustomId("troika-list-participants:add_henchmen_modal")
+                            .WithLabel("Add Henchmen")
+                            .WithStyle(2)
+                            .WithEmoji(
+                                new DiscordEmoji()
+                                {
+                                    Name = "👺"
+                                }
+                            )
+                        .End()
+                    .End()
+                    .WithActionRowComponent()
                         .WithButtonComponent()
                             .WithCustomId("troika-list-participants:remove_participant_modal")
                             .WithLabel("Remove Participant")
