@@ -31,7 +31,7 @@ public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
 
         var response = TroikaResponse.ListParticipantResponse(guildId, channelId, gameInstance!, logger, false);
 
-        await client.WriteDiscordInteractionResponseAsync(guildId, channelId, response)
+        await client.WriteDiscordInteractionResponseAsync(guildId, channelId, response);
 
         return new DiscordApiResponseContent
         {
