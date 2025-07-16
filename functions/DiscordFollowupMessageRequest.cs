@@ -6,6 +6,7 @@ public enum FollowupProcessorType
     PublicResponse,
     PrivateAiPromptResponse,
     PublicAiPromptResponse,
+    GameWorldAiPromptResponse
 }
 
 public class DiscordFollowupMessageRequest

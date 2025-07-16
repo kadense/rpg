@@ -45,7 +45,7 @@ public partial class DescribeWorldProcessor : IDiscordButtonCommandProcessor
         logger.LogInformation("Generating Followup Message Request");
         var followupMessage = new DiscordFollowupMessageRequest
         {
-            Type = FollowupProcessorType.PublicAiPromptResponse,
+            Type = FollowupProcessorType.GameWorldAiPromptResponse,
             Content = instance.WorldLlmPrompt,
             Token = interaction.Token,
             ChannelId = interaction.ChannelId ?? interaction.Channel!.Id!,

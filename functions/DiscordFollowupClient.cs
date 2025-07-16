@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using IdentityModel.Client;
 using Kadense.Models.Discord;
+using Kadense.Models.Discord.ResponseBuilders;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -31,15 +32,10 @@ public class DiscordFollowupClient
         };
     }
 
-    public async Task SendFollowupAsync(string content, string interactionToken, ILogger logger, bool privateMessage = false, bool useOriginalMessage = false)
+    public async Task SendFollowupAsync(DiscordInteractionResponseData responseData, string interactionToken, ILogger logger, bool privateMessage = false, bool useOriginalMessage = false)
     {
-        string url = useOriginalMessage ? $"{BaseUrl}/{interactionToken}?wait=true" : $"{BaseUrl}/{interactionToken}/messages/@original"; 
-        var responseData = new DiscordInteractionResponseData
-        {
-            Content = content,
-            Flags = privateMessage ? 64 : null, // Ephemeral message for when private
-        };
-
+        string url = !useOriginalMessage ? $"{BaseUrl}/{interactionToken}?wait=true" : $"{BaseUrl}/{interactionToken}/messages/@original"; 
+        
         var json = JsonSerializer.Serialize(responseData, new JsonSerializerOptions
         {
             WriteIndented = true,
@@ -63,13 +59,13 @@ public class DiscordFollowupClient
         int attempts = 0;
         while (attempts < 5 && (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests || response.StatusCode == System.Net.HttpStatusCode.NotFound))
         {
-            logger.LogInformation($"Requesting {request.Method} {request.RequestUri} is being rate limited. Waiting for retry.");
-            var delaySeconds = await response.Content.ReadFromJsonAsync<DiscordRateLimitResponse>();
-
-
             int delayMs = 1000;
             if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+            {
+                logger.LogInformation($"Requesting {request.Method} {request.RequestUri} is being rate limited. Waiting for retry.");
+                var delaySeconds = await response.Content.ReadFromJsonAsync<DiscordRateLimitResponse>();
                 delayMs = (int)(delaySeconds?.RetryAfter ?? 1 * 1000 * 1.2); // Convert seconds to milliseconds and add 20%
+            }
 
             logger.LogInformation($"Waiting for {delayMs} milliseconds before retrying.");
             await Task.Delay(delayMs);

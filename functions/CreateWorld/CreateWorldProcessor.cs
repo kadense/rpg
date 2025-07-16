@@ -53,13 +53,12 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
         return GenerateResponse(selectedGame, content.ToString(), logger);
     }
 
-    public static DiscordApiResponseContent GenerateResponse(Game selectedGame, string content, ILogger logger, DiscordFollowupMessageRequest? followupMessage = null)
+    public static DiscordApiResponseContent GenerateResponse(Game selectedGame, string content, ILogger logger, DiscordFollowupMessageRequest? followupMessage = null, string? story = null)
     {
         logger.LogInformation("Generating Response");
-        return
-            new DiscordApiResponseContent
-            {
-                Response = new DiscordInteractionResponseBuilder()
+
+        var container = new DiscordInteractionResponseBuilder()
+                    .WithResponseType(DiscordInteractionResponseType.UPDATE_MESSAGE)
                     .WithData()
                         .WithFlags(1 << 15)
                         .WithContainerComponent()
@@ -68,7 +67,15 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
                             .End()
                             .WithTextDisplayComponent()
                                 .WithContent(content)
-                            .End()
+                            .End();
+
+        if(story != null)
+            container
+                            .WithTextDisplayComponent()
+                                .WithContent(story)
+                            .End();
+
+        var response = container
                             .WithActionRowComponent()
                                 .WithButtonComponent()
                                     .WithLabel("Regenerate World")
@@ -83,7 +90,11 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
                             .End()
                         .End()
                     .End()
-                    .Build(),
+                    .Build();
+        return
+            new DiscordApiResponseContent
+            {
+                Response = response,
                 FollowupMessage = followupMessage
             };
     }
