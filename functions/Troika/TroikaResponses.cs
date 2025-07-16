@@ -6,6 +6,28 @@ namespace Kadense.RPG.Troika;
 
 public static class TroikaResponse
 {
+    public static DiscordInteractionResponse AddNonDiscordPlayerModal(string guildId, string channelId, GameInstance gameInstance, ILogger logger, bool useOriginalMessage = true)
+    {
+        var response = new DiscordInteractionResponseBuilder()
+            .WithResponseType(DiscordInteractionResponseType.MODAL)
+            .WithData()
+                .WithTitle("Add Player")
+                .WithCustomId("troika-list-participants:add_participant")
+                .WithActionRowComponent()
+                    .WithTextInputComponent()
+                        .WithCustomId("name")
+                        .WithLabel("Character Name")
+                        .WithPlaceholder("John Smith")
+                        .WithStyle(1)
+                        .WithMinLength(1)
+                    .End()
+                .End()
+            .End()
+            .Build();
+
+        return response;
+    }
+
     public static DiscordInteractionResponse ListParticipantResponse(string guildId, string channelId, GameInstance gameInstance, ILogger logger, bool useOriginalMessage = true)
     {
         if (gameInstance.GameName != "Troika")
@@ -30,11 +52,40 @@ public static class TroikaResponse
                     .End()
                     .WithActionRowComponent()
                         .WithButtonComponent()
-                            .WithCustomId("troika_refresh_participant_list")
+                            .WithCustomId("troika-list-participants:refresh_participants")
                             .WithLabel("Refresh")
+                            .WithEmoji(
+                                new DiscordEmoji()
+                                {
+                                    Name = "🔃"
+                                }
+                            )
+                        .End()
+                        .WithButtonComponent()
+                            .WithCustomId("troika-list-participants:add_participant_modal")
+                            .WithLabel("Add Participant")
+                            .WithStyle(2)
+                            .WithEmoji(
+                                new DiscordEmoji()
+                                {
+                                    Name = "👤"
+                                }
+                            )
+                        .End()
+                        .WithButtonComponent()
+                            .WithCustomId("troika-list-participants:remove_participant_modal")
+                            .WithLabel("Remove Participant")
+                            .WithStyle(4) // danger
+                            .WithEmoji(
+                                new DiscordEmoji()
+                                {
+                                    Name = "❌"
+                                }
+                            )
                         .End()
                     .End()
                 .End()
+                /* 
                 .WithContainerComponent()
                     .WithTextDisplayComponent()
                         .WithContent("Add Player from Discord:")
@@ -45,25 +96,8 @@ public static class TroikaResponse
                             .WithPlaceholder("Players")
                         .End()
                     .End()
-                .End()
-                .WithContainerComponent()
-                    .WithTextDisplayComponent()
-                        .WithContent("Add other player:")
-                    .End()/*
-                    .WithActionRowComponent()
-                        .WithTextInputComponent()
-                            .WithCustomId("troika_add_participants_via_input")
-                            .WithLabel("Name")
-                            .WithPlaceholder("John Smith")
-                            .WithStyle(2) // paragraph
-                            .WithMinLength(1)
-                        .End()
-                    .End()
-                    */
-                    .WithTextDisplayComponent()
-                        .WithContent("*You can add multiple players names, one per line*")
-                    .End()
-                .End()
+                .End() 
+                */
             .End()
             .Build();
 

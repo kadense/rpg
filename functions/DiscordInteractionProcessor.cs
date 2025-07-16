@@ -8,20 +8,32 @@ using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG;
 
+public class DiscordSubCommand
+{
+    public DiscordSubCommand(Type commandType, MethodInfo commandMethod)
+    {
+        this.CommandType = commandType;
+        this.CommandMethod = commandMethod;
+    }
+    public Type CommandType { get; }
+
+    public MethodInfo CommandMethod { get;  }
+}
+
 public class DiscordInteractionProcessor
 {
     public DataConnectionClient DataConnection { get; } = new DataConnectionClient();
     public DiscordInteractionProcessor()
     {
         Commands = new Dictionary<string, IDiscordCommandProcessor>();
-
+        SubCommands = new Dictionary<string, DiscordSubCommand>();
         GetSlashCommands();
         GetButtonCommands();
     }
 
     public void GetButtonCommands()
     {
-    // Register all commands in the current assembly
+        // Register all commands in the current assembly
         var commands = Assembly.GetExecutingAssembly()
             .GetTypes()
             .Where(t => t.GetCustomAttribute<DiscordButtonCommandAttribute>() != null && typeof(IDiscordCommandProcessor).IsAssignableFrom(t))
@@ -33,6 +45,17 @@ public class DiscordInteractionProcessor
             if (attribute != null)
             {
                 Commands[attribute.Name] = command;
+            }
+
+            var methods = command.GetType()
+                .GetMethods()
+                .Where(m => m.GetCustomAttribute<DiscordButtonCommandAttribute>() != null)
+                .ToArray();
+
+            foreach (var method in methods)
+            {
+                var methodAttribute = method.GetCustomAttribute<DiscordButtonCommandAttribute>();
+                this.SubCommands[$"{attribute!.Name}:{methodAttribute!.Name}"] = new DiscordSubCommand(command.GetType(), method);
             }
         }
     }
@@ -51,6 +74,17 @@ public class DiscordInteractionProcessor
             if (attribute != null)
             {
                 Commands[attribute.Name] = command;
+            }
+
+            var methods = command.GetType()
+                .GetMethods()
+                .Where(m => m.GetCustomAttribute<DiscordButtonCommandAttribute>() != null)
+                .ToArray();
+
+            foreach (var method in methods)
+            {
+                var methodAttribute = method.GetCustomAttribute<DiscordButtonCommandAttribute>();
+                this.SubCommands[$"{attribute!.Name}:{methodAttribute!.Name}"] = new DiscordSubCommand(command.GetType(), method);
             }
         }
     }
@@ -204,6 +238,8 @@ public class DiscordInteractionProcessor
 
     protected IDictionary<string, IDiscordCommandProcessor> Commands { get; }
 
+    protected IDictionary<string, DiscordSubCommand> SubCommands { get; }
+
     public async Task<DiscordApiResponseContent> ExecuteAsync(DiscordInteraction interaction, ILogger logger)
     {
         var data = interaction.Data;
@@ -236,18 +272,28 @@ public class DiscordInteractionProcessor
                 };
 
             if (!Commands.TryGetValue(data.Name, out var command))
-                return new DiscordApiResponseContent
-                {
-                    Response = new DiscordInteractionResponse
+            {
+                if (!SubCommands.TryGetValue(data.Name, out var subCommand))
+                    return new DiscordApiResponseContent
                     {
-                        Type = 1, // Pong response type
-                        Data = new DiscordInteractionResponseData
+                        Response = new DiscordInteractionResponse
                         {
+                            Type = 1, // Pong response type
+                            Data = new DiscordInteractionResponseData
+                            {
 
-                            Content = "interaction data name is not populated."
-                        },
-                    }
-                };
+                                Content = "interaction data name is not populated."
+                            },
+                        }
+                    };
+
+                var subCommandInstance = Activator.CreateInstance(subCommand.CommandType);
+                var subCommandResult = (Task<DiscordApiResponseContent>?)subCommand.CommandMethod.Invoke(subCommandInstance, new object[] { interaction, logger });
+                if (subCommandResult == null)
+                    throw new Exception("Subcommand Returned null value");
+
+                return await subCommandResult;
+            }
 
 
             await DataConnection.WriteDiscordInteractionAsync(interaction);

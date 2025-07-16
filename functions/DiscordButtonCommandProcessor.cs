@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG;
 
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method,  Inherited = false, AllowMultiple = false)]
 public class DiscordButtonCommandAttribute : Attribute
 {
     public string Name { get; }
