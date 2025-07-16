@@ -4,5 +4,7 @@ public class GameParticipant
     public string? Name { get; set; }
     public string? Type { get; set; } // e.g., "Player", "NPC", "Monster", etc.
 
+    public bool AddedFromDiscordUser { get; set; } = false;
+
     public Dictionary<string, int> Attributes { get; set; } = new Dictionary<string, int>();
 }
