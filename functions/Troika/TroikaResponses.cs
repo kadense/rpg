@@ -55,6 +55,7 @@ public static class TroikaResponse
                             .WithCustomId("troika_add_participants_via_input")
                             .WithLabel("Name")
                             .WithStyle(2) // paragraph
+                            .WithMinLength(1)
                         .End()
                     .End()
                     .WithTextDisplayComponent()
