@@ -14,7 +14,7 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
     private static readonly DataConnectionClient client = new DataConnectionClient();
     private static readonly KadenseRandomizer random = new KadenseRandomizer();
 
-    public static async Task<DiscordApiResponseContent> GenerateResponseAsync(DiscordInteraction interaction, Game selectedGame, ILogger logger, DiscordFollowupMessageRequest? followupMessage = null)
+    public static async Task<DiscordApiResponseContent> GenerateResponseAsync(DiscordInteraction interaction, Game selectedGame, ILogger logger, DiscordFollowupMessageRequest? followupMessage = null, bool initialMessage = false)
     {
         var instance = new GameInstance()
         {
@@ -55,12 +55,12 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
         return GenerateResponse(selectedGame, content.ToString(), logger);
     }
 
-    public static DiscordApiResponseContent GenerateResponse(Game selectedGame, string content, ILogger logger, DiscordFollowupMessageRequest? followupMessage = null, string? story = null)
+    public static DiscordApiResponseContent GenerateResponse(Game selectedGame, string content, ILogger logger, DiscordFollowupMessageRequest? followupMessage = null, string? story = null, bool initialMessage = false)
     {
         logger.LogInformation("Generating Response");
 
         var container = new DiscordInteractionResponseBuilder()
-                    .WithResponseType(DiscordInteractionResponseType.UPDATE_MESSAGE)
+                    .WithResponseType(initialMessage ? DiscordInteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE : DiscordInteractionResponseType.UPDATE_MESSAGE)
                     .WithData()
                         .WithFlags(1 << 15)
                         .WithContainerComponent()
@@ -138,6 +138,6 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
         if (selectedGame.WorldSection == null)
             return ErrorResponse("This game does not support world creation.", logger);
 
-        return await CreateWorldProcessor.GenerateResponseAsync(interaction, selectedGame, logger);        
+        return await CreateWorldProcessor.GenerateResponseAsync(interaction, selectedGame, logger, initialMessage: true);        
     }
 }
