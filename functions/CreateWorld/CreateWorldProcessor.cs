@@ -93,6 +93,8 @@ public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
                         .End()
                     .End()
                     .Build();
+
+        logger.LogInformation($"Response Generated: {response}");
         return
             new DiscordApiResponseContent
             {
