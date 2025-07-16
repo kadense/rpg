@@ -31,7 +31,7 @@ public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
 
         return new DiscordApiResponseContent
         {
-            Response = TroikaResponse.ListParticipantResponse(guildId, channelId, gameInstance!, logger, useOriginalMessage = false)
+            Response = TroikaResponse.ListParticipantResponse(guildId, channelId, gameInstance!, logger, false)
         };
     }
 }
