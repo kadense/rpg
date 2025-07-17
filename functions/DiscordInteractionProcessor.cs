@@ -252,7 +252,7 @@ public class DiscordInteractionProcessor
         var request = new HttpRequestMessage
         {
             RequestUri = new Uri(url),
-            Method = discordCommand != null ? HttpMethod.Put : HttpMethod.Post,
+            Method = discordCommand != null ? HttpMethod.Patch : HttpMethod.Post,
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
 
@@ -277,7 +277,7 @@ public class DiscordInteractionProcessor
             request = new HttpRequestMessage
             {
                 RequestUri = new Uri(url),
-                Method = discordCommand != null ? HttpMethod.Put : HttpMethod.Post,
+                Method = discordCommand != null ? HttpMethod.Patch : HttpMethod.Post,
                 Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
             request.SetToken("Bot", token!);
