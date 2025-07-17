@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Kadense.Models.Discord;
 using Kadense.Models.Discord.ResponseBuilders;
 using Kadense.RPG.DataAccess;
+using Kadense.RPG.Troika;
 using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.CreateGame;
@@ -134,11 +135,23 @@ public partial class CreateGameProcessor : IDiscordSlashCommandProcessor
             instance
         );
 
+        if (game == "Troika")
+            return new DiscordApiResponseContent
+            {
+                Response = TroikaResponse.ListParticipantResponse(
+                    interaction.GuildId ?? interaction.Guild!.Id!,
+                    interaction.ChannelId ?? interaction.Channel!.Id!,
+                    instance,
+                    logger,
+                    false
+                    )
+            };
+
         return new DiscordApiResponseContent
         {
             Response = responseData
-                .End()
-                .Build(),
+                    .End()
+                    .Build(),
             FollowupMessage = followupMessage
         };
     }

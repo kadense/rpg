@@ -6,8 +6,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Kadense.RPG.Troika;
 
-[DiscordSlashCommand("troika-list-participants", "List the participants in the Troika game.")]
-public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
+[DiscordSlashCommand("troika-initiative", "Setup Troika Initiative.")]
+public class TroikaInitiativeProcessor : IDiscordSlashCommandProcessor
 {
     private readonly KadenseRandomizer random = new KadenseRandomizer();
     private readonly DataConnectionClient client = new DataConnectionClient();

@@ -22,6 +22,13 @@ public class DiscordSubCommand
     public MethodInfo CommandMethod { get;  }
 }
 
+public class DiscordCommandStatuses
+{
+    public List<string> Created { get; set; } = new List<string>();
+    public List<string> Updated { get; set; } = new List<string>();
+    public List<string> Deleted { get; set; } = new List<string>();
+}
+
 public class DiscordInteractionProcessor
 {
     public DataConnectionClient DataConnection { get; } = new DataConnectionClient();
@@ -91,13 +98,81 @@ public class DiscordInteractionProcessor
         }
     }
 
+    public async Task<List<DiscordCommand>?> GetCommandsAsync(ILogger logger)
+    {
+        var discordApplicationId = Environment.GetEnvironmentVariable("DISCORD_CLIENT_ID");
+        var token = Environment.GetEnvironmentVariable("DISCORD_CLIENT_SECRET");
+        string url = $"https://discord.com/api/v10/applications/{discordApplicationId}/commands";
 
-    public async Task<string> RegisterCommandAsync(Type commandType, ILogger logger)
+        var request = new HttpRequestMessage
+        {
+            RequestUri = new Uri(url),
+            Method = HttpMethod.Get,
+        };
+        request.SetToken("Bot", token!);
+        using var client = new HttpClient();
+        var response = await client.SendAsync(request);
+        while (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+        {
+            logger.LogInformation($"Requesting {request.Method} {request.RequestUri} is being rate limited. Waiting for retry.");
+
+            var delaySeconds = await response.Content.ReadFromJsonAsync<DiscordRateLimitResponse>();
+            var delayMs = (int)(delaySeconds?.RetryAfter ?? 1 * 1000 * 1.2); // Convert seconds to milliseconds and add 20%
+
+            logger.LogInformation($"Waiting for {delayMs} milliseconds before retrying.");
+
+            request = new HttpRequestMessage
+            {
+                RequestUri = new Uri(url),
+                Method = HttpMethod.Get,
+            };
+            request.SetToken("Bot", token!);
+            response = await client.SendAsync(request);
+        }
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<DiscordCommand>>();
+    }
+
+    public async Task DeleteCommandsAsync(DiscordCommand discordCommand, ILogger logger)
+    {
+        var discordApplicationId = Environment.GetEnvironmentVariable("DISCORD_CLIENT_ID");
+        var token = Environment.GetEnvironmentVariable("DISCORD_CLIENT_SECRET");
+        string url = $"https://discord.com/api/v10/applications/{discordApplicationId}/commands/{discordCommand.Id}";
+
+        var request = new HttpRequestMessage
+        {
+            RequestUri = new Uri(url),
+            Method = HttpMethod.Delete,
+        };
+        request.SetToken("Bot", token!);
+        using var client = new HttpClient();
+        var response = await client.SendAsync(request);
+        while (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+        {
+            logger.LogInformation($"Requesting {request.Method} {request.RequestUri} is being rate limited. Waiting for retry.");
+
+            var delaySeconds = await response.Content.ReadFromJsonAsync<DiscordRateLimitResponse>();
+            var delayMs = (int)(delaySeconds?.RetryAfter ?? 1 * 1000 * 1.2); // Convert seconds to milliseconds and add 20%
+
+            logger.LogInformation($"Waiting for {delayMs} milliseconds before retrying.");
+
+            request = new HttpRequestMessage
+            {
+                RequestUri = new Uri(url),
+                Method = HttpMethod.Delete,
+            };
+            request.SetToken("Bot", token!);
+            response = await client.SendAsync(request);
+        }
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<string> RegisterCommandAsync(Type commandType, ILogger logger, DiscordCommand? discordCommand = null)
     {
         var games = new GamesFactory().EndGames();
         var discordApplicationId = Environment.GetEnvironmentVariable("DISCORD_CLIENT_ID");
-        string url = $"https://discord.com/api/v10/applications/{discordApplicationId}/commands";
-
+        string? suffix = discordCommand != null ? $"/{discordCommand.Id}" : string.Empty;
+        string url = $"https://discord.com/api/v10/applications/{discordApplicationId}/commands{suffix}";
 
         var attribute = commandType.GetCustomAttribute<DiscordSlashCommandAttribute>();
 
@@ -177,7 +252,7 @@ public class DiscordInteractionProcessor
         var request = new HttpRequestMessage
         {
             RequestUri = new Uri(url),
-            Method = HttpMethod.Post,
+            Method = discordCommand != null ? HttpMethod.Put : HttpMethod.Post,
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
 
@@ -202,7 +277,7 @@ public class DiscordInteractionProcessor
             request = new HttpRequestMessage
             {
                 RequestUri = new Uri(url),
-                Method = HttpMethod.Post,
+                Method = discordCommand != null ? HttpMethod.Put : HttpMethod.Post,
                 Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
             request.SetToken("Bot", token!);
@@ -219,28 +294,47 @@ public class DiscordInteractionProcessor
         return attribute!.Name;
     }
 
-    public async Task<string[]> RegisterCommandsAsync(ILogger logger)
+    public async Task<DiscordCommandStatuses> RegisterCommandsAsync(ILogger logger)
     {
         var commands = Assembly.GetExecutingAssembly()
             .GetTypes()
             .Where(t => t.GetCustomAttribute<DiscordSlashCommandAttribute>() != null && typeof(IDiscordSlashCommandProcessor).IsAssignableFrom(t))
             .ToArray();
 
-
-        var commandNames = new List<string>();
+        var result = new DiscordCommandStatuses();
+        var registeredCommands = await GetCommandsAsync(logger);
         foreach (var commandType in commands)
         {
-            var commandName = await RegisterCommandAsync(commandType, logger);
-            commandNames.Add(commandName);
+            var attribute = commandType.GetCustomAttribute<DiscordSlashCommandAttribute>();
+            var registeredCommand = registeredCommands!.Where(c => c.Name == attribute!.Name);
+            DiscordCommand? discordCommand = null;
+            if (registeredCommand.Count() > 0)
+            {
+                discordCommand = registeredCommand.First();
+            }
+            var commandName = await RegisterCommandAsync(commandType, logger, discordCommand);
+
+            if (discordCommand == null)
+                result.Created.Add(commandName);
+            else
+                result.Updated.Add(commandName);
         }
 
-        logger.LogInformation($"Registered commands: {string.Join(", ", commandNames)}");
-        return commandNames.ToArray();
+        registeredCommands!
+            .Where(c => !result.Created.Any(rc => rc == c.Name) && !result.Updated.Any(rc => rc == c.Name))
+            .ToList()
+            .ForEach(async c =>
+            {
+                await DeleteCommandsAsync(c, logger);
+                result.Deleted.Add(c.Name!);
+            });
+
+        return result;
     }
 
-    protected IDictionary<string, IDiscordCommandProcessor> Commands { get; }
+    public IDictionary<string, IDiscordCommandProcessor> Commands { get; }
 
-    protected IDictionary<string, DiscordSubCommand> SubCommands { get; }
+    public IDictionary<string, DiscordSubCommand> SubCommands { get; }
 
     protected DiscordApiResponseContent ErrorResult(string content, ILogger logger)
     {

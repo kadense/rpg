@@ -8,7 +8,7 @@ namespace Kadense.RPG.CreateWorld;
 
 [DiscordSlashCommand("world", "Create a world")]
 [DiscordSlashCommandOption("game", "Which Game?", true, AutoChoices = DiscordSlashCommandChoicesMethod.GamesWithWorlds)]
-[DiscordSlashCommandOption("ai", "Use LLM models?", false, Type = DiscordSlashCommandOptionType.Boolean, Choices = new[] { "true", "false" })]
+//[DiscordSlashCommandOption("ai", "Use LLM models?", false, Type = DiscordSlashCommandOptionType.Boolean, Choices = new[] { "true", "false" })]
 public partial class CreateWorldProcessor : IDiscordSlashCommandProcessor
 {
     private static readonly DataConnectionClient client = new DataConnectionClient();
