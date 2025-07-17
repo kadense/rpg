@@ -171,6 +171,9 @@ public static class TroikaResponse
                             )
                         .End()
                     .End()
+                    .WithTextDisplayComponent()
+                        .WithContent("*Kadense-RPG is an independent production by Kadense Limited and is not affiliated with the Melsonian Arts Council*")
+                    .End()
                 .End()
             .End()
             .Build();
@@ -222,6 +225,9 @@ public static class TroikaResponse
                                 }
                             )
                         .End()
+                    .End()
+                    .WithTextDisplayComponent()
+                        .WithContent("*Kadense-RPG is an independent production by Kadense Limited and is not affiliated with the Melsonian Arts Council*")
                     .End()
                 .End()
             .End()
@@ -289,6 +295,9 @@ public static class TroikaResponse
                         .End();
         }
         var response = builder
+                    .End()
+                    .WithTextDisplayComponent()
+                        .WithContent("*Kadense-RPG is an independent production by Kadense Limited and is not affiliated with the Melsonian Arts Council*")
                     .End()
                 .End()
             .End()
@@ -400,6 +409,9 @@ public static class TroikaResponse
                                 }
                             )
                         .End()
+                    .End()
+                    .WithTextDisplayComponent()
+                        .WithContent("*Kadense-RPG is an independent production by Kadense Limited and is not affiliated with the Melsonian Arts Council*")
                     .End()
                 .End()
             /* 
