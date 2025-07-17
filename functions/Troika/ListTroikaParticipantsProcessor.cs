@@ -504,6 +504,32 @@ public class ListTroikaParticipantsProcessor : IDiscordSlashCommandProcessor
         };
     }
 
+    [DiscordButtonCommand("delay_turn", "Place the last token back in the bag and reshuffle")]
+    public async Task<DiscordApiResponseContent> DelayTurnAsync(DiscordInteraction interaction, ILogger logger)
+    {
+        string guildId = interaction.GuildId ?? interaction.Guild!.Id!;
+        string channelId = interaction.ChannelId ?? interaction!.Channel!.Id!;
+        //string userName = interaction.User!.Username ?? interaction.User!.GlobalName!.ToString();
+
+        var deck = await client.ReadDeckAsync(guildId, channelId);
+        if (deck == null)
+        {
+            throw new InvalidOperationException("Deck not found. Please create a deck first.");
+        }
+
+
+        var cardsDrawn = deck!.UndoLastDrawnCard(random, 1);
+        
+        var gameInstance = await client.ReadGameInstanceAsync(guildId, channelId);
+
+        await client.WriteDeckAsync(guildId, channelId, deck);
+
+        return new DiscordApiResponseContent
+        {
+            Response = TroikaResponse.DelayTurnResponse(guildId, channelId, gameInstance!, deck, cardsDrawn.First(), logger)
+        };
+    }
+
     [DiscordButtonCommand("draw_initiative", "Draw from the initiative deck")]
     public async Task<DiscordApiResponseContent> DrawInitiativeAsync(DiscordInteraction interaction, ILogger logger)
     {

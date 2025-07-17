@@ -124,11 +124,25 @@ public class DeckOfCards
         var cardsTaken = Cards.Take(count).ToArray();
         Cards.RemoveAll(card => cardsTaken.Contains(card));
         DrawnCards.AddRange(cardsTaken);
+        LastDrawUndone = false;
+        return cardsTaken;
+    }
+
+    public bool LastDrawUndone { get; protected set; } = false;
+
+    public GameCard[] UndoLastDrawnCard(KadenseRandomizer random, int count = 1)
+    {
+        var cardsTaken = DrawnCards.TakeLast(count).ToArray();
+        DrawnCards.RemoveAll(card => cardsTaken.Contains(card));
+        Cards.AddRange(cardsTaken);
+        Shuffle(random);
+        LastDrawUndone = true;
         return cardsTaken;
     }
 
     public void ResetDeck(KadenseRandomizer random)
     {
+        LastDrawUndone = false;
         Cards.AddRange(DrawnCards);
         DrawnCards.Clear();
         Shuffle(random);

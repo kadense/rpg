@@ -180,6 +180,56 @@ public static class TroikaResponse
     }
 
     
+    public static DiscordInteractionResponse DelayTurnResponse(string guildId, string channelId, GameInstance gameInstance, DeckOfCards deck, GameCard drawnCard, ILogger logger, bool useOriginalMessage = true)
+    {
+        if (gameInstance.GameName != "Troika")
+        {
+            return GetErrorResponse("This game instance is not a Troika game. Please create a Troika game first.", logger, true).Response!;
+        }
+
+
+        var response = new DiscordInteractionResponseBuilder()
+            .WithResponseType(useOriginalMessage ? DiscordInteractionResponseType.UPDATE_MESSAGE : DiscordInteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE)
+            .WithData()
+                .WithFlags(1 << 15)
+                .WithContainerComponent()
+                    .WithAccentColor(0x00FF00)
+                    .WithTextDisplayComponent()
+                        .WithContent("## Troika Initiative")
+                    .End()
+                    .WithTextDisplayComponent()
+                        .WithContent($"***{drawnCard}*** has been returned to the deck and the {deck.Count()} cards have been reshuffled.")
+                    .End()
+                    .WithActionRowComponent()
+                        .WithButtonComponent()
+                            .WithCustomId("troika-list-participants:refresh_participants")
+                            .WithLabel("End Round")
+                            .WithStyle(2)
+                            .WithEmoji(
+                                new DiscordEmoji()
+                                {
+                                    Name = "🏁"
+                                }
+                            )
+                        .End()
+                        .WithButtonComponent()
+                            .WithCustomId("troika-list-participants:draw_initiative")
+                            .WithLabel("Draw")
+                            .WithEmoji(
+                                new DiscordEmoji()
+                                {
+                                    Name = "🎴"
+                                }
+                            )
+                        .End()
+                    .End()
+                .End()
+            .End()
+            .Build();
+
+        logger.LogInformation($"Response: {response}");
+        return response;
+    }
 
     public static DiscordInteractionResponse DrawInitiativeResponse(string guildId, string channelId, GameInstance gameInstance, DeckOfCards deck, GameCard drawnCard, ILogger logger, bool useOriginalMessage = true)
     {
@@ -205,6 +255,7 @@ public static class TroikaResponse
                         .WithButtonComponent()
                             .WithCustomId("troika-list-participants:refresh_participants")
                             .WithLabel("End Round")
+                            .WithStyle(2)
                             .WithEmoji(
                                 new DiscordEmoji()
                                 {
@@ -216,9 +267,19 @@ public static class TroikaResponse
         {
             builder
                         .WithButtonComponent()
+                            .WithCustomId("troika-list-participants:delay_turn")
+                            .WithLabel("Delay Turn")
+                            .WithStyle(2)
+                            .WithEmoji(
+                                new DiscordEmoji()
+                                {
+                                    Name = "⏸️"
+                                }
+                            )
+                        .End()
+                        .WithButtonComponent()
                             .WithCustomId("troika-list-participants:draw_initiative")
                             .WithLabel("Draw Again")
-                            .WithStyle(2)
                             .WithEmoji(
                                 new DiscordEmoji()
                                 {
