@@ -12,7 +12,7 @@ public static class TroikaResponse
             .WithResponseType(DiscordInteractionResponseType.MODAL)
             .WithData()
                 .WithTitle("Add Player")
-                .WithCustomId("troika-list-participants:add_player")
+                .WithCustomId("troika-initiative:add_player")
                 .WithActionRowComponent()
                     .WithTextInputComponent()
                         .WithCustomId("name")
@@ -34,7 +34,7 @@ public static class TroikaResponse
             .WithResponseType(DiscordInteractionResponseType.MODAL)
             .WithData()
                 .WithTitle("Add Ally")
-                .WithCustomId("troika-list-participants:add_ally")
+                .WithCustomId("troika-initiative:add_ally")
                 .WithActionRowComponent()
                     .WithTextInputComponent()
                         .WithCustomId("name")
@@ -56,7 +56,7 @@ public static class TroikaResponse
             .WithResponseType(DiscordInteractionResponseType.MODAL)
             .WithData()
                 .WithTitle("Remove Participant")
-                .WithCustomId("troika-list-participants:remove_participant")
+                .WithCustomId("troika-initiative:remove_participant")
                 .WithActionRowComponent()
                     .WithTextInputComponent()
                         .WithCustomId("name")
@@ -78,7 +78,7 @@ public static class TroikaResponse
             .WithResponseType(DiscordInteractionResponseType.MODAL)
             .WithData()
                 .WithTitle("Add Henchmen")
-                .WithCustomId("troika-list-participants:add_henchmen")
+                .WithCustomId("troika-initiative:add_henchmen")
                 .WithActionRowComponent()
                     .WithTextInputComponent()
                         .WithCustomId("name")
@@ -101,7 +101,7 @@ public static class TroikaResponse
             .WithResponseType(DiscordInteractionResponseType.MODAL)
             .WithData()
                 .WithTitle("Add Enemy")
-                .WithCustomId("troika-list-participants:add_enemy")
+                .WithCustomId("troika-initiative:add_enemy")
                 .WithActionRowComponent()
                     .WithTextInputComponent()
                         .WithCustomId("name")
@@ -150,7 +150,7 @@ public static class TroikaResponse
                     .End()
                     .WithActionRowComponent()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:refresh_participants")
+                            .WithCustomId("troika-initiative:refresh_participants")
                             .WithLabel("Configure Deck")
                             .WithEmoji(
                                 new DiscordEmoji()
@@ -160,7 +160,7 @@ public static class TroikaResponse
                             )
                         .End()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:draw_initiative")
+                            .WithCustomId("troika-initiative:draw_initiative")
                             .WithLabel("Draw")
                             .WithStyle(2)
                             .WithEmoji(
@@ -202,7 +202,7 @@ public static class TroikaResponse
                     .End()
                     .WithActionRowComponent()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:refresh_participants")
+                            .WithCustomId("troika-initiative:refresh_participants")
                             .WithLabel("End Round")
                             .WithStyle(2)
                             .WithEmoji(
@@ -213,7 +213,7 @@ public static class TroikaResponse
                             )
                         .End()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:draw_initiative")
+                            .WithCustomId("troika-initiative:draw_initiative")
                             .WithLabel("Draw")
                             .WithEmoji(
                                 new DiscordEmoji()
@@ -253,7 +253,7 @@ public static class TroikaResponse
                     .End()
                     .WithActionRowComponent()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:refresh_participants")
+                            .WithCustomId("troika-initiative:refresh_participants")
                             .WithLabel("End Round")
                             .WithStyle(2)
                             .WithEmoji(
@@ -267,7 +267,7 @@ public static class TroikaResponse
         {
             builder
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:delay_turn")
+                            .WithCustomId("troika-initiative:delay_turn")
                             .WithLabel("Delay Turn")
                             .WithStyle(2)
                             .WithEmoji(
@@ -278,7 +278,7 @@ public static class TroikaResponse
                             )
                         .End()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:draw_initiative")
+                            .WithCustomId("troika-initiative:draw_initiative")
                             .WithLabel("Draw Again")
                             .WithEmoji(
                                 new DiscordEmoji()
@@ -323,7 +323,7 @@ public static class TroikaResponse
                     .End()
                     .WithActionRowComponent()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:add_player_modal")
+                            .WithCustomId("troika-initiative:add_player_modal")
                             .WithLabel("Add Player")
                             .WithStyle(2)
                             .WithEmoji(
@@ -334,7 +334,7 @@ public static class TroikaResponse
                             )
                         .End()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:add_ally_modal")
+                            .WithCustomId("troika-initiative:add_ally_modal")
                             .WithLabel("Add Ally")
                             .WithStyle(2)
                             .WithEmoji(
@@ -345,7 +345,7 @@ public static class TroikaResponse
                             )
                         .End()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:add_enemy_modal")
+                            .WithCustomId("troika-initiative:add_enemy_modal")
                             .WithLabel("Add Enemy")
                             .WithStyle(2)
                             .WithEmoji(
@@ -356,7 +356,7 @@ public static class TroikaResponse
                             )
                         .End()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:add_henchmen_modal")
+                            .WithCustomId("troika-initiative:add_henchmen_modal")
                             .WithLabel("Add Henchmen")
                             .WithStyle(2)
                             .WithEmoji(
@@ -369,7 +369,7 @@ public static class TroikaResponse
                     .End()
                     .WithActionRowComponent()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:remove_participant_modal")
+                            .WithCustomId("troika-initiative:remove_participant_modal")
                             .WithLabel("Remove")
                             .WithStyle(2) // danger
                             .WithEmoji(
@@ -380,7 +380,7 @@ public static class TroikaResponse
                             )
                         .End()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:remove_npcs")
+                            .WithCustomId("troika-initiative:remove_npcs")
                             .WithLabel("Remove NPCs")
                             .WithStyle(2)
                             .WithEmoji(
@@ -391,7 +391,7 @@ public static class TroikaResponse
                             )
                         .End()
                         .WithButtonComponent()
-                            .WithCustomId("troika-list-participants:new_round")
+                            .WithCustomId("troika-initiative:new_round")
                             .WithLabel("New Round")
                             .WithEmoji(
                                 new DiscordEmoji()
