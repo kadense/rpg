@@ -1,5 +1,9 @@
 using System.Globalization;
+using System.Net;
 using AspNet.Security.OAuth.Discord;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -52,6 +56,30 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 app.UseHttpsRedirection();
+app.MapGet($"/static/{{gameId}}/{{*filePath}}", async (HttpContext context) =>
+{
+    var gameId = context.Request.RouteValues["gameId"]?.ToString();
+    var filePath = context.Request.RouteValues["filePath"]?.ToString();
+
+    var client = new BlobClient(
+        Environment.GetEnvironmentVariable("STORAGE_ACCOUNT_CONNECTION_STRING")!,
+        "rpg",
+        $"{gameId}/{filePath}"
+    );
+
+    await client.GetParentBlobContainerClient().CreateIfNotExistsAsync(PublicAccessType.None);
+
+    var exists = await client.ExistsAsync(CancellationToken.None);
+    if (!exists)
+        context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+
+    var properties = await client.GetPropertiesAsync();
+    var contentType = properties.Value.ContentType;
+
+    context.Response.ContentType = contentType;
+    context.Response.StatusCode = 200;
+    var fileContent = await client.DownloadToAsync(context.Response.Body);
+});
 app.UseStaticFiles();
 app.UseAntiforgery();
 app.MapRazorComponents<App>().RequireAuthorization()
