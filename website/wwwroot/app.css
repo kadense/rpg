@@ -49,3 +49,94 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+.game-cards,
+.game-item-cards,
+.location-cards,
+.character-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.game-cards .game-card,
+.game-item-cards .game-item-card,
+.location-cards .location-card,
+.character-cards .character-card {
+    flex: 0 1 calc(17% - 2em);
+    min-height: 100px;
+    margin-bottom: 1rem;
+}
+
+.game-card .title,
+.game-item-card .title,
+.location-card .title,
+.character-card .title
+{
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.game-card .pronouns,
+.location-card .pronouns,
+.character-card .pronouns,
+.game-item-card .nav-menu,
+.game-card .nav-menu,
+.location-card .nav-menu,
+.character-card .nav-menu
+{
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.game-card img,
+.location-card img,
+.game-item-card img,
+.character-card img
+{
+    max-width: 100%;
+    max-height: 169px;
+    display: block;
+    margin: 0 auto;
+}
+
+.character-details .image,
+.location-details .image,
+.game-item-details .image,
+.game-details .image,
+.location-area-details .image
+{
+    float: right;
+    padding: 10px 10px 10px 10px;
+    margin-left: 1em;
+    margin-top: 3em;
+    width: 25%;
+}
+
+.character-details .image img,
+.location-details .image img,
+.game-details .image img,
+.location-area-details .image img
+{
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.characters,
+.locations,
+.game-items,
+.characters,
+.location-area-details
+{
+    clear: both;
+}
+
+.characters table,
+.locations table,
+.game-items table,
+.characters table,
+.location-area-details table
+{
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}

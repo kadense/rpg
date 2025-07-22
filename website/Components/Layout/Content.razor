@@ -1,0 +1,59 @@
+@using Markdig
+@rendermode InteractiveServer
+
+@if(!string.IsNullOrEmpty(Title))
+{
+    @if(HeaderLevel == 1)
+    {
+        <h1>@Title</h1>
+    } else if(HeaderLevel == 2)
+    {
+        <h2>@Title</h2>
+    } else if(HeaderLevel == 3)
+    {
+        <h3>@Title</h3>
+    } else if(HeaderLevel == 4)
+    {
+        <h4>@Title</h4>
+    } else if(HeaderLevel == 5)
+    {
+        <h5>@Title</h5>
+    } else if(HeaderLevel == 6)
+    {
+        <h6>@Title</h6>
+    }
+}
+
+
+@if(!string.IsNullOrEmpty(Description))
+{
+    <div class="description">@((MarkupString)Html!)</div>
+
+}
+
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public int HeaderLevel { get; set; } = 1;
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    public string? Html { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        if(Description != null)
+        {
+            var pipeline = new Markdig.MarkdownPipelineBuilder()
+                .UseAdvancedExtensions()
+                .Build();
+        
+            Html = Markdown.ToHtml(Description!, pipeline);
+        }
+        return Task.CompletedTask;
+    }
+}

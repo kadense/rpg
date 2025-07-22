@@ -1,0 +1,15 @@
+@rendermode InteractiveServer
+
+@if(Games != null)
+{
+    <div class="game-cards">
+        @foreach(var game in Games)
+        {
+            <GameCard GameDetails=@game />
+        }
+    </div>
+}
+@code {
+    [Parameter]
+    public List<Game>? Games { get; set; }
+}

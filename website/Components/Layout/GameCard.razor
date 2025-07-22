@@ -1,0 +1,26 @@
+@rendermode InteractiveServer
+
+<div class="game-card">
+
+    @if(GameDetails != null)
+    {
+        @if(GameDetails.ImagePath != null)
+        {
+            <div class="image">
+                <img src="@GameDetails.ImagePath" />
+            </div>
+        }
+        <div class="title">
+            <a href="/games/@GameDetails.Id">@GameDetails.Name</a>
+        </div>
+        <div class="nav-menu">
+            <a href="/games/@GameDetails.Id">See more..</a>
+        </div>            
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public Game? GameDetails { get; set; }
+}

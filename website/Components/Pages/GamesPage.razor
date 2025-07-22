@@ -1,0 +1,17 @@
+@page "/games"
+@using Kadense.RPG.Website
+@using website.Components.Layout;
+
+<div class="games-list">
+    <GameCards Games=@Games />
+</div>
+
+@code {
+    public List<Game>? Games { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        Games = GamesExample.GetGames();
+        return Task.CompletedTask;
+    }
+}

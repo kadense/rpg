@@ -1,0 +1,76 @@
+@page "/games/{GameId}/locations/{LocationId}"
+@using Kadense.RPG.Website
+@using System.Text.Encodings.Web
+@using website.Components.Layout
+@using Microsoft.AspNetCore
+
+<a href="/games/@GameId">&lt;&lt; Back to @GameDetails!.Name</a>
+
+@if(GameDetails != null && LocationDetails != null)
+{
+    <div class="location-details">
+
+        <PageTitle>@GameDetails.Name - @LocationDetails.Name</PageTitle>
+        
+        <SideImage ImagePaths=@LocationDetails.ImagePath Name=@LocationDetails.Name />
+
+        <Content Title=@LocationDetails.Name Description=@LocationDetails.Description />
+    </div>
+
+    @foreach(var area in LocationDetails.Areas)
+    {
+        <div class="location-area-details">
+
+            <SideImage ImagePaths=@area.ImagePath Name=@area.Name />
+
+            <Content HeaderLevel=2 Title=@area.Name Description=@area.Description />
+
+        </div>
+    }
+}
+
+
+    
+@if(Characters != null && Characters.Count() > 0)
+{
+    <div class="characters">
+        <h2>Characters</h2>
+        <CharacterCards GameId=@GameDetails!.Id Characters=@Characters />
+    </div>
+}
+
+
+@if(Items != null && Items.Count() > 0)
+{
+    <div class="game-items">
+        <h2>Items</h2>
+        <ItemCards GameId=@GameDetails.Id Items=@Items />
+    </div>
+}
+
+
+@code
+{
+    [Parameter]
+    public string? GameId { get; set; }
+
+    [Parameter]
+    public string? LocationId { get; set; }
+
+    public Game? GameDetails { get; set; }
+
+    public GameLocation? LocationDetails { get; set; }
+
+    public List<GameCharacter>? Characters { get; set; }
+
+    public List<GameItem>? Items { get;set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        GameDetails = GamesExample.GetGames().Where(g => g.Id == GameId!).First();
+        LocationDetails = GameDetails.Locations.Where(l => l.Id == LocationId).First();
+        Characters = GameDetails.GetCharactersForLocation(LocationId!);
+        Items = GameDetails.GetItemsForLocation(LocationId!);
+        return Task.CompletedTask;
+    }
+}

@@ -1,0 +1,64 @@
+@page "/games/{Id}"
+@using Kadense.RPG.Website
+@using website.Components.Layout
+
+
+<div class="game-details">
+@if(GameDetails != null)
+{
+    <PageTitle>@GameDetails.Name</PageTitle>
+
+    <SideImage ImagePaths=@GameDetails.ImagePath Name=@GameDetails.Name />
+    
+    <Content Title=@GameDetails.Name Description=@GameDetails.Description />
+    
+}
+</div>
+
+@if(Locations != null && Locations.Count() > 0)
+{
+    <div class="locations">
+        <h2>Locations</h2>
+        <LocationCards GameId=@GameDetails.Id Locations=@Locations />
+    </div>
+}
+
+@if(Characters != null && Characters.Count() > 0)
+{
+    <div class="characters">
+        <h2>Characters</h2>
+        <CharacterCards GameId=@GameDetails.Id Characters=@Characters />
+    </div>
+}
+
+
+@if(Items != null && Items.Count() > 0)
+{
+    <div class="game-items">
+        <h2>Items</h2>
+        <ItemCards GameId=@GameDetails.Id Items=@Items />
+    </div>
+}
+
+
+@code
+{
+    [Parameter]
+    public string? Id { get; set; }
+
+    public Game? GameDetails { get; set; }
+
+    public List<GameCharacter>? Characters { get; set; }
+    public List<GameLocation>? Locations { get; set; }
+
+    public List<GameItem>? Items { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        GameDetails = GamesExample.GetGames().Where(g => g.Id == Id).First();
+        Locations = GameDetails.Locations.OrderBy(l => l.Name).ToList();
+        Characters = GameDetails.Characters.OrderBy(c => c.Name).ToList();
+        Items = GameDetails.Items.OrderBy(i => i.Name).ToList();
+        return Task.CompletedTask;
+    }
+}

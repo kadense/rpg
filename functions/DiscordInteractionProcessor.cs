@@ -101,7 +101,7 @@ public class DiscordInteractionProcessor
     public async Task<List<DiscordCommand>?> GetCommandsAsync(ILogger logger)
     {
         var discordApplicationId = Environment.GetEnvironmentVariable("DISCORD_CLIENT_ID");
-        var token = Environment.GetEnvironmentVariable("DISCORD_CLIENT_SECRET");
+        var token = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
         string url = $"https://discord.com/api/v10/applications/{discordApplicationId}/commands";
 
         var request = new HttpRequestMessage
@@ -136,7 +136,7 @@ public class DiscordInteractionProcessor
     public async Task DeleteCommandsAsync(DiscordCommand discordCommand, ILogger logger)
     {
         var discordApplicationId = Environment.GetEnvironmentVariable("DISCORD_CLIENT_ID");
-        var token = Environment.GetEnvironmentVariable("DISCORD_CLIENT_SECRET");
+        var token = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
         string url = $"https://discord.com/api/v10/applications/{discordApplicationId}/commands/{discordCommand.Id}";
 
         var request = new HttpRequestMessage
@@ -256,7 +256,7 @@ public class DiscordInteractionProcessor
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
 
-        var token = Environment.GetEnvironmentVariable("DISCORD_CLIENT_SECRET");
+        var token = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
         request.SetToken("Bot", token!);
         logger.LogInformation($"Requesting {request.Method} {request.RequestUri} using secret starting \"{token!.Substring(0, 5)}****\" with body: {json}");
 

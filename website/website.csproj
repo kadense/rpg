@@ -14,4 +14,10 @@
   <ItemGroup>
     <Using Include="Kadense.RPG.Models" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNet.Security.OAuth.Discord" Version="8.3.0" />
+    <PackageReference Include="Markdig" Version="0.41.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.18" />
+  </ItemGroup>
 </Project>

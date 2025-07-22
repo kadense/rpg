@@ -1,0 +1,19 @@
+@rendermode InteractiveServer
+
+@if(Characters != null)
+{
+    <div class="character-cards">
+        @foreach(var character in Characters)
+        {
+            <CharacterCard Character=@character GameId=@GameId />
+        }
+    </div>
+}
+@code {
+    [Parameter]
+    public List<GameCharacter>? Characters { get; set; }
+        
+
+    [Parameter]
+    public string? GameId { get;set; }
+}

@@ -1,0 +1,65 @@
+@rendermode InteractiveServer
+
+@if(ImagePath != null)
+{
+    <div class="image sidebar-image">
+        <img alt="@Name" src="@ImagePath" />
+        <div class="nav-menu">
+            @if(ImagePaths != null && ImagePaths.Count() > 1)
+            {
+                <button class="previousImageButton" @onclick="() => PreviousImage()" disabled=@(!PreviousButtonState)>&lt;&lt;</button>
+            }
+            <button class="copyUrlToClipboardButton" onclick="javascript:CopyUrlToClipboard('@ImagePath')">Copy URL</button>
+            @if(ImagePaths != null && ImagePaths.Count() > 1)
+            {
+                <button class="nextImageButton" @onclick="() => NextImage()" disabled=@(!NextButtonState)>&gt;&gt;</button>
+            }
+        </div>
+    </div>
+}
+
+@code
+{
+    [Parameter]
+    public string? ImagePath { get; set; }
+
+    [Parameter]
+    public List<string>? ImagePaths { get; set; }
+
+    [Parameter]
+    public string? Name { get; set; }
+
+    public bool PreviousButtonState { get; set; } = false;
+    public bool NextButtonState { get; set; } = false;
+    public int ImageIndex { get; set; } = 0;
+
+    protected override Task OnInitializedAsync()
+    {
+        if(ImagePath == null && ImagePaths != null && ImagePaths.Count() > 0)
+        {
+            UpdateState();
+        }
+        return Task.CompletedTask;   
+    }
+
+    protected void PreviousImage()
+    {
+        ImageIndex--;
+        UpdateState();
+    }
+    protected void NextImage()
+    {
+        ImageIndex++;
+        UpdateState();
+    }
+
+    protected void UpdateState()
+    {
+        if(ImagePaths != null && ImagePaths.Count() > 0)
+        {
+            PreviousButtonState = ImageIndex != 0;
+            NextButtonState = ImageIndex != ImagePaths!.Count() - 1;
+            ImagePath = ImagePaths[ImageIndex];
+        }
+    }
+}

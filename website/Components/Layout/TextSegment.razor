@@ -1,0 +1,24 @@
+@rendermode InteractiveServer
+
+@if(!string.IsNullOrEmpty(Content))
+{
+    <div class=@ClassName>
+        @if(!string.IsNullOrEmpty(Title))
+        {
+            <h2>@Title</h2>
+        }
+
+        <div class="content">@((MarkupString)Content.ReplaceLineEndings("<br/>"))</div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? ClassName { get; set; }
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? Content { get; set; }
+}

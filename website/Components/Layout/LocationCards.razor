@@ -1,0 +1,18 @@
+@rendermode InteractiveServer
+
+@if(Locations != null)
+{
+    <div class="location-cards">
+        @foreach(var location in Locations)
+        {
+            <LocationCard GameId=@GameId LocationDetails=@location />
+        }
+    </div>
+}
+@code {
+    [Parameter]
+    public List<GameLocation>? Locations { get; set; }
+
+    [Parameter]
+    public string? GameId { get;set; }
+}

@@ -1,0 +1,45 @@
+@rendermode InteractiveServer
+
+<div class="game-item-card">
+
+    @if(ItemDetails != null)
+    {
+        @if(ImagePath != null)
+        {
+            <div class="image">
+                <a href="/games/@GameId/items/@ItemDetails.Id"><img alt="@ItemDetails.Name" src="@ImagePath" /></a>
+            </div>
+        }
+        else
+        {
+            <div class="image">
+                <a href="/games/@GameId/items/@ItemDetails.Id"><img alt="@ItemDetails.Name" src="/static/placeholder-item.png" /></a>
+            </div>
+        }
+        <div class="title">
+            <a href="/games/@GameId/items/@ItemDetails.Id">@ItemDetails.Name</a>
+        </div>
+        <div class="nav-menu">
+            <a href="/games/@GameId/items/@ItemDetails.Id">See more..</a>
+        </div>            
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public GameItem? ItemDetails { get; set; }
+
+    [Parameter]
+    public string? GameId { get;set; }
+
+    public string? ImagePath { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        if(ItemDetails!.ImagePath.Count() > 0)
+            ImagePath = ItemDetails.ImagePath.First();
+
+        return Task.CompletedTask;
+    }
+}

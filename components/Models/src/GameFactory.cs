@@ -13,6 +13,12 @@ public class GameFactory<TParent> : GameFactoryBase<TParent, Game>
         Instance = new Game(name, description ?? string.Empty);
     }
 
+    public GameFactory<TParent> WithIsDynamic(bool value = true)
+    {
+        this.Instance.IsDynamic = value;
+        return this;
+    }
+
     public GameFactory<TParent> WithName(string name)
     {
         Instance.Name = name;
@@ -47,5 +53,32 @@ public class GameFactory<TParent> : GameFactoryBase<TParent, Game>
         var factory = new GameEntityFactory<GameFactory<TParent>>(this);
         Instance.CharacterSection = factory.Instance;
         return factory;
+    }
+
+    public GameCharacterFactory<GameFactory<TParent>> WithCharacter()
+    {
+        var factory = new GameCharacterFactory<GameFactory<TParent>>(this, this.Instance);
+        if (Instance.Characters == null)
+            Instance.Characters = new List<GameCharacter>();
+
+        Instance.Characters.Add(factory.Instance);
+        return factory;
+    }
+
+    public GameLocationFactory<GameFactory<TParent>> WithLocation()
+    {
+        var factory = new GameLocationFactory<GameFactory<TParent>>(this, this.Instance);
+        if (Instance.Locations == null)
+            Instance.Locations = new List<GameLocation>();
+
+        Instance.Locations.Add(factory.Instance);
+        return factory;
+    }
+
+
+    public GameFactory<TParent> WithImagePath(string value)
+    {
+        Instance.ImagePath.Add(value);
+        return this;
     }
 }

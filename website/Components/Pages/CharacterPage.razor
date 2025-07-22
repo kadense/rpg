@@ -1,0 +1,61 @@
+@page "/games/{GameId}/characters/{CharacterId}"
+@using Kadense.RPG.Website
+@using website.Components.Layout
+
+<a href="/games/@GameId">&lt;&lt; Back to @GameDetails!.Name</a>
+
+<div class="character-details">
+@if(GameDetails != null && CharacterDetails != null)
+{
+    <PageTitle>@GameDetails.Name - @CharacterDetails.Name</PageTitle>
+
+    <SideImage ImagePaths=@CharacterDetails.ImagePath Name=@CharacterDetails.Name />
+    
+    <Content Title=@CharacterDetails.Name Description=@CharacterDetails.Description />
+
+    <Content Title="Fact Based Summary" Description=@CharacterDetails.FactBasedSummary HeaderLevel="2" />
+}
+</div>
+
+@if(Locations != null && Locations.Count() > 0)
+{
+    <div class="locations">
+        <h2>Locations</h2>
+        <LocationCards GameId=@GameDetails!.Id Locations=@Locations />
+    </div>
+}
+
+
+@if(Items != null && Items.Count() > 0)
+{
+    <div class="game-items">
+        <h2>Items</h2>
+        <ItemCards GameId=@GameDetails.Id Items=@Items />
+    </div>
+}
+
+@code
+{
+    [Parameter]
+    public string? GameId { get; set; }
+
+    [Parameter]
+    public string? CharacterId { get; set; }
+
+    public Game? GameDetails { get; set; }
+
+    public GameCharacter? CharacterDetails { get; set; }
+
+    public List<GameLocation> Locations { get; set; } = new List<GameLocation>();
+
+    public List<GameItem>? Items { get;set; }
+    
+    protected override Task OnInitializedAsync()
+    {
+        GameDetails = GamesExample.GetGames().Where(g => g.Id == GameId).First();
+        CharacterDetails = GameDetails.Characters.Where(c => c.Id == CharacterId).First();
+        Locations = GameDetails.GetLocationsForCharacter(CharacterId!);
+        Items = GameDetails.GetItemsForCharacter(CharacterId!);
+        return Task.CompletedTask;
+    }
+}

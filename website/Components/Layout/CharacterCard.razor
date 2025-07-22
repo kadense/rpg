@@ -1,0 +1,56 @@
+﻿@rendermode InteractiveServer
+
+<div class="character-card">
+    @if(Character != null)
+    {
+        @if(ImagePath != null)
+        {
+            <div class="image">
+                <a href="/games/@GameId/characters/@Character.Id"><img alt="@Character.Name" src="@ImagePath" /></a>
+            </div>
+        } 
+        else if(Character.Pronouns == "She/Her")
+        {
+            <div class="image">
+                <a href="/games/@GameId/characters/@Character.Id"><img alt="@Character.Name" src="/static/placeholder-her.png" /></a>
+            </div>
+        }
+        else
+        {
+            <div class="image">
+                <a href="/games/@GameId/characters/@Character.Id"><img alt="@Character.Name" src="/static/placeholder-him.png" /></a>
+            </div>
+        }
+        <div class="title">
+            <a href="/games/@GameId/characters/@Character.Id">@Character.Name</a>
+        </div>
+        @if(Character.Pronouns != null)
+        {
+            <div class="pronouns">
+                @Character.Pronouns
+            </div>
+        }
+    
+        <div class="nav-menu">
+            <a href="/games/@GameId/characters/@Character.Id">See more..</a>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public GameCharacter? Character { get; set; }      
+
+    [Parameter]
+    public string? GameId { get;set; }
+
+    public string? ImagePath { get; set; } 
+
+    protected override Task OnInitializedAsync()
+    {
+        if(Character!.ImagePath.Count() > 0)
+            ImagePath = Character.ImagePath.First();
+
+        return Task.CompletedTask;
+    }
+}

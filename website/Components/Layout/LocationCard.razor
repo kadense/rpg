@@ -1,0 +1,45 @@
+@rendermode InteractiveServer
+
+<div class="location-card">
+
+    @if(LocationDetails != null)
+    {
+        @if(ImagePath != null)
+        {
+            <div class="image">
+                <a href="/games/@GameId/locations/@LocationDetails.Id"><img alt="@LocationDetails.Name" src="@ImagePath" /></a>
+            </div>
+        }
+        else
+        {
+            <div class="image">
+                <a href="/games/@GameId/items/@LocationDetails.Id"><img alt="@LocationDetails.Name" src="/static/placeholder-location.png" /></a>
+            </div>
+        }
+        <div class="title">
+            <a href="/games/@GameId/locations/@LocationDetails.Id">@LocationDetails.Name</a>
+        </div>
+        <div class="nav-menu">
+            <a href="/games/@GameId/locations/@LocationDetails.Id">See more..</a>
+        </div>            
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public GameLocation? LocationDetails { get; set; }
+
+    [Parameter]
+    public string? GameId { get;set; }
+
+    public string? ImagePath { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        if(LocationDetails!.ImagePath.Count() > 0)
+            ImagePath = LocationDetails.ImagePath.First();
+
+        return Task.CompletedTask;
+    }
+}
