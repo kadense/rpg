@@ -34,13 +34,13 @@ jobs:
 
       - name: dotnet publish
         working-directory: ${{env.WEBAPP_ROOT}}
-        run: dotnet publish -c Release -o "$GITHUB_WORKSPACE/${{env.WEBAPP_OUTPUT}}"
+        run: dotnet publish -c Release -o "${{GITHUB.WORKSPACE}}/${{env.WEBAPP_OUTPUT}}"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: $GITHUB_WORKSPACE/${{env.WEBAPP_OUTPUT}}
+          path: ${{GITHUB.WORKSPACE}}/${{env.WEBAPP_OUTPUT}}
 
   deploy-webapp:
     runs-on: ubuntu-latest
