@@ -13,13 +13,13 @@ env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: './functions' # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '8.0.x' # set this to the dotnet version to use
   WEBAPP_ROOT: './website'
+  WEBAPP_OUTPUT: '/website-output'
 
 jobs:
   build-webapp:
     runs-on: ubuntu-latest
     permissions:
       contents: read #This is required for actions/checkout
-
     steps:
       - uses: actions/checkout@v4
 
@@ -29,16 +29,18 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Build with dotnet
+        working-directory: ${{env.WEBAPP_ROOT}}
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.WEBAPP_ROOT}}
+        working-directory: ${{env.WEBAPP_ROOT}}
+        run: dotnet publish -c Release -o "$GITHUB_WORKSPACE/${{env.WEBAPP_OUTPUT}}"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.WEBAPP_ROOT}}
+          path: $GITHUB_WORKSPACE/${{env.WEBAPP_OUTPUT}}
 
   deploy-webapp:
     runs-on: ubuntu-latest
