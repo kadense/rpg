@@ -7,7 +7,7 @@
 @if(GameDetails != null)
 {
     <PageTitle>@GameDetails.Name</PageTitle>
-    <GamePageTabs GameDetails="@GameDetails" Characters="@Characters" Locations="@Locations" Items="@Items" />
+    <GamePageTabs GameDetails="@GameDetails" />
 }
 
 
@@ -17,16 +17,10 @@
     public string? Id { get; set; }
 
     public Game? GameDetails { get; set; }
-    public Dictionary<string, GameIndexItem>? Characters { get; set; }
-    public Dictionary<string, GameIndexItem>? Locations { get; set; }
-    public Dictionary<string, GameIndexItem>? Items { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         var client = new DataConnectionClient();
         GameDetails = await client.ReadGameAsync(Id!);
-        Locations = await client.ReadGameLocationIndexAsync(Id!);
-        Characters = await client.ReadGameCharacterIndexAsync(Id!);
-        Items = await client.ReadGameItemIndexAsync(Id!);
     }
 }

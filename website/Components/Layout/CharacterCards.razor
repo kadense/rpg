@@ -1,4 +1,5 @@
 @rendermode InteractiveServer
+@using Kadense.RPG.DataAccess;
 
 @if(Characters != null)
 {
@@ -18,4 +19,13 @@
 
     [Parameter]
     public string? GameId { get;set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(Characters == null)
+        {
+            var client = new DataConnectionClient();
+            Characters = await client.ReadGameCharacterIndexAsync(GameId);
+        }   
+    }
 }

@@ -1,6 +1,10 @@
 @if(GameDetails != null && LocationDetails != null)
 {
     <PageTitle>@GameDetails.Name - @LocationDetails.Name</PageTitle>
+    @if(LocationDetails != null)
+    {
+        <h1>@LocationDetails.Name</h1>
+    }
 
     <FluentTabs ActiveTabId="location-details" Id="location-page-tabs">
         <CascadingValue Value="this" Name="LocationTabs">
@@ -14,7 +18,7 @@
                             
                             <SideImage ImagePaths=@LocationDetails.ImagePath Name=@LocationDetails.Name />
 
-                            <StandardContent Title=@LocationDetails.Name Description=@LocationDetails.Description />
+                            <StandardContent Description=@LocationDetails.Description />
                         </div>
                     </Content>
                 </FluentTab>

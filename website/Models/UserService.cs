@@ -1,17 +1,6 @@
+using Kadense.RPG.DataAccess;
 using Microsoft.AspNetCore.Components.Authorization;
 
-
-public class UserModel
-{
-    public UserModel(string? userName)
-    {
-        UserName = userName;
-    }
-
-    public string? UserName { get; set; }
-
-    public string? Avatar { get; set; }
-}
 public class UserService
 {
     public async Task<UserModel?> GetUserModelAsync(AuthenticationStateProvider authStateProvider)
@@ -28,10 +17,15 @@ public class UserService
 
         if (user.Identity is not null && user.Identity.IsAuthenticated)
         {
-            return new UserModel(user.Identity.Name)
+            var client = new DataConnectionClient();
+            var userModel = new UserModel(user.Identity.Name)
             {
-                Avatar = user.Claims.Where(c => c.Type == "urn:discord:avatar:url").Select(c => c.Value).FirstOrDefault(string.Empty)
+                Avatar = user.Claims.Where(c => c.Type == "urn:discord:avatar:url").Select(c => c.Value).FirstOrDefault(string.Empty),
+                Email = user.Claims.Where(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress").Select(c => c.Value).FirstOrDefault(string.Empty),
+                Identifier = user.Claims.Where(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Select(c => c.Value).FirstOrDefault(string.Empty)
             };
+            await client.WriteUserAsync(userModel);
+            return userModel;
         }
         else
         {

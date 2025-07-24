@@ -12,6 +12,7 @@ using Kadense.RPG.DataAccess;
 using website.Components;
 using System.Data.Common;
 using Microsoft.FluentUI.AspNetCore.Components;
+using Microsoft.AspNetCore.Identity;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -108,5 +109,11 @@ app.MapRazorComponents<App>().RequireAuthorization()
     
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGet("/logout", async (HttpContext context, string returnUrl = "/") =>
+    {
+        await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        context.Response.Redirect(returnUrl);
+    }).RequireAuthorization();
 
 app.Run();

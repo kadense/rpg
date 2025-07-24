@@ -7,7 +7,7 @@
         @if(GameDetails.ImagePath != null)
         {
             <div class="image">
-                <img src="@GameDetails.ImagePath" />
+                <a href="/games/@GameId"><img src="@GameDetails.ImagePath" /></a>
             </div>
         }
         <div class="title">

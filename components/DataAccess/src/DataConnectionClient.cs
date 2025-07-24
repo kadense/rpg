@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Azure;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using k8s.KubeConfigModels;
 using Kadense.Models.Discord;
 
 namespace Kadense.RPG.DataAccess;
@@ -545,6 +546,87 @@ public class DataConnectionClient
             index = read.Value.Content.ToObjectFromJson<Dictionary<string, GameIndexItem>>()!;
         }
         return index;
+    }
+
+    public async Task<Dictionary<string, string>> ReadUserIndexAsync()
+    {
+        var client = new BlobClient(
+            ConnectionString,
+            ContainerName,
+            $"users/Index.json"
+        );
+        Dictionary<string, string> index = new Dictionary<string, string>();
+        var exists = await client.ExistsAsync(cancellationToken: CancellationToken.None);
+        if (exists.Value)
+        {
+            var read = await client.DownloadContentAsync();
+            index = read.Value.Content.ToObjectFromJson<Dictionary<string, string>>()!;
+        }
+        return index;
+    }
+    public async Task WriteUserAsync(UserModel user)
+    {
+        var client = new BlobClient(
+            ConnectionString,
+            ContainerName,
+            $"users/{user.Identifier}/User.json"
+        );
+        await client.GetParentBlobContainerClient().CreateIfNotExistsAsync(PublicAccessType.None);
+
+        await client.UploadAsync(new BinaryData(user), overwrite: true, cancellationToken: CancellationToken.None);
+        await WriteUserToIndexAsync(user);
+    }
+
+    public async Task WriteUserToIndexAsync(UserModel user)
+    {
+        var client = new BlobClient(
+            ConnectionString,
+            ContainerName,
+            $"users/Index.json"
+        );
+
+        var index = await ReadUserIndexAsync();
+
+        await client.GetParentBlobContainerClient().CreateIfNotExistsAsync(PublicAccessType.None);
+
+        bool updated = false;
+        if (index.ContainsKey(user.Identifier!))
+        {
+            if (index[user.Identifier!] != user.UserName)
+            {
+                index[user.Identifier!] = user.UserName!;
+                updated = true;
+            }
+        }
+        else
+        {
+            index[user.Identifier!] = user.UserName!;
+            updated = true;
+        }
+
+        if(updated)
+            await client.UploadAsync(new BinaryData(index), overwrite: true, cancellationToken: CancellationToken.None);
+
+    }
+
+    
+    public async Task<UserModel?> ReadUserAsync(string userId)
+    {
+        var client = new BlobClient(
+            ConnectionString,
+            ContainerName,
+            $"users/{userId}/User.json"
+        );
+
+        await client.GetParentBlobContainerClient().CreateIfNotExistsAsync(PublicAccessType.None);
+        var exists = await client.ExistsAsync(cancellationToken: CancellationToken.None);
+        UserModel? user = null;
+        if (exists.Value)
+        {
+            var read = await client.DownloadContentAsync();
+            user = read.Value.Content.ToObjectFromJson<UserModel>()!;
+        }
+        return user;
     }
 
     public async Task WriteGameItemToIndexAsync(string gameId, GameItem item)

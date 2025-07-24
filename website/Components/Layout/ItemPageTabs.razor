@@ -3,19 +3,23 @@
 @if(GameDetails != null && ItemDetails != null)
 {
 
-    <PageTitle>@GameDetails.Name - @ItemDetails.Name</PageTitle>
+    <PageTitle>@GameDetails.Name - @ItemDetails.Name - Kadense RPG</PageTitle>
+    
+    @if(ItemDetails != null)
+    {
+        <h1>@ItemDetails.Name</h1>
+    }
 
-
-    <FluentTabs ActiveTabId="item-details" Id="item-details-tabs">
+    <FluentTabs @bind-ActiveTabId="@activeid" OnTabChange="HandleOnTabChange" Id="item-details-tabs">
         <CascadingValue Value="this" Name="ItemTabs">
 
                 <FluentTab Id="item-details" Label="Details">
                     <Content>
                         <div class="item-details">
                             
-                            <SideImage ImagePaths=@ItemDetails.ImagePath Name=@ItemDetails.Name />
+                            <SideImage ImagePaths=@ItemDetails!.ImagePath Name=@ItemDetails.Name />
                             
-                            <StandardContent Title=@ItemDetails.Name Description=@ItemDetails.Description />
+                            <StandardContent Description=@ItemDetails.Description />
                         </div>
                     </Content>
                 </FluentTab>
@@ -94,4 +98,12 @@
     [Parameter]
     public Dictionary<string, GameIndexItem>? Locations { get; set; }
 
+        
+    string? activeid = "tab-3";
+    FluentTab? changedto;
+
+    private void HandleOnTabChange(FluentTab tab)
+    {
+        changedto = tab;
+    }
 }

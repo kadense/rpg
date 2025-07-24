@@ -1,22 +1,37 @@
 @rendermode InteractiveServer
 
-<FluentTabs ActiveTabId="character-details" Id="character-tabs">
+@if(CharacterDetails != null)
+{
+    <h1>@CharacterDetails.Name</h1>
+}
+<FluentTabs Id="character-tabs">
     <CascadingValue Value="this" Name="CharacterTabs">
         @if(GameDetails != null && CharacterDetails != null)
         {
-            <FluentTab Id="character-details-main" Label="@CharacterDetails.Name">
+            @if(CharacterDetails.Description != null)
+            {
+                <FluentTab Id="character-details-main" Label="Description">
+                    <Content>
+                        <div class="character-details">
+                            <PageTitle>@GameDetails.Name - @CharacterDetails.Name</PageTitle>
+
+                            <SideImage ImagePaths=@CharacterDetails.ImagePath Name=@CharacterDetails.Name />
+                            
+                            <StandardContent Description=@CharacterDetails.Description />
+
+                        </div>
+                    </Content>
+                </FluentTab>
+            }
+            @if(CharacterDetails.FactBasedSummary != null)
+            {
+                
+            <FluentTab Id="character-details-fbs" Label="Fact Based Summary">
                 <Content>
-                    <div class="character-details">
-                        <PageTitle>@GameDetails.Name - @CharacterDetails.Name</PageTitle>
-
-                        <SideImage ImagePaths=@CharacterDetails.ImagePath Name=@CharacterDetails.Name />
-                        
-                        <StandardContent Title=@CharacterDetails.Name Description=@CharacterDetails.Description />
-
-                        <StandardContent Title="Fact Based Summary" Description=@CharacterDetails.FactBasedSummary HeaderLevel="2" />
-                    </div>
+                    <StandardContent Title="Fact Based Summary" Description=@CharacterDetails.FactBasedSummary HeaderLevel="2" />
                 </Content>
             </FluentTab>
+            }
         }
 
         @if(Locations != null && Locations.Count() > 0)

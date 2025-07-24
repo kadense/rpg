@@ -25,11 +25,14 @@
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Games
             </NavLink>
         </div>
+        @if(userDetails != null)
+        {
         <div class="nav-item px-3 user-avatar">
             <NavLink class="nav-link" href="user">
                 <span class="bi" style="background-image: url('@userDetails!.Avatar')" aria-hidden="true"></span> @userDetails!.UserName
             </NavLink>
         </div>
+        }
     </nav>
 </div>
 

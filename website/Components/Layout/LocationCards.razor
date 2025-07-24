@@ -1,4 +1,5 @@
 @rendermode InteractiveServer
+@using Kadense.RPG.DataAccess;
 
 @if(Locations != null)
 {
@@ -18,4 +19,13 @@
 
     [Parameter]
     public string? GameId { get;set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(Locations == null)
+        {
+            var client = new DataConnectionClient();
+            Locations = await client.ReadGameLocationIndexAsync(GameId);
+        }
+    }
 }

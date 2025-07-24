@@ -1,0 +1,49 @@
+@page "/user"
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inherits OwningComponentBase
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h1>Your Account</h1>
+@if(userDetails != null)
+{
+    <table>
+        <tbody>
+            <tr>
+                <th>Discord Avatar</th>
+                <td><img src="@userDetails.Avatar" alt="@userDetails.UserName" /></td>
+            </tr>
+            <tr>
+                <th>Discord User Name</th>
+                <td>@userDetails.UserName</td>
+            </tr>
+            <tr>
+                <th>Discord User ID</th>
+                <td>@userDetails.Identifier</td>
+            </tr>
+            <tr>
+                <th>Email Address</th>
+                <td>@userDetails.Email</td>
+            </tr>
+            @if(userDetails.IsGlobalAdmin())
+            {
+                <tr>
+                    <th>Global Admin</th>
+                    <td>Yes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a href="/logout">Log out</a>
+}
+@code {
+    private UserModel? userDetails;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userService = ScopedServices.GetRequiredService<UserService>();
+
+        userDetails = await userService.GetUserModelAsync(AuthenticationStateProvider);
+    }
+}
