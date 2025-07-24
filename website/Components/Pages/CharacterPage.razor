@@ -1,37 +1,11 @@
 @page "/games/{GameId}/characters/{CharacterId}"
-@using Kadense.RPG.Website
 @using website.Components.Layout
+@using Kadense.RPG.DataAccess;
 
-<a href="/games/@GameId">&lt;&lt; Back to @GameDetails!.Name</a>
-
-<div class="character-details">
-@if(GameDetails != null && CharacterDetails != null)
+@if(GameDetails != null)
 {
-    <PageTitle>@GameDetails.Name - @CharacterDetails.Name</PageTitle>
-
-    <SideImage ImagePaths=@CharacterDetails.ImagePath Name=@CharacterDetails.Name />
-    
-    <Content Title=@CharacterDetails.Name Description=@CharacterDetails.Description />
-
-    <Content Title="Fact Based Summary" Description=@CharacterDetails.FactBasedSummary HeaderLevel="2" />
-}
-</div>
-
-@if(Locations != null && Locations.Count() > 0)
-{
-    <div class="locations">
-        <h2>Locations</h2>
-        <LocationCards GameId=@GameDetails!.Id Locations=@Locations />
-    </div>
-}
-
-
-@if(Items != null && Items.Count() > 0)
-{
-    <div class="game-items">
-        <h2>Items</h2>
-        <ItemCards GameId=@GameDetails.Id Items=@Items />
-    </div>
+    <a href="/games/@GameId">&lt;&lt; Back to @GameDetails!.Name</a>
+    <CharacterPageTabs GameDetails="@GameDetails" CharacterDetails="@CharacterDetails" Locations="@Locations" Items="@Items"  />
 }
 
 @code
@@ -43,19 +17,40 @@
     public string? CharacterId { get; set; }
 
     public Game? GameDetails { get; set; }
-
     public GameCharacter? CharacterDetails { get; set; }
-
-    public List<GameLocation> Locations { get; set; } = new List<GameLocation>();
-
-    public List<GameItem>? Items { get;set; }
+    public Dictionary<string, GameIndexItem>? Locations { get; set; }
+    public Dictionary<string, GameIndexItem>? Items { get;set; }
     
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        GameDetails = GamesExample.GetGames().Where(g => g.Id == GameId).First();
-        CharacterDetails = GameDetails.Characters.Where(c => c.Id == CharacterId).First();
-        Locations = GameDetails.GetLocationsForCharacter(CharacterId!);
-        Items = GameDetails.GetItemsForCharacter(CharacterId!);
-        return Task.CompletedTask;
+        var client = new DataConnectionClient();
+        GameDetails = await client.ReadGameAsync(GameId!);
+        CharacterDetails = await client.ReadGameCharacterAsync(GameId!, CharacterId!);
+        var locationIds = GameDetails!.GetLocationsForCharacter(CharacterId!);
+        
+        var locationsIndex = await client.ReadGameLocationIndexAsync(GameId!);
+        foreach(var key in locationsIndex.Keys)
+        {
+            if(!locationIds.Contains(key))
+            {
+                locationsIndex.Remove(key);
+            }
+        }
+
+        Locations = locationsIndex;
+
+        var itemIds = GameDetails.GetItemsForCharacter(CharacterId!);
+        
+        var itemIndex = await client.ReadGameItemIndexAsync(GameId!);
+        foreach(var key in itemIndex.Keys)
+        {
+            if(!itemIds.Contains(key))
+            {
+                itemIndex.Remove(key);
+            }
+        }
+
+        Items = itemIndex;
+        StateHasChanged();
     }
 }

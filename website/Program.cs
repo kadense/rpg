@@ -8,8 +8,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-
+using Kadense.RPG.DataAccess;
 using website.Components;
+using System.Data.Common;
+using Microsoft.FluentUI.AspNetCore.Components;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,8 +29,8 @@ builder.Services.AddAuthentication(opts =>
     opts.ClientSecret = Environment.GetEnvironmentVariable("DISCORD_CLIENT_SECRET")!;
     opts.CallbackPath = "/discord-callback";
     opts.SaveTokens = true;
-    
-    
+
+
     opts.CorrelationCookie.SameSite = SameSiteMode.Lax;
     opts.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
 
@@ -38,13 +41,19 @@ builder.Services.AddAuthentication(opts =>
             user.GetString("id"),
             user.GetString("avatar"),
             user.GetString("avatar")!.StartsWith("a_") ? "gif" : "png"));
-    
+
     opts.Scope.Add("identify");
     opts.Scope.Add("email");
 });
 builder.Services.AddAuthorization();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddHttpClient();
+builder.Services.AddFluentUIComponents(opts =>
+{
+    opts.ValidateClassNames = false;
+});
 
 var app = builder.Build();
 
@@ -56,29 +65,40 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 app.UseHttpsRedirection();
-app.MapGet($"/static/{{gameId}}/{{*filePath}}", async (HttpContext context) =>
+app.MapGet($"/api/v1/game/{{gameId}}", async (HttpContext context) =>
+{
+    var gameId = context.Request.RouteValues["gameId"]?.ToString();
+    var game = new GamesFactory().EndGames().Where(g => g.Id == gameId).First();
+    var client = new DataConnectionClient();
+    await client.WriteGameAsync(game);
+    foreach (var location in game.Locations)
+    {
+        await client.WriteGameLocationAsync(game.Id, location);
+    }
+    foreach (var character in game.Characters)
+    {
+        await client.WriteGameCharacterAsync(game.Id, character);
+    }
+    foreach (var item in game.Items)
+    {
+        await client.WriteGameItemAsync(game.Id, item);
+    }
+});
+app.MapGet($"/assets/{{gameId}}/{{*filePath}}", async (HttpContext context) =>
 {
     var gameId = context.Request.RouteValues["gameId"]?.ToString();
     var filePath = context.Request.RouteValues["filePath"]?.ToString();
-
-    var client = new BlobClient(
-        Environment.GetEnvironmentVariable("STORAGE_ACCOUNT_CONNECTION_STRING")!,
-        "rpg",
-        $"{gameId}/{filePath}"
-    );
-
-    await client.GetParentBlobContainerClient().CreateIfNotExistsAsync(PublicAccessType.None);
-
-    var exists = await client.ExistsAsync(CancellationToken.None);
-    if (!exists)
+    var client = new DataConnectionClient();
+    var contentType = await client.ReadGameAssetContentTypeAsync(gameId!, filePath!);
+    if (contentType == null)
+    {
         context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-
-    var properties = await client.GetPropertiesAsync();
-    var contentType = properties.Value.ContentType;
+        return;
+    }
 
     context.Response.ContentType = contentType;
     context.Response.StatusCode = 200;
-    var fileContent = await client.DownloadToAsync(context.Response.Body);
+    await client.ReadGameAssetToStreamAsync(gameId!, filePath!, context.Response.Body);
 });
 app.UseStaticFiles();
 app.UseAntiforgery();

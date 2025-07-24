@@ -1,0 +1,62 @@
+@rendermode InteractiveServer
+
+<FluentTabs ActiveTabId="character-details" Id="character-tabs">
+    <CascadingValue Value="this" Name="CharacterTabs">
+        @if(GameDetails != null && CharacterDetails != null)
+        {
+            <FluentTab Id="character-details-main" Label="@CharacterDetails.Name">
+                <Content>
+                    <div class="character-details">
+                        <PageTitle>@GameDetails.Name - @CharacterDetails.Name</PageTitle>
+
+                        <SideImage ImagePaths=@CharacterDetails.ImagePath Name=@CharacterDetails.Name />
+                        
+                        <StandardContent Title=@CharacterDetails.Name Description=@CharacterDetails.Description />
+
+                        <StandardContent Title="Fact Based Summary" Description=@CharacterDetails.FactBasedSummary HeaderLevel="2" />
+                    </div>
+                </Content>
+            </FluentTab>
+        }
+
+        @if(Locations != null && Locations.Count() > 0)
+        {
+            <FluentTab Id="character-locations" Label="Locations">
+                <Content>
+                    <div class="locations">
+                        <h2>Locations</h2>
+                        <LocationCards GameId=@GameDetails!.Id Locations=@Locations />
+                    </div>
+                </Content>
+            </FluentTab>
+        }
+
+
+        @if(Items != null && Items.Count() > 0)
+        {
+            <FluentTab Id="character-game-items" Label="Items">
+                <Content>
+                    <div class="game-items">
+                        <h2>Items</h2>
+                        <ItemCards GameId=@GameDetails!.Id Items=@Items />
+                    </div>
+                </Content>
+            </FluentTab>
+        }
+    </CascadingValue>
+</FluentTabs>
+
+@code 
+{
+    [Parameter]
+    public Game? GameDetails { get; set; }
+    
+    [Parameter]
+    public GameCharacter? CharacterDetails { get; set; }
+    
+    [Parameter]
+    public Dictionary<string, GameIndexItem>? Locations { get; set; }
+    
+    [Parameter]
+    public Dictionary<string, GameIndexItem>? Items { get;set; }
+}

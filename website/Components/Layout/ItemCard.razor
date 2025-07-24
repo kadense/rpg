@@ -1,26 +1,24 @@
-@rendermode InteractiveServer
-
 <div class="game-item-card">
 
     @if(ItemDetails != null)
     {
-        @if(ImagePath != null)
+        @if(ItemDetails.ImagePath != null)
         {
             <div class="image">
-                <a href="/games/@GameId/items/@ItemDetails.Id"><img alt="@ItemDetails.Name" src="@ImagePath" /></a>
+                <a href="/games/@GameId/items/@ItemId"><img alt="@ItemDetails.Name" src="@ItemDetails.ImagePath" /></a>
             </div>
         }
         else
         {
             <div class="image">
-                <a href="/games/@GameId/items/@ItemDetails.Id"><img alt="@ItemDetails.Name" src="/static/placeholder-item.png" /></a>
+                <a href="/games/@GameId/items/@ItemId"><img alt="@ItemDetails.Name" src="/static/placeholder-item.png" /></a>
             </div>
         }
         <div class="title">
-            <a href="/games/@GameId/items/@ItemDetails.Id">@ItemDetails.Name</a>
+            <a href="/games/@GameId/items/@ItemId">@ItemDetails.Name</a>
         </div>
         <div class="nav-menu">
-            <a href="/games/@GameId/items/@ItemDetails.Id">See more..</a>
+            <a href="/games/@GameId/items/@ItemId">See more..</a>
         </div>            
     }
 
@@ -28,18 +26,11 @@
 
 @code {
     [Parameter]
-    public GameItem? ItemDetails { get; set; }
+    public string? ItemId { get; set; }
+
+    [Parameter]
+    public GameIndexItem? ItemDetails { get; set; }
 
     [Parameter]
     public string? GameId { get;set; }
-
-    public string? ImagePath { get; set; }
-
-    protected override Task OnInitializedAsync()
-    {
-        if(ItemDetails!.ImagePath.Count() > 0)
-            ImagePath = ItemDetails.ImagePath.First();
-
-        return Task.CompletedTask;
-    }
-}
+ }

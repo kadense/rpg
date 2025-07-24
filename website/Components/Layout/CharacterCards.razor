@@ -3,16 +3,18 @@
 @if(Characters != null)
 {
     <div class="character-cards">
-        @foreach(var character in Characters)
+        @foreach(var character in Characters.ToList().Where(i => i.Value.Name.ToLowerInvariant().Contains(SearchTerm.ToLowerInvariant())).OrderBy(i => i.Value.Name))
         {
-            <CharacterCard Character=@character GameId=@GameId />
+            <CharacterCard Character=@character.Value GameId=@GameId CharacterId=@character.Key />
         }
     </div>
 }
 @code {
     [Parameter]
-    public List<GameCharacter>? Characters { get; set; }
+    public Dictionary<string, GameIndexItem>? Characters { get; set; }
         
+    [Parameter]
+    public string SearchTerm { get; set; } = "";
 
     [Parameter]
     public string? GameId { get;set; }

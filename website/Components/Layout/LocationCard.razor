@@ -4,23 +4,23 @@
 
     @if(LocationDetails != null)
     {
-        @if(ImagePath != null)
+        @if(LocationDetails.ImagePath != null)
         {
             <div class="image">
-                <a href="/games/@GameId/locations/@LocationDetails.Id"><img alt="@LocationDetails.Name" src="@ImagePath" /></a>
+                <a href="/games/@GameId/locations/@LocationId"><img alt="@LocationDetails.Name" src="@LocationDetails.ImagePath" /></a>
             </div>
         }
         else
         {
             <div class="image">
-                <a href="/games/@GameId/items/@LocationDetails.Id"><img alt="@LocationDetails.Name" src="/static/placeholder-location.png" /></a>
+                <a href="/games/@GameId/items/@LocationId"><img alt="@LocationDetails.Name" src="/static/placeholder-location.png" /></a>
             </div>
         }
         <div class="title">
-            <a href="/games/@GameId/locations/@LocationDetails.Id">@LocationDetails.Name</a>
+            <a href="/games/@GameId/locations/@LocationId">@LocationDetails.Name</a>
         </div>
         <div class="nav-menu">
-            <a href="/games/@GameId/locations/@LocationDetails.Id">See more..</a>
+            <a href="/games/@GameId/locations/@LocationId">See more..</a>
         </div>            
     }
 
@@ -28,18 +28,12 @@
 
 @code {
     [Parameter]
-    public GameLocation? LocationDetails { get; set; }
+    public string? LocationId { get; set; }
+
+    [Parameter]
+    public GameIndexItem? LocationDetails { get; set; }
 
     [Parameter]
     public string? GameId { get;set; }
 
-    public string? ImagePath { get; set; }
-
-    protected override Task OnInitializedAsync()
-    {
-        if(LocationDetails!.ImagePath.Count() > 0)
-            ImagePath = LocationDetails.ImagePath.First();
-
-        return Task.CompletedTask;
-    }
 }

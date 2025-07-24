@@ -1,0 +1,85 @@
+@if(GameDetails != null && LocationDetails != null)
+{
+    <PageTitle>@GameDetails.Name - @LocationDetails.Name</PageTitle>
+
+    <FluentTabs ActiveTabId="location-details" Id="location-page-tabs">
+        <CascadingValue Value="this" Name="LocationTabs">
+
+            @if(GameDetails != null && LocationDetails != null)
+            {
+                <FluentTab Id="location-details" Label="Details">
+                    <Content>
+                        <div class="location-details">
+
+                            
+                            <SideImage ImagePaths=@LocationDetails.ImagePath Name=@LocationDetails.Name />
+
+                            <StandardContent Title=@LocationDetails.Name Description=@LocationDetails.Description />
+                        </div>
+                    </Content>
+                </FluentTab>
+
+                @foreach(var area in LocationDetails.Areas)
+                {
+                    
+                    <FluentTab Id="@($"area-{area.Id}")" Label="@area.Name">
+                        <Content>
+                            <div class="location-area-details">
+
+                                <SideImage ImagePaths=@area.ImagePath Name=@area.Name />
+
+                                <StandardContent HeaderLevel=2 Title=@area.Name Description=@area.Description />
+
+                            </div>
+                        </Content>
+                    </FluentTab> 
+                }
+            }
+
+
+                
+            @if(Characters != null && Characters.Count() > 0)
+            {
+                <FluentTab Id="location-characters" Label="Characters">
+                    <Content>
+                        <div class="characters">
+                            <h2>Characters</h2>
+                            <CharacterCards GameId=@GameDetails!.Id Characters=@Characters />
+                        </div>
+                    </Content>
+                </FluentTab>
+            }
+
+
+            @if(Items != null && Items.Count() > 0)
+            {
+                <FluentTab Id="location-items" Label="Items">
+                    <Content>
+                        <div class="game-items">
+                            <h2>Items</h2>
+                            <ItemCards GameId=@GameDetails!.Id Items=@Items />
+                        </div>
+                    </Content>
+                </FluentTab>
+            }
+        </CascadingValue>
+    </FluentTabs>
+
+}
+
+@code 
+{
+
+    [Parameter]
+    public Game? GameDetails { get; set; }
+
+    [Parameter]
+    public GameLocation? LocationDetails { get; set; }
+
+    [Parameter]
+    public Dictionary<string, GameIndexItem>? Characters { get; set; }
+
+    [Parameter]
+    public Dictionary<string, GameIndexItem>? Items { get;set; }
+
+}

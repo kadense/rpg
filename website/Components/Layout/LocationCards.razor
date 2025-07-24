@@ -3,15 +3,18 @@
 @if(Locations != null)
 {
     <div class="location-cards">
-        @foreach(var location in Locations)
+        @foreach(var location in Locations.ToList().Where(i => i.Value.Name.ToLowerInvariant().Contains(SearchTerm.ToLowerInvariant())).OrderBy(i => i.Value.Name))
         {
-            <LocationCard GameId=@GameId LocationDetails=@location />
+            <LocationCard GameId=@GameId LocationDetails=@location.Value LocationId=@location.Key />
         }
     </div>
 }
 @code {
     [Parameter]
-    public List<GameLocation>? Locations { get; set; }
+    public Dictionary<string, GameIndexItem>? Locations { get; set; }
+
+    [Parameter]
+    public string SearchTerm { get; set; } = string.Empty;
 
     [Parameter]
     public string? GameId { get;set; }

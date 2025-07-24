@@ -3,54 +3,55 @@
 <div class="character-card">
     @if(Character != null)
     {
-        @if(ImagePath != null)
+        @if(Character.ImagePath != null)
         {
             <div class="image">
-                <a href="/games/@GameId/characters/@Character.Id"><img alt="@Character.Name" src="@ImagePath" /></a>
+                <a href="/games/@GameId/characters/@CharacterId"><img alt="@Character.Name" src="@Character.ImagePath" /></a>
             </div>
         } 
-        else if(Character.Pronouns == "She/Her")
+        else if(Character.AdditionalInformation == "She/Her")
         {
             <div class="image">
-                <a href="/games/@GameId/characters/@Character.Id"><img alt="@Character.Name" src="/static/placeholder-her.png" /></a>
+                <a href="/games/@GameId/characters/@CharacterId"><img alt="@Character.Name" src="/static/placeholder-her.png" /></a>
             </div>
         }
         else
         {
             <div class="image">
-                <a href="/games/@GameId/characters/@Character.Id"><img alt="@Character.Name" src="/static/placeholder-him.png" /></a>
+                <a href="/games/@GameId/characters/@CharacterId"><img alt="@Character.Name" src="/static/placeholder-him.png" /></a>
             </div>
         }
         <div class="title">
-            <a href="/games/@GameId/characters/@Character.Id">@Character.Name</a>
+            <a href="/games/@GameId/characters/@CharacterId">@Character.Name</a>
         </div>
-        @if(Character.Pronouns != null)
+        @if(Character.AdditionalInformation != null)
         {
             <div class="pronouns">
-                @Character.Pronouns
+                @Character.AdditionalInformation
             </div>
         }
     
         <div class="nav-menu">
-            <a href="/games/@GameId/characters/@Character.Id">See more..</a>
+            <a href="/games/@GameId/characters/@CharacterId">See more..</a>
         </div>
     }
 </div>
 
 @code {
+    
+    @inject NavigationManager NavigationManager;
+
+    private void HandleClick(string path)
+    {
+        NavigationManager.NavigateTo(path, true);
+    }
+
     [Parameter]
-    public GameCharacter? Character { get; set; }      
+    public string? CharacterId { get; set; }
+
+    [Parameter]
+    public GameIndexItem? Character { get; set; }      
 
     [Parameter]
     public string? GameId { get;set; }
-
-    public string? ImagePath { get; set; } 
-
-    protected override Task OnInitializedAsync()
-    {
-        if(Character!.ImagePath.Count() > 0)
-            ImagePath = Character.ImagePath.First();
-
-        return Task.CompletedTask;
-    }
 }

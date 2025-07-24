@@ -1,17 +1,17 @@
 @page "/games"
-@using Kadense.RPG.Website
 @using website.Components.Layout;
+@using Kadense.RPG.DataAccess;
 
 <div class="games-list">
     <GameCards Games=@Games />
 </div>
 
 @code {
-    public List<Game>? Games { get; set; }
+    public Dictionary<string, GameIndexItem>? Games { get; set; }
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        Games = GamesExample.GetGames();
-        return Task.CompletedTask;
+        var client = new DataConnectionClient();
+        Games = await client.ReadGameIndexAsync();
     }
-}
+}    

@@ -3,13 +3,13 @@
 @if(Games != null)
 {
     <div class="game-cards">
-        @foreach(var game in Games)
+        @foreach(var game in Games.ToList().OrderBy(i => i.Value.Name))
         {
-            <GameCard GameDetails=@game />
+            <GameCard GameDetails=@game.Value GameId=@game.Key />
         }
     </div>
 }
 @code {
     [Parameter]
-    public List<Game>? Games { get; set; }
+    public Dictionary<string, GameIndexItem>? Games { get; set; }
 }

@@ -11,16 +11,19 @@
             </div>
         }
         <div class="title">
-            <a href="/games/@GameDetails.Id">@GameDetails.Name</a>
+            <a href="/games/@GameId">@GameDetails.Name</a>
         </div>
         <div class="nav-menu">
-            <a href="/games/@GameDetails.Id">See more..</a>
+            <a href="/games/@GameId">See more..</a>
         </div>            
     }
 
 </div>
 
 @code {
+
     [Parameter]
-    public Game? GameDetails { get; set; }
+    public string? GameId { get; set; }
+    [Parameter]
+    public GameIndexItem? GameDetails { get; set; }
 }
